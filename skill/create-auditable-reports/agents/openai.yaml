@@ -1,4 +1,4 @@
 interface:
   display_name: "Create Auditable Reports"
-  short_description: "Build auditable interactive and print reports"
+  short_description: "Build auditable HTML, charts, and paged reports"
   default_prompt: "Use $create-auditable-reports to turn these source files into an evidence-backed interactive report and a print-ready edition."

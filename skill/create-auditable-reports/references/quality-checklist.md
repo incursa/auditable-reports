@@ -24,6 +24,7 @@
 - Titles are neutral and subtitles state scope, units, or comparison basis.
 - No redundant color encoding or misleading scale is used.
 - Every chart has an adjacent explanatory paragraph.
+- Chart.js print captures use fixed dimensions, disabled animation, blocked remote requests, and a text alternative.
 - Tables use readable labels and reserve signed coloring for movement columns.
 - The semantic chart table remains useful when browser chart rendering is unavailable.
 
@@ -41,6 +42,7 @@
 - The interactive HTML is self-contained and not edited by hand.
 - Renderer verification is `passed` or the `structural_only` limitation is disclosed.
 - The optional print HTML contains no scripts, dialogs, buttons, tooltips, or expandable controls.
+- When charts are present, `report_charted.html` contains one embedded image per artifact chart and retains each exact-value semantic table.
 - The print page uses readable page size, margins, table headers, and page breaks.
 - CSS Paged Media defines a running title, `Page X of Y`, and explicit break utilities.
 - Paged.js pagination runs with the pinned version and remote resources blocked unless reviewed assets require them.

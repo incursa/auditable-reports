@@ -1,6 +1,6 @@
 ---
 name: create-auditable-reports
-description: Create evidence-backed analytical reports as self-contained interactive HTML, with optional Paged.js paginated HTML and PDF editions. Use when Codex needs to turn spreadsheets, CSV files, database queries, extracts, or reviewed analytical results into a durable executive or technical report with an answer-first narrative, metric cards, charts, audit tables, caveats, recommendations, page-ready output, and traceable source metadata; also use when revising or reproducing reports built from the canonical Data Analytics artifact format.
+description: Create evidence-backed analytical reports as self-contained interactive HTML, with optional Chart.js print visuals and Paged.js paginated HTML/PDF editions. Use when Codex needs to turn spreadsheets, CSV files, database queries, extracts, or reviewed analytical results into a durable executive or technical report with an answer-first narrative, metric cards, charts, audit tables, caveats, recommendations, page-ready output, and traceable source metadata; also use when revising or reproducing reports built from the canonical Data Analytics artifact format.
 ---
 
 # Create Auditable Reports
@@ -55,21 +55,27 @@ py scripts/build_print_report.py --input path\to\report.html --output path\to\re
 
 The print source must contain no scripts, dialogs, buttons, tooltip elements, or expandable controls. It defaults to Letter landscape, includes static sources, and defines CSS Paged Media rules for running headers, page numbers, and controlled breaks.
 
-Then use pinned Paged.js to create a browser-previewable paginated HTML file or PDF:
+When the artifact contains a supported chart, read [chartjs-visuals.md](references/chartjs-visuals.md), then use pinned Chart.js to materialize it into the script-free print source:
 
 ```powershell
-py scripts/render_paged_output.py --input path\to\report_print.html --output path\to\report_paged.html
-py scripts/render_paged_output.py --input path\to\report_print.html --output path\to\report.pdf
+py scripts/render_chartjs_output.py --artifact path\to\artifact.json --input path\to\report_print.html --output path\to\report_charted.html
 ```
 
-Run `npm install` at the repository root once to install pinned Paged.js and browser-control dependencies. The wrapper locates installed Chrome or Edge, blocks remote requests by default, and does not modify the interactive report. Use `--allow-remote` only when reviewed report assets genuinely require it.
+Then use pinned Paged.js to create a browser-previewable paginated HTML file or PDF. Use `report_charted.html` when it exists; otherwise use `report_print.html`:
+
+```powershell
+py scripts/render_paged_output.py --input path\to\report_charted.html --output path\to\report_paged.html
+py scripts/render_paged_output.py --input path\to\report_charted.html --output path\to\report.pdf
+```
+
+Run `npm install` at the repository root once to install pinned Chart.js, Paged.js, and browser-control dependencies. Both wrappers locate installed Chrome or Edge and do not modify the interactive report. The Chart.js stage always blocks remote requests. Paged.js blocks them by default; use `--allow-remote` only when reviewed report assets genuinely require it.
 
 ## Validate and hand off
 
 Run:
 
 ```powershell
-py scripts/check_report.py --artifact path\to\artifact.json --html path\to\report.html --print-html path\to\report_print.html --paged-html path\to\report_paged.html --pdf path\to\report.pdf
+py scripts/check_report.py --artifact path\to\artifact.json --html path\to\report.html --print-html path\to\report_print.html --charted-html path\to\report_charted.html --paged-html path\to\report_paged.html --pdf path\to\report.pdf
 ```
 
 Apply [quality-checklist.md](references/quality-checklist.md). Treat the renderer receipt as the HTML structural/browser result. If it reports `structural_only`, keep the semantic chart table and disclose that compatible Chromium was unavailable.
@@ -90,8 +96,9 @@ The copied files are synthetic placeholders. Replace them before presenting the 
 
 - `references/report-workflow.md`: end-to-end workflow and folder conventions
 - `references/artifact-authoring.md`: canonical artifact patterns and examples
+- `references/chartjs-visuals.md`: supported Chart.js print forms and deterministic capture rules
 - `references/quality-checklist.md`: pre-handoff validation checklist
 - `references/sample-prompts.md`: reusable request patterns
 - `assets/starter/`: synthetic starter artifact, data, brief, and source notes
-- `assets/examples/project-health/`: rendered interactive and print examples
-- `scripts/`: deterministic scaffolding, rendering, print extraction, Paged.js pagination, and validation tools
+- `assets/examples/project-health/`: rendered interactive, Chart.js, and paginated print examples
+- `scripts/`: deterministic scaffolding, rendering, print extraction, Chart.js materialization, Paged.js pagination, and validation tools

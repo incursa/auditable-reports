@@ -23,6 +23,7 @@ report-name/
   artifact.json
   report.html
   report_print.html        # only when requested
+  report_charted.html      # generated when print output contains charts
   source_notes.md
   queries/
   data/
@@ -86,7 +87,7 @@ Avoid charts when the dataset is too sparse to show a trustworthy pattern. Use a
 
 Copy `assets/starter/` or run `scripts/new_report.py`. Replace the synthetic brief, data, artifact content, and source metadata. Then render with `scripts/render_report.py`.
 
-When paginated output is requested, create the script-free source with `scripts/build_print_report.py`, then run `scripts/render_paged_output.py` for paginated HTML preview or PDF. Paged.js owns pagination, running matter, page counters, and CSS break behavior; it does not own report semantics or evidence.
+When paginated output is requested, create the script-free source with `scripts/build_print_report.py`. If the artifact contains supported charts, materialize them with `scripts/render_chartjs_output.py` and retain the semantic tables. Then run `scripts/render_paged_output.py` for paginated HTML preview or PDF. Chart.js owns only build-time visual materialization. Paged.js owns pagination, running matter, page counters, and CSS break behavior. Neither owns report semantics or evidence.
 
 The renderer owns the shared interactive reader, responsive layout, source affordances, semantic fallback, and visual styles. Do not patch those into the generated page manually.
 

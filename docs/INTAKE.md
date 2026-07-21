@@ -52,3 +52,7 @@ The archive was imported without changing its package files. Repository-level do
 Paged.js 0.4.3 was added after intake as the pinned pagination engine. The original archive remains preserved under `skill/create-auditable-reports/` except for intentional follow-up changes to its instructions, print CSS, validation, and scripts.
 
 The updated print path keeps `report_print.html` script-free, adds CSS Paged Media running matter and break rules, and uses `render_paged_output.py` for paginated HTML or PDF. Remote requests are blocked by default.
+
+## Post-intake Chart.js baseline
+
+Chart.js 4.5.1 was added after intake as a pinned build-time visualization adapter. It reads the existing artifact chart definitions, renders supported charts in a controlled local browser with animation disabled, and embeds PNG output in `report_charted.html`. The existing semantic data table remains immediately after each chart for exact lookup and accessibility. `report_charted.html` stays script-free and becomes the preferred Paged.js input when the artifact contains charts.

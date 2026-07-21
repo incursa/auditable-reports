@@ -16,6 +16,7 @@ quarterly-health/
   artifact.json           generated and reviewable
   report.html             generated
   report_print.html       script-free pagination source, generated when requested
+  report_charted.html     embedded Chart.js visuals, generated when charts are present
   report_paged.html       Paged.js preview, generated when requested
   report.pdf              Paged.js PDF, generated when requested
 ```
@@ -49,7 +50,7 @@ id: variance-by-project
 :::
 ```
 
-The compiler would resolve the directives and citations against structured definitions, enforce the evidence rules, and emit the existing canonical artifact. The interactive renderer would remain unchanged. When print output is requested, the generated print source would pass through Paged.js for paginated preview or PDF.
+The compiler would resolve the directives and citations against structured definitions, enforce the evidence rules, and emit the existing canonical artifact. The interactive renderer would remain unchanged. When print output is requested, selected artifact charts would be materialized by Chart.js before the generated source passes through Paged.js for paginated preview or PDF.
 
 ## Why not plain Markdown or MDX
 

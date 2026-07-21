@@ -17,6 +17,12 @@ human-friendly source (future)
            +--> report_print.html (optional, script-free pagination source)
                         |
                         v
+                 Chart.js 4.5.1
+                        |
+                        v
+                 report_charted.html (embedded static charts)
+                        |
+                        v
                  Paged.js 0.4.3
                         |
                         +--> report_paged.html
@@ -37,7 +43,7 @@ This package owns an artifact contract, executable tooling, fixtures, validation
 - `docs/INTAKE.md` — archive provenance, inventory, validation evidence, and identified gaps.
 - `docs/decisions/` — durable architectural decisions.
 - `scripts/Test-Repository.ps1` — local repository validation.
-- `package.json` and `package-lock.json` — pinned Paged.js browser-pagination tooling.
+- `package.json` and `package-lock.json` — pinned Chart.js visualization and Paged.js browser-pagination tooling.
 
 ## Quick start
 
@@ -78,16 +84,22 @@ py skill\create-auditable-reports\scripts\build_print_report.py `
   --input .work\quarterly-delivery-health\report.html `
   --output .work\quarterly-delivery-health\report_print.html
 
-py skill\create-auditable-reports\scripts\render_paged_output.py `
+py skill\create-auditable-reports\scripts\render_chartjs_output.py `
+  --artifact .work\quarterly-delivery-health\artifact.json `
   --input .work\quarterly-delivery-health\report_print.html `
+  --output .work\quarterly-delivery-health\report_charted.html
+
+py skill\create-auditable-reports\scripts\render_paged_output.py `
+  --input .work\quarterly-delivery-health\report_charted.html `
   --output .work\quarterly-delivery-health\report.pdf
 ```
 
-The same pagination command creates a browser preview when the output ends in `.html`. It uses installed Chrome or Edge and blocks remote requests by default.
+The Chart.js stage supports the initial `bar`, `line`, and `scatter` artifact forms and leaves the exact-value semantic table beside every embedded chart. If a report has no charts, pass `report_print.html` directly to Paged.js. The same pagination command creates a browser preview when the output ends in `.html`. Both browser-controlled stages use installed Chrome or Edge and block remote requests by default.
 
 ## Current boundaries
 
 - The interactive renderer is supplied by the installed Data Analytics plugin; this repo intentionally does not fork that runtime.
+- Chart.js 4.5.1 is the pinned build-time adapter for selected print visuals; it does not replace the interactive renderer, artifact, or semantic chart tables.
 - Paged.js 0.4.3 is the pinned print-pagination engine; it does not replace the interactive renderer or canonical artifact.
 - The project-health fixture is synthetic and must never be presented as operational evidence.
 - The artifact contract is documented but does not yet have a versioned JSON Schema.

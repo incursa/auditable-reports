@@ -25,12 +25,17 @@ node --check (Join-Path $skillRoot 'scripts\render_paged_output.mjs')
 if ($LASTEXITCODE -ne 0) {
     throw 'Paged.js renderer syntax check failed.'
 }
+node --check (Join-Path $skillRoot 'scripts\render_chartjs_output.mjs')
+if ($LASTEXITCODE -ne 0) {
+    throw 'Chart.js renderer syntax check failed.'
+}
 
 Write-Host 'Checking the shipped report fixture...'
 py (Join-Path $skillRoot 'scripts\check_report.py') `
     --artifact (Join-Path $exampleRoot 'artifact.json') `
     --html (Join-Path $exampleRoot 'report.html') `
     --print-html (Join-Path $exampleRoot 'report_print.html') `
+    --charted-html (Join-Path $exampleRoot 'report_charted.html') `
     --paged-html (Join-Path $exampleRoot 'report_paged.html') `
     --pdf (Join-Path $exampleRoot 'report.pdf')
 if ($LASTEXITCODE -ne 0) {
@@ -39,22 +44,31 @@ if ($LASTEXITCODE -ne 0) {
 
 $pagedJs = Join-Path $repoRoot 'node_modules\pagedjs'
 $puppeteerCore = Join-Path $repoRoot 'node_modules\puppeteer-core'
-if (-not (Test-Path -LiteralPath $pagedJs) -or -not (Test-Path -LiteralPath $puppeteerCore)) {
-    throw 'Paged.js dependencies are missing. Run npm install at the repository root.'
+$chartJs = Join-Path $repoRoot 'node_modules\chart.js'
+if (-not (Test-Path -LiteralPath $pagedJs) -or -not (Test-Path -LiteralPath $puppeteerCore) -or -not (Test-Path -LiteralPath $chartJs)) {
+    throw 'Chart.js/Paged.js dependencies are missing. Run npm install at the repository root.'
 }
 
-Write-Host 'Regenerating paginated HTML and PDF smoke outputs...'
+Write-Host 'Regenerating Chart.js, paginated HTML, and PDF smoke outputs...'
 $smokeRoot = Join-Path $repoRoot '.work\paged-smoke'
+$smokeCharted = Join-Path $smokeRoot 'report_charted.html'
 $smokeHtml = Join-Path $smokeRoot 'report_paged.html'
 $smokePdf = Join-Path $smokeRoot 'report.pdf'
-py (Join-Path $skillRoot 'scripts\render_paged_output.py') `
+py (Join-Path $skillRoot 'scripts\render_chartjs_output.py') `
+    --artifact (Join-Path $exampleRoot 'artifact.json') `
     --input (Join-Path $exampleRoot 'report_print.html') `
+    --output $smokeCharted
+if ($LASTEXITCODE -ne 0) {
+    throw 'Chart.js HTML smoke render failed.'
+}
+py (Join-Path $skillRoot 'scripts\render_paged_output.py') `
+    --input $smokeCharted `
     --output $smokeHtml
 if ($LASTEXITCODE -ne 0) {
     throw 'Paged.js HTML smoke render failed.'
 }
 py (Join-Path $skillRoot 'scripts\render_paged_output.py') `
-    --input (Join-Path $exampleRoot 'report_print.html') `
+    --input $smokeCharted `
     --output $smokePdf
 if ($LASTEXITCODE -ne 0) {
     throw 'Paged.js PDF smoke render failed.'
@@ -63,10 +77,16 @@ py (Join-Path $skillRoot 'scripts\check_report.py') `
     --artifact (Join-Path $exampleRoot 'artifact.json') `
     --html (Join-Path $exampleRoot 'report.html') `
     --print-html (Join-Path $exampleRoot 'report_print.html') `
+    --charted-html $smokeCharted `
     --paged-html $smokeHtml `
     --pdf $smokePdf
 if ($LASTEXITCODE -ne 0) {
     throw 'Regenerated Paged.js output validation failed.'
+}
+$fixtureChartedHash = (Get-FileHash -Algorithm SHA256 -LiteralPath (Join-Path $exampleRoot 'report_charted.html')).Hash
+$smokeChartedHash = (Get-FileHash -Algorithm SHA256 -LiteralPath $smokeCharted).Hash
+if ($fixtureChartedHash -ne $smokeChartedHash) {
+    throw 'Chart.js HTML is not deterministic in the validated browser environment.'
 }
 $fixturePagedHash = (Get-FileHash -Algorithm SHA256 -LiteralPath (Join-Path $exampleRoot 'report_paged.html')).Hash
 $smokePagedHash = (Get-FileHash -Algorithm SHA256 -LiteralPath $smokeHtml).Hash

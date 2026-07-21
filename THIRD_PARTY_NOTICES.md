@@ -1,5 +1,15 @@
 # Third-party notices
 
+## Chart.js
+
+- Package: `chart.js`
+- Version: 4.5.1
+- Project: https://www.chartjs.org/
+- Source: https://github.com/chartjs/Chart.js
+- License: MIT
+
+Chart.js is used at build time to turn selected artifact chart definitions into embedded PNG images for script-free print and paginated editions. Exact values remain available in the adjacent semantic tables.
+
 ## Paged.js
 
 - Package: `pagedjs`

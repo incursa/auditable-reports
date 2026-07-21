@@ -104,11 +104,42 @@ async function main() {
         throw new Error("Paged.js polyfill did not initialize.");
       }
       const flow = await window.PagedPolyfill.preview();
-      return { pages: flow.total };
+      const title = document.querySelector(".portable-page-header h1")?.textContent?.trim();
+      if (!title) {
+        throw new Error("The paginated report lacks a running-title source.");
+      }
+      const pages = [...document.querySelectorAll(".pagedjs_page")];
+      const runningStyle = document.createElement("style");
+      runningStyle.dataset.auditableRunningTitle = "true";
+      runningStyle.textContent = `
+.pagedjs_page.auditable-running-title-set .pagedjs_margin-top-left>.pagedjs_margin-content::after{content:none!important}
+.auditable-running-title{display:block;color:#5b6570;font-size:8pt;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+`;
+      document.head.append(runningStyle);
+      pages.slice(1).forEach((pagedPage) => {
+        const margin = pagedPage.querySelector(
+          ".pagedjs_margin-top-left > .pagedjs_margin-content",
+        );
+        if (!margin) {
+          throw new Error("Paged.js output lacks a top-left margin box.");
+        }
+        margin.replaceChildren();
+        const label = document.createElement("span");
+        label.className = "auditable-running-title";
+        label.textContent = title;
+        margin.append(label);
+        pagedPage.classList.add("auditable-running-title-set");
+      });
+      return { pages: flow.total, runningTitles: Math.max(0, pages.length - 1) };
     });
 
     if (!Number.isInteger(result.pages) || result.pages < 1) {
       throw new Error(`Paged.js returned an invalid page count: ${result.pages}`);
+    }
+    if (result.runningTitles !== Math.max(0, result.pages - 1)) {
+      throw new Error(
+        `Paged.js running-title count mismatch: ${result.runningTitles} for ${result.pages} pages.`,
+      );
     }
 
     if (extension === ".html") {

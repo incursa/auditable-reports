@@ -17,6 +17,7 @@ def main() -> int:
     parser.add_argument("--artifact", required=True)
     parser.add_argument("--html", required=True)
     parser.add_argument("--print-html")
+    parser.add_argument("--charted-html")
     parser.add_argument("--paged-html")
     parser.add_argument("--pdf")
     args = parser.parse_args()
@@ -78,6 +79,35 @@ def main() -> int:
             require(".avoid-break" in printable, "print HTML lacks the avoid-break utility", errors)
             require(manifest.get("title", "") in printable, "print HTML does not contain the report title", errors)
 
+    if args.charted_html:
+        charted_path = Path(args.charted_html).expanduser().resolve()
+        require(charted_path.is_file(), f"Missing Chart.js HTML: {charted_path}", errors)
+        if charted_path.is_file():
+            charted = charted_path.read_text(encoding="utf-8")
+            chart_count = len(manifest.get("charts", []))
+            materialized_count = len(
+                re.findall(r"data-chartjs-materialized=[\"']4\.5\.1[\"']", charted, flags=re.I)
+            )
+            require(chart_count > 0, "Chart.js HTML requested for an artifact with no charts", errors)
+            require(
+                materialized_count >= chart_count,
+                f"Chart.js HTML materialized {materialized_count} marker(s) for {chart_count} chart(s)",
+                errors,
+            )
+            require(
+                len(re.findall(r"data:image/png;base64,", charted, flags=re.I)) == chart_count,
+                "Chart.js HTML does not contain exactly one embedded PNG per artifact chart",
+                errors,
+            )
+            require(not re.search(r"<script\b", charted, flags=re.I), "Chart.js HTML contains a script", errors)
+            require(
+                bool(re.search(r"<img\b[^>]*role=[\"']img[\"'][^>]*alt=[\"'][^\"']+", charted, flags=re.I)),
+                "Chart.js HTML lacks an image role and text alternative",
+                errors,
+            )
+            require("<table" in charted.lower(), "Chart.js HTML lacks a semantic data table", errors)
+            require(manifest.get("title", "") in charted, "Chart.js HTML does not contain the report title", errors)
+
     if args.paged_html:
         paged_path = Path(args.paged_html).expanduser().resolve()
         require(paged_path.is_file(), f"Missing paginated HTML: {paged_path}", errors)
@@ -85,6 +115,14 @@ def main() -> int:
             paged = paged_path.read_text(encoding="utf-8")
             require("pagedjs_pages" in paged, "paginated HTML lacks Paged.js page output", errors)
             require("pagedjs_page" in paged, "paginated HTML lacks Paged.js page elements", errors)
+            page_count = len(re.findall(r'class=["\'][^"\']*\bpagedjs_page\b', paged, flags=re.I))
+            running_title_count = len(re.findall(r'class=["\']auditable-running-title["\']', paged, flags=re.I))
+            require(page_count > 0, "paginated HTML has no countable page elements", errors)
+            require(
+                running_title_count == max(0, page_count - 1),
+                f"paginated HTML has {running_title_count} running titles for {page_count} pages",
+                errors,
+            )
             require(not re.search(r"<script\b", paged, flags=re.I), "paginated HTML contains a script", errors)
             require(manifest.get("title", "") in paged, "paginated HTML does not contain the report title", errors)
 
@@ -101,7 +139,7 @@ def main() -> int:
             print(f"FAIL: {error}")
         return 1
 
-    print("PASS: artifact, interactive HTML, and requested print/Paged.js checks succeeded")
+    print("PASS: artifact, interactive HTML, and requested Chart.js/print/Paged.js checks succeeded")
     return 0
 
 
