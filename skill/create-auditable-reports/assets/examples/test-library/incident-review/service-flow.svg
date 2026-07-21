@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="560" viewBox="0 0 1200 560" role="img" aria-labelledby="title desc">
+  <title id="title">Document processing service flow</title>
+  <desc id="desc">API, queue, worker pool, connection pool, and storage with a retry loop and four corrective controls.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#486581"/></marker>
+    <marker id="red-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#c53030"/></marker>
+  </defs>
+  <rect width="1200" height="560" rx="30" fill="#edf2f7"/>
+  <g font-family="Arial, sans-serif">
+    <text x="50" y="62" font-size="30" font-weight="700" fill="#243b53">DOCUMENT PROCESSING FLOW</text>
+    <g fill="#fff" stroke="#486581" stroke-width="5">
+      <rect x="50" y="168" width="190" height="118" rx="16"/>
+      <rect x="300" y="168" width="190" height="118" rx="16"/>
+      <rect x="550" y="168" width="190" height="118" rx="16"/>
+      <rect x="800" y="168" width="190" height="118" rx="16"/>
+      <rect x="1040" y="168" width="110" height="118" rx="16"/>
+    </g>
+    <g fill="#243b53" text-anchor="middle">
+      <text x="145" y="218" font-size="23" font-weight="700">API</text><text x="145" y="251" font-size="16">Accept request</text>
+      <text x="395" y="218" font-size="23" font-weight="700">QUEUE</text><text x="395" y="251" font-size="16">Protect payload</text>
+      <text x="645" y="211" font-size="23" font-weight="700">WORKERS</text><text x="645" y="244" font-size="16">Transform and route</text>
+      <text x="895" y="211" font-size="23" font-weight="700">POOL</text><text x="895" y="244" font-size="16">24 connections</text>
+      <text x="1095" y="218" font-size="20" font-weight="700">STORE</text><text x="1095" y="251" font-size="15">Persist</text>
+    </g>
+    <g fill="none" stroke="#486581" stroke-width="7" marker-end="url(#arrow)">
+      <path d="M240 227 H292"/><path d="M490 227 H542"/><path d="M740 227 H792"/><path d="M990 227 H1032"/>
+    </g>
+    <path d="M893 300 C890 410 620 412 620 300" fill="none" stroke="#c53030" stroke-width="9" stroke-dasharray="14 10" marker-end="url(#red-arrow)"/>
+    <text x="755" y="430" text-anchor="middle" fill="#c53030" font-size="21" font-weight="700">250 ms RETRY LOOP</text>
+    <g>
+      <g transform="translate(76 354)"><circle cx="28" cy="28" r="25" fill="#2f855a"/><text x="28" y="36" text-anchor="middle" fill="#fff" font-size="22" font-weight="700">1</text><text x="65" y="35" fill="#243b53" font-size="18">Pool wait alert</text></g>
+      <g transform="translate(76 424)"><circle cx="28" cy="28" r="25" fill="#2f855a"/><text x="28" y="36" text-anchor="middle" fill="#fff" font-size="22" font-weight="700">2</text><text x="65" y="35" fill="#243b53" font-size="18">Retry jitter</text></g>
+      <g transform="translate(828 354)"><circle cx="28" cy="28" r="25" fill="#2f855a"/><text x="28" y="36" text-anchor="middle" fill="#fff" font-size="22" font-weight="700">3</text><text x="65" y="35" fill="#243b53" font-size="18">Reconnect test</text></g>
+      <g transform="translate(828 424)"><circle cx="28" cy="28" r="25" fill="#2f855a"/><text x="28" y="36" text-anchor="middle" fill="#fff" font-size="22" font-weight="700">4</text><text x="65" y="35" fill="#243b53" font-size="18">Backlog replay</text></g>
+    </g>
+    <text x="50" y="525" fill="#526579" font-size="18">Synthetic architecture • no production systems represented</text>
+  </g>
+</svg>

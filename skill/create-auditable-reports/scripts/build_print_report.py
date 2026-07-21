@@ -7,6 +7,55 @@ from pathlib import Path
 import re
 
 
+class EmbeddedFigureParser(HTMLParser):
+    """Extract only the compiler-owned figure vocabulary from sandboxed srcdoc."""
+
+    def __init__(self) -> None:
+        super().__init__(convert_charrefs=False)
+        self.parts: list[str] = []
+        self.skip_depth = 0
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        if self.skip_depth:
+            self.skip_depth += 1
+            return
+        values = dict(attrs)
+        if tag == "style":
+            self.skip_depth = 1
+        elif tag == "figure" and "report-figure" in (values.get("class") or "").split():
+            self.parts.append('<figure class="report-figure avoid-break">')
+        elif tag == "img":
+            source = values.get("src") or ""
+            if source.startswith("data:image/"):
+                alt = values.get("alt") or ""
+                self.parts.append(f'<img src="{escape(source, quote=True)}" alt="{escape(alt, quote=True)}">')
+        elif tag == "figcaption":
+            self.parts.append("<figcaption>")
+        elif tag == "span":
+            self.parts.append("<span>")
+
+    def handle_startendtag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        self.handle_starttag(tag, attrs)
+
+    def handle_endtag(self, tag: str) -> None:
+        if self.skip_depth:
+            self.skip_depth -= 1
+        elif tag in {"figure", "figcaption", "span"}:
+            self.parts.append(f"</{tag}>")
+
+    def handle_data(self, data: str) -> None:
+        if not self.skip_depth:
+            self.parts.append(data)
+
+    def handle_entityref(self, name: str) -> None:
+        if not self.skip_depth:
+            self.parts.append(f"&{name};")
+
+    def handle_charref(self, name: str) -> None:
+        if not self.skip_depth:
+            self.parts.append(f"&#{name};")
+
+
 class StaticPrintParser(HTMLParser):
     """Preserve visible fallback content while removing interaction."""
 
@@ -41,6 +90,17 @@ class StaticPrintParser(HTMLParser):
         if self.should_skip(tag, attrs):
             self.skip_depth = 1
             return
+
+        if tag == "iframe":
+            values = dict(attrs)
+            srcdoc = values.get("srcdoc") or ""
+            if values.get("title") == "Custom report content" and "report-figure" in srcdoc:
+                figure = EmbeddedFigureParser()
+                figure.feed(srcdoc)
+                figure.close()
+                self.parts.extend(figure.parts)
+                self.skip_depth = 1
+                return
 
         classes = self.classes(attrs)
         if tag == "details":
@@ -141,6 +201,7 @@ body{padding:0;font-size:9.5pt;line-height:1.38}
 .portable-table-scroll td{padding:4pt 5pt !important;border-bottom:1px solid #d9dee4 !important;color:#29313a !important;font-size:7.2pt !important;line-height:1.2 !important;white-space:normal !important;overflow-wrap:anywhere}.portable-table-scroll td.portable-table-number{white-space:nowrap !important;overflow-wrap:normal}
 .portable-table-note{margin-top:4pt !important;font-size:7.5pt !important}
 .portable-sources{display:block !important;margin-top:16pt !important;padding-top:9pt !important;border-top:1px solid #aeb7c2 !important;break-before:page}.portable-sources h2{color:#17365d;font-size:12.5pt}.portable-sources ol{gap:5pt !important}.portable-sources p{margin:1pt 0 !important;font-size:8pt}.portable-source-meta{font-size:7.5pt !important}
+.report-figure{margin:0;break-inside:avoid-page}.report-figure img{display:block;width:auto;max-width:100%;max-height:4.15in;margin:0 auto;border:1px solid #cfd5dc;border-radius:7pt;object-fit:contain}.report-figure figcaption{margin-top:6pt;color:#4c5560;font-size:8pt}.report-figure figcaption span{display:block;color:#68727d}
 .portable-custom-html iframe{height:4.75in !important;min-height:4.75in !important}
 .print-source-value{text-decoration:none !important}a{color:inherit;text-decoration:none}
 .page-break{break-before:page !important}.avoid-break{break-inside:avoid-page !important}

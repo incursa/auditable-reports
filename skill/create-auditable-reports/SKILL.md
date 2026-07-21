@@ -1,6 +1,6 @@
 ---
 name: create-auditable-reports
-description: Create evidence-backed analytical reports from constrained Report Markdown or the canonical artifact format as self-contained interactive HTML, with Chart.js print visuals and Paged.js paginated HTML/PDF editions. Use when Codex needs to turn spreadsheets, CSV files, database queries, extracts, reviewed analytical results, Markdown prose, code blocks, screenshots, simple bar/pie charts, or bounded tables into a durable executive or technical report with traceable source metadata; also use when revising or reproducing an existing report.
+description: Create evidence-backed documents from constrained Report Markdown or the canonical artifact format as self-contained interactive HTML, with Chart.js print visuals and Paged.js paginated HTML/PDF editions. Use when Codex needs to turn spreadsheets, CSV files, database queries, extracts, reviewed analytical results, Markdown prose, code blocks, screenshots, simple bar/pie charts, or bounded tables into a durable executive report, technical review, lesson plan, or journal-style document with traceable source metadata; also use when revising or reproducing an existing document.
 ---
 
 # Create Auditable Reports
@@ -11,7 +11,7 @@ Build reports from a canonical `artifact.json`, then let the shared Data Analyti
 
 1. Define the question, audience, decision, time window, comparison basis, and cutoff date.
 2. Inventory every source and note whether it honors the requested cutoff.
-3. Select one audience: `product stakeholders` for answer-first business reporting or `technical` for methods-first reporting.
+3. Select one document profile: `report`, `technical`, `lesson`, or `journal`. Keep quantitative claims source-backed in every profile.
 4. Create a dedicated output directory. Preserve the source extracts or durable queries, reviewed result datasets, `artifact.json`, `source_notes.md`, and generated page together.
 5. Read [report-workflow.md](references/report-workflow.md). For standard authoring, read [report-markdown.md](references/report-markdown.md); for direct artifact work, read [artifact-authoring.md](references/artifact-authoring.md).
 
@@ -45,7 +45,7 @@ Use `assets/starter/artifact.json` as a working example, not as a blank form. Re
 - `snapshot.datasets` containing bounded reviewed rows
 - `sources` containing canonical provenance and query metadata
 
-Open with a visible `Executive Summary`. Put interpretation in markdown blocks adjacent to the evidence it explains. Use metric cards for top-line status, charts for shape or comparison, and tables for exact lookup or audit detail. Give every source-backed card, chart, table, and single-source quantitative narrative block a valid `sourceId`.
+Open with the visible summary required by the selected document profile. Put interpretation in markdown blocks adjacent to the evidence it explains. Use metric cards for top-line status, charts for shape or comparison, and tables for exact lookup or audit detail. Give every source-backed card, chart, table, and single-source quantitative narrative block a valid `sourceId`.
 
 ## Render the report
 
@@ -113,10 +113,12 @@ py scripts/build_report_bundle.py --input path\to\report.report.md --output-dir 
 - `references/report-workflow.md`: end-to-end workflow and folder conventions
 - `references/artifact-authoring.md`: canonical artifact patterns and examples
 - `references/report-markdown.md`: constrained Markdown syntax, standard blocks, and hard limits
+- `references/test-library.md`: synthetic lesson, report, journal, and incident-review fixtures
 - `references/chartjs-visuals.md`: supported Chart.js print forms and deterministic capture rules
 - `references/quality-checklist.md`: pre-handoff validation checklist
 - `references/sample-prompts.md`: reusable request patterns
 - `assets/starter/`: synthetic starter artifact, data, brief, and source notes
 - `assets/examples/project-health/`: rendered interactive, Chart.js, and paginated print examples
 - `assets/examples/report-markdown/`: source, data, figure, and compiled DSL fixture
+- `assets/examples/test-library/`: varied synthetic authoring fixtures for feature and print testing
 - `scripts/`: deterministic scaffolding, rendering, print extraction, Chart.js materialization, Paged.js pagination, and validation tools

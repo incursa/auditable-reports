@@ -65,6 +65,44 @@ class CompileReportTests(unittest.TestCase):
         artifact = compile_report(self.root / "report.report.md")
         self.assertEqual(2, len(artifact["manifest"]["charts"]))
 
+    def test_document_profiles_require_their_standard_opening(self) -> None:
+        profiles = {
+            "report": "Executive Summary",
+            "technical": "Technical Summary",
+            "lesson": "Lesson Overview",
+            "journal": "Entry Summary",
+        }
+        base_source = self.source()
+        for document_type, heading in profiles.items():
+            with self.subTest(document_type=document_type):
+                source = base_source.replace(
+                    "description: A synthetic example",
+                    f"document-type: {document_type}\ndescription: A synthetic example",
+                ).replace("## Executive Summary", f"## {heading}", 1)
+                self.write_source(source)
+                artifact = compile_report(self.root / "report.report.md")
+                self.assertEqual(f"## {heading}", artifact["manifest"]["blocks"][1]["body"].splitlines()[0])
+
+    def test_rejects_profile_with_the_wrong_opening(self) -> None:
+        self.write_source(
+            self.source().replace(
+                "description: A synthetic example",
+                "document-type: lesson\ndescription: A synthetic example",
+            )
+        )
+        with self.assertRaisesRegex(DslError, "Lesson Overview"):
+            compile_report(self.root / "report.report.md")
+
+    def test_rejects_unknown_document_profile(self) -> None:
+        self.write_source(
+            self.source().replace(
+                "description: A synthetic example",
+                "document-type: dashboard\ndescription: A synthetic example",
+            )
+        )
+        with self.assertRaisesRegex(DslError, "document-type must be one of"):
+            compile_report(self.root / "report.report.md")
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -1,0 +1,381 @@
+{
+  "surface": "report",
+  "manifest": {
+    "version": 1,
+    "surface": "report",
+    "title": "Northwind Modernization: July Portfolio Review",
+    "description": "A fictional project portfolio status report with bounded management visuals and audit detail.",
+    "generatedAt": "2026-07-21T22:10:00Z",
+    "cards": [
+      {
+        "id": "portfolio_headline_approved_budget",
+        "description": "Approved budget across six synthetic workstreams.",
+        "dataset": "headline",
+        "sourceId": "portfolio_snapshot",
+        "metrics": [
+          {
+            "label": "Approved budget",
+            "field": "approved_budget",
+            "format": "currency"
+          }
+        ]
+      },
+      {
+        "id": "portfolio_headline_forecast_variance",
+        "description": "Current estimate less approved budget.",
+        "dataset": "headline",
+        "sourceId": "portfolio_snapshot",
+        "metrics": [
+          {
+            "label": "Forecast variance",
+            "field": "forecast_variance",
+            "format": "currency",
+            "signed": true
+          }
+        ]
+      },
+      {
+        "id": "portfolio_headline_at_risk",
+        "description": "Workstreams requiring active recovery.",
+        "dataset": "headline",
+        "sourceId": "portfolio_snapshot",
+        "metrics": [
+          {
+            "label": "At-risk workstreams",
+            "field": "at_risk",
+            "format": "number"
+          }
+        ]
+      },
+      {
+        "id": "portfolio_headline_completion",
+        "description": "Weighted completion across the fictional portfolio.",
+        "dataset": "headline",
+        "sourceId": "portfolio_snapshot",
+        "metrics": [
+          {
+            "label": "Overall completion",
+            "field": "completion",
+            "format": "percent"
+          }
+        ]
+      }
+    ],
+    "charts": [
+      {
+        "id": "variance_by_workstream",
+        "title": "Forecast variance by workstream",
+        "type": "bar",
+        "dataset": "workstreams",
+        "sourceId": "portfolio_snapshot",
+        "intent": "comparison",
+        "encodings": {
+          "x": {
+            "field": "workstream",
+            "type": "nominal",
+            "label": "Workstream"
+          },
+          "y": {
+            "field": "variance",
+            "type": "quantitative",
+            "format": "currency",
+            "label": "Forecast variance"
+          }
+        },
+        "valueFormat": "currency",
+        "layout": "full",
+        "maxRows": 12,
+        "subtitle": "Positive values are unfavorable; synthetic dollars",
+        "showDescription": true
+      },
+      {
+        "id": "budget_allocation",
+        "title": "Approved budget allocation",
+        "type": "pie",
+        "dataset": "delivery_areas",
+        "sourceId": "portfolio_snapshot",
+        "intent": "composition",
+        "encodings": {
+          "x": {
+            "field": "area",
+            "type": "nominal",
+            "label": "Delivery area"
+          },
+          "y": {
+            "field": "budget",
+            "type": "quantitative",
+            "format": "currency",
+            "label": "Approved budget"
+          },
+          "color": {
+            "field": "area",
+            "type": "nominal",
+            "label": "Delivery area"
+          }
+        },
+        "valueFormat": "currency",
+        "layout": "full",
+        "maxRows": 6,
+        "subtitle": "Synthetic portfolio plan by delivery area",
+        "showDescription": true
+      }
+    ],
+    "tables": [
+      {
+        "id": "portfolio_table",
+        "title": "Portfolio workstream status",
+        "dataset": "workstreams",
+        "sourceId": "portfolio_snapshot",
+        "density": "spacious",
+        "layout": "full",
+        "columns": [
+          {
+            "field": "workstream",
+            "label": "Workstream",
+            "type": "text"
+          },
+          {
+            "field": "owner",
+            "label": "Owner",
+            "type": "text"
+          },
+          {
+            "field": "status",
+            "label": "Status",
+            "type": "text"
+          },
+          {
+            "field": "completion",
+            "label": "Complete",
+            "format": "percent"
+          },
+          {
+            "field": "budget",
+            "label": "Budget",
+            "format": "currency"
+          },
+          {
+            "field": "forecast",
+            "label": "Forecast",
+            "format": "currency"
+          },
+          {
+            "field": "variance",
+            "label": "Variance",
+            "format": "currency",
+            "movement": true
+          },
+          {
+            "field": "next_gate",
+            "label": "Next gate",
+            "type": "date"
+          }
+        ],
+        "subtitle": "Current fictional review snapshot",
+        "showDescription": true,
+        "defaultSort": {
+          "field": "variance",
+          "direction": "desc"
+        }
+      }
+    ],
+    "sources": [
+      {
+        "id": "portfolio_snapshot",
+        "label": "Synthetic Northwind portfolio snapshot",
+        "path": "report.data.json"
+      },
+      {
+        "id": "portfolio_illustration",
+        "label": "Synthetic portfolio board illustration",
+        "path": "portfolio-board.svg"
+      }
+    ],
+    "blocks": [
+      {
+        "id": "title",
+        "type": "markdown",
+        "body": "# Northwind Modernization: July Portfolio Review"
+      },
+      {
+        "id": "executive_summary",
+        "type": "markdown",
+        "body": "## Executive Summary\n\n\n- **The six-workstream portfolio is forecast $150K over its $7.6M plan.** Field Enablement and Data Migration account for the largest unfavorable movements.\n- **Four workstreams remain on track.** Two are classified at risk, with recovery actions assigned and dated.\n- **The next decision is narrow.** Hold the $90K contingency reserve until the Data Migration rehearsal completes on August 2.",
+        "sourceId": "portfolio_snapshot"
+      },
+      {
+        "id": "portfolio_headline",
+        "type": "metric-strip",
+        "cardIds": [
+          "portfolio_headline_approved_budget",
+          "portfolio_headline_forecast_variance",
+          "portfolio_headline_at_risk",
+          "portfolio_headline_completion"
+        ]
+      },
+      {
+        "id": "two_workstreams_account_for_the_forecast_pressure",
+        "type": "markdown",
+        "body": "## Two workstreams account for the forecast pressure\n\n\nField Enablement and Data Migration together contribute $290K of unfavorable variance. Favorable forecasts in Infrastructure and Integration offset $140K of that pressure.",
+        "sourceId": "portfolio_snapshot"
+      },
+      {
+        "id": "variance_by_workstream",
+        "type": "chart",
+        "chartId": "variance_by_workstream"
+      },
+      {
+        "id": "delivery_effort_is_spread_across_four_areas",
+        "type": "markdown",
+        "body": "## Delivery effort is spread across four areas\n\nThe allocation view is intentionally limited to four mutually exclusive categories."
+      },
+      {
+        "id": "budget_allocation",
+        "type": "chart",
+        "chartId": "budget_allocation"
+      },
+      {
+        "id": "workstream_detail",
+        "type": "markdown",
+        "body": "## Workstream detail"
+      },
+      {
+        "id": "portfolio_table",
+        "type": "table",
+        "tableId": "portfolio_table"
+      },
+      {
+        "id": "management_view",
+        "type": "markdown",
+        "body": "## Management view"
+      },
+      {
+        "id": "portfolio_board",
+        "type": "html",
+        "body": "<style>.report-figure img{width:auto;max-width:100%;max-height:180px;margin:0 auto;object-fit:contain}@media print{.report-figure img{max-height:4.15in}}</style><figure class=\"report-figure\" style=\"margin:0\"><img src=\"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjAwIiBoZWlnaHQ9IjU2MCIgdmlld0JveD0iMCAwIDEyMDAgNTYwIiByb2xlPSJpbWciIGFyaWEtbGFiZWxsZWRieT0idGl0bGUgZGVzYyI+CiAgPHRpdGxlIGlkPSJ0aXRsZSI+U3ludGhldGljIHBvcnRmb2xpbyBtYW5hZ2VtZW50IGJvYXJkPC90aXRsZT4KICA8ZGVzYyBpZD0iZGVzYyI+U2l4IHdvcmtzdHJlYW0gY2FyZHMgd2l0aCBzdGF0dXMgaW5kaWNhdG9ycyBhbmQgYSBmb3VyLW1pbGVzdG9uZSB0aW1lbGluZS48L2Rlc2M+CiAgPHJlY3Qgd2lkdGg9IjEyMDAiIGhlaWdodD0iNTYwIiByeD0iMjgiIGZpbGw9IiNlZWYyZjYiLz4KICA8cmVjdCB4PSIzNiIgeT0iMzIiIHdpZHRoPSIxMTI4IiBoZWlnaHQ9IjcyIiByeD0iMTQiIGZpbGw9IiMyNDNiNTMiLz4KICA8dGV4dCB4PSI3MiIgeT0iNzgiIGZpbGw9IiNmZmZmZmYiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIzMCIgZm9udC13ZWlnaHQ9IjcwMCI+Tk9SVEhXSU5EIFBPUlRGT0xJTyDigKIgSlVMWSBSRVZJRVc8L3RleHQ+CiAgPGcgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIj4KICAgIDxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDM2IDEzMikiPgogICAgICA8cmVjdCB3aWR0aD0iMzUwIiBoZWlnaHQ9IjEyNiIgcng9IjE0IiBmaWxsPSIjZmZmZmZmIiBzdHJva2U9IiNkMWQ5ZTIiIHN0cm9rZS13aWR0aD0iMyIvPgogICAgICA8Y2lyY2xlIGN4PSIzMTYiIGN5PSIzNCIgcj0iMTMiIGZpbGw9IiNkZjhiMjMiLz4KICAgICAgPHRleHQgeD0iMjQiIHk9IjQyIiBmaWxsPSIjMjQzYjUzIiBmb250LXNpemU9IjIyIiBmb250LXdlaWdodD0iNzAwIj5GaWVsZCBFbmFibGVtZW50PC90ZXh0PgogICAgICA8dGV4dCB4PSIyNCIgeT0iNzYiIGZpbGw9IiM1MjY1NzkiIGZvbnQtc2l6ZT0iMTciPjUyJSBjb21wbGV0ZSDigKIgKyQxODBLPC90ZXh0PgogICAgICA8cmVjdCB4PSIyNCIgeT0iOTQiIHdpZHRoPSIyOTQiIGhlaWdodD0iMTIiIHJ4PSI2IiBmaWxsPSIjZTRlOWVmIi8+PHJlY3QgeD0iMjQiIHk9Ijk0IiB3aWR0aD0iMTUzIiBoZWlnaHQ9IjEyIiByeD0iNiIgZmlsbD0iI2RmOGIyMyIvPgogICAgPC9nPgogICAgPGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoNDI1IDEzMikiPgogICAgICA8cmVjdCB3aWR0aD0iMzUwIiBoZWlnaHQ9IjEyNiIgcng9IjE0IiBmaWxsPSIjZmZmZmZmIiBzdHJva2U9IiNkMWQ5ZTIiIHN0cm9rZS13aWR0aD0iMyIvPgogICAgICA8Y2lyY2xlIGN4PSIzMTYiIGN5PSIzNCIgcj0iMTMiIGZpbGw9IiNkZjhiMjMiLz4KICAgICAgPHRleHQgeD0iMjQiIHk9IjQyIiBmaWxsPSIjMjQzYjUzIiBmb250LXNpemU9IjIyIiBmb250LXdlaWdodD0iNzAwIj5EYXRhIE1pZ3JhdGlvbjwvdGV4dD4KICAgICAgPHRleHQgeD0iMjQiIHk9Ijc2IiBmaWxsPSIjNTI2NTc5IiBmb250LXNpemU9IjE3Ij41OCUgY29tcGxldGUg4oCiICskMTEwSzwvdGV4dD4KICAgICAgPHJlY3QgeD0iMjQiIHk9Ijk0IiB3aWR0aD0iMjk0IiBoZWlnaHQ9IjEyIiByeD0iNiIgZmlsbD0iI2U0ZTllZiIvPjxyZWN0IHg9IjI0IiB5PSI5NCIgd2lkdGg9IjE3MSIgaGVpZ2h0PSIxMiIgcng9IjYiIGZpbGw9IiNkZjhiMjMiLz4KICAgIDwvZz4KICAgIDxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDgxNCAxMzIpIj4KICAgICAgPHJlY3Qgd2lkdGg9IjM1MCIgaGVpZ2h0PSIxMjYiIHJ4PSIxNCIgZmlsbD0iI2ZmZmZmZiIgc3Ryb2tlPSIjZDFkOWUyIiBzdHJva2Utd2lkdGg9IjMiLz4KICAgICAgPGNpcmNsZSBjeD0iMzE2IiBjeT0iMzQiIHI9IjEzIiBmaWxsPSIjMmY4NTVhIi8+CiAgICAgIDx0ZXh0IHg9IjI0IiB5PSI0MiIgZmlsbD0iIzI0M2I1MyIgZm9udC1zaXplPSIyMiIgZm9udC13ZWlnaHQ9IjcwMCI+UHJvY2VzcyBEZXNpZ248L3RleHQ+CiAgICAgIDx0ZXh0IHg9IjI0IiB5PSI3NiIgZmlsbD0iIzUyNjU3OSIgZm9udC1zaXplPSIxNyI+NzQlIGNvbXBsZXRlIOKAoiArJDIwSzwvdGV4dD4KICAgICAgPHJlY3QgeD0iMjQiIHk9Ijk0IiB3aWR0aD0iMjk0IiBoZWlnaHQ9IjEyIiByeD0iNiIgZmlsbD0iI2U0ZTllZiIvPjxyZWN0IHg9IjI0IiB5PSI5NCIgd2lkdGg9IjIxOCIgaGVpZ2h0PSIxMiIgcng9IjYiIGZpbGw9IiMyZjg1NWEiLz4KICAgIDwvZz4KICAgIDxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDM2IDI4MCkiPgogICAgICA8cmVjdCB3aWR0aD0iMzUwIiBoZWlnaHQ9IjEyNiIgcng9IjE0IiBmaWxsPSIjZmZmZmZmIiBzdHJva2U9IiNkMWQ5ZTIiIHN0cm9rZS13aWR0aD0iMyIvPgogICAgICA8Y2lyY2xlIGN4PSIzMTYiIGN5PSIzNCIgcj0iMTMiIGZpbGw9IiMyZjg1NWEiLz4KICAgICAgPHRleHQgeD0iMjQiIHk9IjQyIiBmaWxsPSIjMjQzYjUzIiBmb250LXNpemU9IjIyIiBmb250LXdlaWdodD0iNzAwIj5SZXBvcnRpbmc8L3RleHQ+CiAgICAgIDx0ZXh0IHg9IjI0IiB5PSI3NiIgZmlsbD0iIzUyNjU3OSIgZm9udC1zaXplPSIxNyI+NjElIGNvbXBsZXRlIOKAoiAtJDIwSzwvdGV4dD4KICAgICAgPHJlY3QgeD0iMjQiIHk9Ijk0IiB3aWR0aD0iMjk0IiBoZWlnaHQ9IjEyIiByeD0iNiIgZmlsbD0iI2U0ZTllZiIvPjxyZWN0IHg9IjI0IiB5PSI5NCIgd2lkdGg9IjE3OSIgaGVpZ2h0PSIxMiIgcng9IjYiIGZpbGw9IiMyZjg1NWEiLz4KICAgIDwvZz4KICAgIDxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDQyNSAyODApIj4KICAgICAgPHJlY3Qgd2lkdGg9IjM1MCIgaGVpZ2h0PSIxMjYiIHJ4PSIxNCIgZmlsbD0iI2ZmZmZmZiIgc3Ryb2tlPSIjZDFkOWUyIiBzdHJva2Utd2lkdGg9IjMiLz4KICAgICAgPGNpcmNsZSBjeD0iMzE2IiBjeT0iMzQiIHI9IjEzIiBmaWxsPSIjMmY4NTVhIi8+CiAgICAgIDx0ZXh0IHg9IjI0IiB5PSI0MiIgZmlsbD0iIzI0M2I1MyIgZm9udC1zaXplPSIyMiIgZm9udC13ZWlnaHQ9IjcwMCI+SW50ZWdyYXRpb248L3RleHQ+CiAgICAgIDx0ZXh0IHg9IjI0IiB5PSI3NiIgZmlsbD0iIzUyNjU3OSIgZm9udC1zaXplPSIxNyI+NjclIGNvbXBsZXRlIOKAoiAtJDYwSzwvdGV4dD4KICAgICAgPHJlY3QgeD0iMjQiIHk9Ijk0IiB3aWR0aD0iMjk0IiBoZWlnaHQ9IjEyIiByeD0iNiIgZmlsbD0iI2U0ZTllZiIvPjxyZWN0IHg9IjI0IiB5PSI5NCIgd2lkdGg9IjE5NyIgaGVpZ2h0PSIxMiIgcng9IjYiIGZpbGw9IiMyZjg1NWEiLz4KICAgIDwvZz4KICAgIDxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDgxNCAyODApIj4KICAgICAgPHJlY3Qgd2lkdGg9IjM1MCIgaGVpZ2h0PSIxMjYiIHJ4PSIxNCIgZmlsbD0iI2ZmZmZmZiIgc3Ryb2tlPSIjZDFkOWUyIiBzdHJva2Utd2lkdGg9IjMiLz4KICAgICAgPGNpcmNsZSBjeD0iMzE2IiBjeT0iMzQiIHI9IjEzIiBmaWxsPSIjMmY4NTVhIi8+CiAgICAgIDx0ZXh0IHg9IjI0IiB5PSI0MiIgZmlsbD0iIzI0M2I1MyIgZm9udC1zaXplPSIyMiIgZm9udC13ZWlnaHQ9IjcwMCI+SW5mcmFzdHJ1Y3R1cmU8L3RleHQ+CiAgICAgIDx0ZXh0IHg9IjI0IiB5PSI3NiIgZmlsbD0iIzUyNjU3OSIgZm9udC1zaXplPSIxNyI+NzIlIGNvbXBsZXRlIOKAoiAtJDgwSzwvdGV4dD4KICAgICAgPHJlY3QgeD0iMjQiIHk9Ijk0IiB3aWR0aD0iMjk0IiBoZWlnaHQ9IjEyIiByeD0iNiIgZmlsbD0iI2U0ZTllZiIvPjxyZWN0IHg9IjI0IiB5PSI5NCIgd2lkdGg9IjIxMiIgaGVpZ2h0PSIxMiIgcng9IjYiIGZpbGw9IiMyZjg1NWEiLz4KICAgIDwvZz4KICAgIDxwYXRoIGQ9Ik04NSA0NzQgSDExMTUiIHN0cm9rZT0iIzlmYjNjOCIgc3Ryb2tlLXdpZHRoPSI4IiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KICAgIDxnIGZpbGw9IiM0ODY1ODEiIHRleHQtYW5jaG9yPSJtaWRkbGUiPgogICAgICA8Y2lyY2xlIGN4PSIxODAiIGN5PSI0NzQiIHI9IjE2Ii8+PGNpcmNsZSBjeD0iNDYwIiBjeT0iNDc0IiByPSIxNiIvPjxjaXJjbGUgY3g9Ijc0MCIgY3k9IjQ3NCIgcj0iMTYiLz48Y2lyY2xlIGN4PSIxMDIwIiBjeT0iNDc0IiByPSIxNiIvPgogICAgICA8dGV4dCB4PSIxODAiIHk9IjUxOCIgZm9udC1zaXplPSIxNyI+SW5mcmFzdHJ1Y3R1cmU8L3RleHQ+PHRleHQgeD0iNDYwIiB5PSI1MTgiIGZvbnQtc2l6ZT0iMTciPk1pZ3JhdGlvbjwvdGV4dD48dGV4dCB4PSI3NDAiIHk9IjUxOCIgZm9udC1zaXplPSIxNyI+UGVyZm9ybWFuY2U8L3RleHQ+PHRleHQgeD0iMTAyMCIgeT0iNTE4IiBmb250LXNpemU9IjE3Ij5SZWFkaW5lc3M8L3RleHQ+CiAgICA8L2c+CiAgPC9nPgo8L3N2Zz4K\" alt=\"A synthetic portfolio board with six workstream cards, two amber risk indicators, and a milestone timeline.\" style=\"display:block;height:auto;border:1px solid #cfd5dc;border-radius:8px\" /><figcaption style=\"margin-top:8px;color:#4c5560;font-size:13px\">Illustrative management-board capture used to test a wide figure in print.<span style=\"display:block;color:#68727d;font-size:12px\">Source: Synthetic portfolio board illustration</span></figcaption></figure>",
+        "layout": "full",
+        "sourceId": "portfolio_illustration"
+      },
+      {
+        "id": "decisions_and_follow_up",
+        "type": "markdown",
+        "body": "## Decisions and follow-up\n\n1. Keep the contingency reserve unallocated through the migration rehearsal.\n2. Review training attendance daily during the first rollout week.\n3. Require written exit criteria before the integration performance gate.\n\nThis entire portfolio, including names, dates, values, status, and image, is fictional test data."
+      }
+    ]
+  },
+  "snapshot": {
+    "version": 1,
+    "generatedAt": "2026-07-21T22:10:00Z",
+    "status": "fixture",
+    "datasets": {
+      "headline": [
+        {
+          "approved_budget": 7600000,
+          "forecast_variance": 150000,
+          "at_risk": 2,
+          "completion": 0.64
+        }
+      ],
+      "workstreams": [
+        {
+          "workstream": "Field Enablement",
+          "owner": "A. Moreno",
+          "status": "At risk",
+          "completion": 0.52,
+          "budget": 1200000,
+          "forecast": 1380000,
+          "variance": 180000,
+          "next_gate": "2026-08-08"
+        },
+        {
+          "workstream": "Data Migration",
+          "owner": "C. Patel",
+          "status": "At risk",
+          "completion": 0.58,
+          "budget": 1600000,
+          "forecast": 1710000,
+          "variance": 110000,
+          "next_gate": "2026-08-02"
+        },
+        {
+          "workstream": "Process Design",
+          "owner": "J. Kim",
+          "status": "On track",
+          "completion": 0.74,
+          "budget": 900000,
+          "forecast": 920000,
+          "variance": 20000,
+          "next_gate": "2026-08-12"
+        },
+        {
+          "workstream": "Reporting",
+          "owner": "L. Evans",
+          "status": "On track",
+          "completion": 0.61,
+          "budget": 800000,
+          "forecast": 780000,
+          "variance": -20000,
+          "next_gate": "2026-08-15"
+        },
+        {
+          "workstream": "Integration",
+          "owner": "R. Singh",
+          "status": "On track",
+          "completion": 0.67,
+          "budget": 1400000,
+          "forecast": 1340000,
+          "variance": -60000,
+          "next_gate": "2026-08-05"
+        },
+        {
+          "workstream": "Infrastructure",
+          "owner": "S. Brooks",
+          "status": "On track",
+          "completion": 0.72,
+          "budget": 1700000,
+          "forecast": 1620000,
+          "variance": -80000,
+          "next_gate": "2026-08-01"
+        }
+      ],
+      "delivery_areas": [
+        {
+          "area": "Platform",
+          "budget": 3100000
+        },
+        {
+          "area": "Data",
+          "budget": 1600000
+        },
+        {
+          "area": "People",
+          "budget": 1200000
+        },
+        {
+          "area": "Process and reporting",
+          "budget": 1700000
+        }
+      ]
+    }
+  },
+  "sources": [
+    {
+      "id": "portfolio_snapshot",
+      "label": "Synthetic Northwind portfolio snapshot",
+      "path": "report.data.json",
+      "query": {
+        "engine": "fixture",
+        "language": "sql",
+        "id": "northwind-july-review",
+        "executed_at": "2026-07-21T22:10:00Z",
+        "description": "Invented workstream, budget, forecast, milestone, and status rows.",
+        "sql": "SELECT * FROM fictional_portfolio_review"
+      }
+    },
+    {
+      "id": "portfolio_illustration",
+      "label": "Synthetic portfolio board illustration",
+      "path": "portfolio-board.svg"
+    }
+  ]
+}

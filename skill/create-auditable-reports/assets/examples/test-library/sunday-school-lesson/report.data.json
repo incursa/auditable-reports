@@ -1,0 +1,46 @@
+{
+  "datasets": {
+    "headline": [
+      {
+        "duration_minutes": 45,
+        "activities": 5,
+        "discussion_prompts": 5,
+        "take_home_practices": 1
+      }
+    ],
+    "segments": [
+      {"phase": "Welcome", "minutes": 5},
+      {"phase": "Story", "minutes": 10},
+      {"phase": "Discussion", "minutes": 15},
+      {"phase": "Practice", "minutes": 10},
+      {"phase": "Prayer", "minutes": 5}
+    ],
+    "activities": [
+      {"phase": "Welcome", "minutes": 5, "purpose": "Connect the theme to daily life", "method": "Paired question", "material": "None", "prompt": "When did someone notice you?"},
+      {"phase": "Story", "minutes": 10, "purpose": "Hear the narrative as a whole", "method": "Read and retell", "material": "Bible and three cards", "prompt": "What changes along the road?"},
+      {"phase": "Discussion", "minutes": 15, "purpose": "Explore barriers and costs", "method": "Guided conversation", "material": "Prompt sheet", "prompt": "What makes care difficult?"},
+      {"phase": "Practice", "minutes": 10, "purpose": "Choose a realistic response", "method": "Scenario sorting", "material": "Four scenario cards", "prompt": "What can be done this week?"},
+      {"phase": "Prayer", "minutes": 5, "purpose": "Commit attention and action", "method": "Silence and prayer", "material": "Take-home card", "prompt": "Who will I notice?"}
+    ]
+  },
+  "sources": [
+    {
+      "id": "lesson_plan",
+      "label": "Synthetic lesson plan dataset",
+      "path": "report.data.json",
+      "query": {
+        "engine": "fixture",
+        "language": "sql",
+        "id": "lesson-plan-v1",
+        "executed_at": "2026-07-21T22:00:00Z",
+        "description": "Invented timing and activity rows used only to exercise report rendering.",
+        "sql": "SELECT * FROM synthetic_lesson_plan"
+      }
+    },
+    {
+      "id": "lesson_illustration",
+      "label": "Synthetic mercy-path illustration",
+      "path": "lesson-path.svg"
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "datasets": {
+    "headline": [
+      {"approved_budget": 7600000, "forecast_variance": 150000, "at_risk": 2, "completion": 0.64}
+    ],
+    "workstreams": [
+      {"workstream": "Field Enablement", "owner": "A. Moreno", "status": "At risk", "completion": 0.52, "budget": 1200000, "forecast": 1380000, "variance": 180000, "next_gate": "2026-08-08"},
+      {"workstream": "Data Migration", "owner": "C. Patel", "status": "At risk", "completion": 0.58, "budget": 1600000, "forecast": 1710000, "variance": 110000, "next_gate": "2026-08-02"},
+      {"workstream": "Process Design", "owner": "J. Kim", "status": "On track", "completion": 0.74, "budget": 900000, "forecast": 920000, "variance": 20000, "next_gate": "2026-08-12"},
+      {"workstream": "Reporting", "owner": "L. Evans", "status": "On track", "completion": 0.61, "budget": 800000, "forecast": 780000, "variance": -20000, "next_gate": "2026-08-15"},
+      {"workstream": "Integration", "owner": "R. Singh", "status": "On track", "completion": 0.67, "budget": 1400000, "forecast": 1340000, "variance": -60000, "next_gate": "2026-08-05"},
+      {"workstream": "Infrastructure", "owner": "S. Brooks", "status": "On track", "completion": 0.72, "budget": 1700000, "forecast": 1620000, "variance": -80000, "next_gate": "2026-08-01"}
+    ],
+    "delivery_areas": [
+      {"area": "Platform", "budget": 3100000},
+      {"area": "Data", "budget": 1600000},
+      {"area": "People", "budget": 1200000},
+      {"area": "Process and reporting", "budget": 1700000}
+    ]
+  },
+  "sources": [
+    {
+      "id": "portfolio_snapshot",
+      "label": "Synthetic Northwind portfolio snapshot",
+      "path": "report.data.json",
+      "query": {
+        "engine": "fixture",
+        "language": "sql",
+        "id": "northwind-july-review",
+        "executed_at": "2026-07-21T22:10:00Z",
+        "description": "Invented workstream, budget, forecast, milestone, and status rows.",
+        "sql": "SELECT * FROM fictional_portfolio_review"
+      }
+    },
+    {
+      "id": "portfolio_illustration",
+      "label": "Synthetic portfolio board illustration",
+      "path": "portfolio-board.svg"
+    }
+  ]
+}

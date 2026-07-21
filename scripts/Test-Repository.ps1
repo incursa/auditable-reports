@@ -6,6 +6,7 @@ $repoRoot = Split-Path -Parent $PSScriptRoot
 $skillRoot = Join-Path $repoRoot 'skill\create-auditable-reports'
 $exampleRoot = Join-Path $skillRoot 'assets\examples\project-health'
 $dslRoot = Join-Path $skillRoot 'assets\examples\report-markdown'
+$testLibraryRoot = Join-Path $skillRoot 'assets\examples\test-library'
 
 Write-Host 'Compiling Python utilities...'
 $previousPycachePrefix = $env:PYTHONPYCACHEPREFIX
@@ -23,7 +24,7 @@ finally {
 }
 
 Write-Host 'Testing the Report Markdown compiler...'
-py -m unittest (Join-Path $repoRoot 'tests\test_compile_report.py')
+py -m unittest discover -s (Join-Path $repoRoot 'tests') -p 'test_*.py'
 if ($LASTEXITCODE -ne 0) {
     throw 'Report Markdown compiler tests failed.'
 }
@@ -33,6 +34,17 @@ py (Join-Path $skillRoot 'scripts\compile_report.py') `
     --check
 if ($LASTEXITCODE -ne 0) {
     throw 'Report Markdown golden artifact is stale.'
+}
+Get-ChildItem -LiteralPath $testLibraryRoot -Directory | Sort-Object Name | ForEach-Object {
+    $source = Join-Path $_.FullName 'report.report.md'
+    $artifact = Join-Path $_.FullName 'artifact.json'
+    if (-not (Test-Path -LiteralPath $source) -or -not (Test-Path -LiteralPath $artifact)) {
+        throw "Test-library fixture is incomplete: $($_.FullName)"
+    }
+    py (Join-Path $skillRoot 'scripts\compile_report.py') --input $source --output $artifact --check
+    if ($LASTEXITCODE -ne 0) {
+        throw "Test-library artifact is stale: $($_.Name)"
+    }
 }
 
 node --check (Join-Path $skillRoot 'scripts\render_paged_output.mjs')

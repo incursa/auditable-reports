@@ -11,7 +11,7 @@
 ## Narrative
 
 - The visible title matches the document title.
-- A visible Executive Summary or Technical Summary appears first.
+- The visible first section matches the document profile: Executive Summary, Technical Summary, Lesson Overview, or Entry Summary.
 - Each major section begins with its takeaway.
 - Each major finding pairs evidence with interpretation and an implication.
 - Recommendations are supported by evidence.

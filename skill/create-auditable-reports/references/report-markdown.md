@@ -8,6 +8,7 @@ Begin with flat front matter and one level-one title:
 
 ```markdown
 ---
+document-type: report
 description: One-sentence report scope.
 generated-at: 2026-07-21T21:00:00Z
 status: ready
@@ -16,7 +17,16 @@ data: report.data.json
 # Quarterly Delivery Health
 ```
 
-The four front-matter properties are required. `status` is `ready`, `partial`, `blocked`, or `fixture`. The data path must be relative to the Markdown file.
+`description`, `generated-at`, `status`, and `data` are required. `document-type` is optional and defaults to `report`. The fixed profiles and required first sections are:
+
+| `document-type` | Required first section |
+| --- | --- |
+| `report` | `## Executive Summary` |
+| `technical` | `## Technical Summary` |
+| `lesson` | `## Lesson Overview` |
+| `journal` | `## Entry Summary` |
+
+`status` is `ready`, `partial`, `blocked`, or `fixture`. The data path must be relative to the Markdown file. Document profiles change only the opening vocabulary; they do not expose themes or layout controls.
 
 The JSON sidecar contains exactly `datasets` and `sources`:
 

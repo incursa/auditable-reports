@@ -1,0 +1,43 @@
+{
+  "datasets": {
+    "headline": [
+      {"entries": 7, "focused_hours": 18, "outdoors_minutes": 315, "average_energy": 7}
+    ],
+    "days": [
+      {"day": "Mon", "sleep": 6.5, "focus": 2.0, "outdoors": 25, "energy": 5, "note": "Started rushed; reset after a short walk."},
+      {"day": "Tue", "sleep": 7.0, "focus": 3.5, "outdoors": 35, "energy": 7, "note": "Quiet morning made the hard task easier."},
+      {"day": "Wed", "sleep": 6.0, "focus": 2.0, "outdoors": 20, "energy": 5, "note": "Too many small commitments competed."},
+      {"day": "Thu", "sleep": 7.5, "focus": 3.0, "outdoors": 45, "energy": 8, "note": "A long conversation mattered most."},
+      {"day": "Fri", "sleep": 7.0, "focus": 3.0, "outdoors": 50, "energy": 7, "note": "Finished one thing and stopped on time."},
+      {"day": "Sat", "sleep": 8.0, "focus": 2.0, "outdoors": 80, "energy": 9, "note": "Unhurried breakfast and trail time."},
+      {"day": "Sun", "sleep": 7.5, "focus": 2.5, "outdoors": 60, "energy": 8, "note": "Rest, worship, family, and a simple plan."}
+    ],
+    "allocation": [
+      {"category": "Focused work", "hours": 9},
+      {"category": "Relationships", "hours": 7},
+      {"category": "Outdoors", "hours": 5},
+      {"category": "Reading and reflection", "hours": 4},
+      {"category": "Household care", "hours": 3}
+    ]
+  },
+  "sources": [
+    {
+      "id": "journal_log",
+      "label": "Synthetic seven-day journal log",
+      "path": "report.data.json",
+      "query": {
+        "engine": "fixture",
+        "language": "sql",
+        "id": "weekly-journal-fixture",
+        "executed_at": "2026-07-21T22:20:00Z",
+        "description": "Invented daily reflection rows and time-allocation categories.",
+        "sql": "SELECT * FROM synthetic_weekly_journal"
+      }
+    },
+    {
+      "id": "journal_illustration",
+      "label": "Synthetic weekly memory-map illustration",
+      "path": "week-map.svg"
+    }
+  ]
+}

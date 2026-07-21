@@ -1,0 +1,47 @@
+{
+  "datasets": {
+    "headline": [
+      {"duration_minutes": 47, "affected_documents": 1840, "peak_error_rate": 0.18, "follow_up_actions": 4}
+    ],
+    "intervals": [
+      {"time": "14:05", "errors": 8},
+      {"time": "14:10", "errors": 46},
+      {"time": "14:15", "errors": 91},
+      {"time": "14:20", "errors": 134},
+      {"time": "14:25", "errors": 118},
+      {"time": "14:30", "errors": 72},
+      {"time": "14:35", "errors": 39},
+      {"time": "14:40", "errors": 17},
+      {"time": "14:45", "errors": 3}
+    ],
+    "timeline": [
+      {"time": "14:00", "event": "Rollout completed", "signal": "Config version 42", "action": "Observe", "owner": "Release", "status": "Complete"},
+      {"time": "14:08", "event": "Queue age alert", "signal": "Oldest item over 5 min", "action": "Incident opened", "owner": "On-call", "status": "Complete"},
+      {"time": "14:14", "event": "Pool saturation found", "signal": "100% connections in use", "action": "Pause rollout", "owner": "Platform", "status": "Complete"},
+      {"time": "14:22", "event": "Prior setting restored", "signal": "Retry interval 2000 ms", "action": "Recycle workers", "owner": "Platform", "status": "Complete"},
+      {"time": "14:31", "event": "Backlog declining", "signal": "Queue depth 211", "action": "Continue monitoring", "owner": "On-call", "status": "Complete"},
+      {"time": "14:47", "event": "Recovery confirmed", "signal": "Queue empty", "action": "Close impact window", "owner": "Incident lead", "status": "Complete"},
+      {"time": "15:30", "event": "Replay audit complete", "signal": "No missing document IDs", "action": "Begin review", "owner": "Data operations", "status": "Complete"}
+    ]
+  },
+  "sources": [
+    {
+      "id": "incident_snapshot",
+      "label": "Synthetic incident telemetry and timeline",
+      "path": "report.data.json",
+      "query": {
+        "engine": "fixture",
+        "language": "sql",
+        "id": "ir-042-fixture",
+        "executed_at": "2026-07-21T22:30:00Z",
+        "description": "Invented incident metrics, interval samples, and response events.",
+        "sql": "SELECT * FROM fictional_incident_042"
+      }
+    },
+    {
+      "id": "architecture_illustration",
+      "label": "Synthetic document-service architecture illustration",
+      "path": "service-flow.svg"
+    }
+  ]
+}

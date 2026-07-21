@@ -1,0 +1,350 @@
+{
+  "surface": "report",
+  "manifest": {
+    "version": 1,
+    "surface": "report",
+    "title": "IR-042: Delayed Document Processing",
+    "description": "A fictional service incident review exercising technical prose, logs, charts, tables, and architecture figures.",
+    "generatedAt": "2026-07-21T22:30:00Z",
+    "cards": [
+      {
+        "id": "incident_headline_duration_minutes",
+        "description": "Minutes from confirmed impact to recovery.",
+        "dataset": "headline",
+        "sourceId": "incident_snapshot",
+        "metrics": [
+          {
+            "label": "Duration",
+            "field": "duration_minutes",
+            "format": "number"
+          }
+        ]
+      },
+      {
+        "id": "incident_headline_affected_documents",
+        "description": "Documents outside the fictional ten-minute objective.",
+        "dataset": "headline",
+        "sourceId": "incident_snapshot",
+        "metrics": [
+          {
+            "label": "Delayed documents",
+            "field": "affected_documents",
+            "format": "number"
+          }
+        ]
+      },
+      {
+        "id": "incident_headline_peak_error_rate",
+        "description": "Highest synthetic worker error rate.",
+        "dataset": "headline",
+        "sourceId": "incident_snapshot",
+        "metrics": [
+          {
+            "label": "Peak error rate",
+            "field": "peak_error_rate",
+            "format": "percent"
+          }
+        ]
+      },
+      {
+        "id": "incident_headline_follow_up_actions",
+        "description": "Assigned corrective actions.",
+        "dataset": "headline",
+        "sourceId": "incident_snapshot",
+        "metrics": [
+          {
+            "label": "Follow-up actions",
+            "field": "follow_up_actions",
+            "format": "number"
+          }
+        ]
+      }
+    ],
+    "charts": [
+      {
+        "id": "error_samples",
+        "title": "Worker errors by five-minute sample",
+        "type": "bar",
+        "dataset": "intervals",
+        "sourceId": "incident_snapshot",
+        "intent": "comparison",
+        "encodings": {
+          "x": {
+            "field": "time",
+            "type": "nominal",
+            "label": "Time"
+          },
+          "y": {
+            "field": "errors",
+            "type": "quantitative",
+            "format": "number",
+            "label": "Worker errors"
+          }
+        },
+        "valueFormat": "number",
+        "layout": "full",
+        "maxRows": 12,
+        "subtitle": "Synthetic event count during the incident window",
+        "showDescription": true
+      }
+    ],
+    "tables": [
+      {
+        "id": "timeline_table",
+        "title": "Detection, response, and recovery timeline",
+        "dataset": "timeline",
+        "sourceId": "incident_snapshot",
+        "density": "spacious",
+        "layout": "full",
+        "columns": [
+          {
+            "field": "time",
+            "label": "Time",
+            "type": "text"
+          },
+          {
+            "field": "event",
+            "label": "Event",
+            "type": "text"
+          },
+          {
+            "field": "signal",
+            "label": "Signal",
+            "type": "text"
+          },
+          {
+            "field": "action",
+            "label": "Action",
+            "type": "text"
+          },
+          {
+            "field": "owner",
+            "label": "Owner",
+            "type": "text"
+          },
+          {
+            "field": "status",
+            "label": "Status",
+            "type": "text"
+          }
+        ],
+        "subtitle": "All times are synthetic and shown in Mountain Time",
+        "showDescription": true
+      }
+    ],
+    "sources": [
+      {
+        "id": "incident_snapshot",
+        "label": "Synthetic incident telemetry and timeline",
+        "path": "report.data.json"
+      },
+      {
+        "id": "architecture_illustration",
+        "label": "Synthetic document-service architecture illustration",
+        "path": "service-flow.svg"
+      }
+    ],
+    "blocks": [
+      {
+        "id": "title",
+        "type": "markdown",
+        "body": "# IR-042: Delayed Document Processing"
+      },
+      {
+        "id": "technical_summary",
+        "type": "markdown",
+        "body": "## Technical Summary\n\n\n- **A configuration rollout exhausted the document worker connection pool for 47 minutes.** Requests queued rather than being rejected, but 1,840 documents exceeded the ten-minute processing objective.\n- **The trigger and recovery are understood.** A new retry interval increased simultaneous reconnect attempts; restoring the prior setting and recycling workers cleared the backlog.\n- **No document payloads were lost.** Four follow-up actions address rollout validation, pool telemetry, retry jitter, and backlog replay testing.",
+        "sourceId": "incident_snapshot"
+      },
+      {
+        "id": "incident_headline",
+        "type": "metric-strip",
+        "cardIds": [
+          "incident_headline_duration_minutes",
+          "incident_headline_affected_documents",
+          "incident_headline_peak_error_rate",
+          "incident_headline_follow_up_actions"
+        ]
+      },
+      {
+        "id": "failures_peaked_shortly_after_the_rollout",
+        "type": "markdown",
+        "body": "## Failures peaked shortly after the rollout\n\n\nThe five-minute samples show a rapid climb after deployment, followed by a decline once the prior retry interval was restored. The chart intentionally uses one series and nine prepared points.",
+        "sourceId": "incident_snapshot"
+      },
+      {
+        "id": "error_samples",
+        "type": "chart",
+        "chartId": "error_samples"
+      },
+      {
+        "id": "incident_timeline",
+        "type": "markdown",
+        "body": "## Incident timeline"
+      },
+      {
+        "id": "timeline_table",
+        "type": "table",
+        "tableId": "timeline_table"
+      },
+      {
+        "id": "representative_diagnostic_evidence",
+        "type": "markdown",
+        "body": "## Representative diagnostic evidence\n\nThe log excerpt is invented but shaped like the evidence an incident review should preserve:\n\n```text\n14:08:17 WARN worker-12 pool_wait_ms=30004 retry_attempt=6 queue_depth=742\n14:08:19 ERROR worker-08 connection timeout endpoint=document-store\n14:22:41 INFO config retry_interval_ms restored from=250 to=2000\n14:31:06 INFO queue_depth=211 pool_in_use=18 pool_available=6\n14:47:02 INFO recovery_confirmed queue_depth=0 oldest_age_seconds=42\n```"
+      },
+      {
+        "id": "failure_path_and_control_points",
+        "type": "markdown",
+        "body": "## Failure path and control points"
+      },
+      {
+        "id": "service_flow",
+        "type": "html",
+        "body": "<style>.report-figure img{width:auto;max-width:100%;max-height:180px;margin:0 auto;object-fit:contain}@media print{.report-figure img{max-height:4.15in}}</style><figure class=\"report-figure\" style=\"margin:0\"><img src=\"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjAwIiBoZWlnaHQ9IjU2MCIgdmlld0JveD0iMCAwIDEyMDAgNTYwIiByb2xlPSJpbWciIGFyaWEtbGFiZWxsZWRieT0idGl0bGUgZGVzYyI+CiAgPHRpdGxlIGlkPSJ0aXRsZSI+RG9jdW1lbnQgcHJvY2Vzc2luZyBzZXJ2aWNlIGZsb3c8L3RpdGxlPgogIDxkZXNjIGlkPSJkZXNjIj5BUEksIHF1ZXVlLCB3b3JrZXIgcG9vbCwgY29ubmVjdGlvbiBwb29sLCBhbmQgc3RvcmFnZSB3aXRoIGEgcmV0cnkgbG9vcCBhbmQgZm91ciBjb3JyZWN0aXZlIGNvbnRyb2xzLjwvZGVzYz4KICA8ZGVmcz4KICAgIDxtYXJrZXIgaWQ9ImFycm93IiB2aWV3Qm94PSIwIDAgMTAgMTAiIHJlZlg9IjkiIHJlZlk9IjUiIG1hcmtlcldpZHRoPSI4IiBtYXJrZXJIZWlnaHQ9IjgiIG9yaWVudD0iYXV0by1zdGFydC1yZXZlcnNlIj48cGF0aCBkPSJNMCAwIEwxMCA1IEwwIDEwIFoiIGZpbGw9IiM0ODY1ODEiLz48L21hcmtlcj4KICAgIDxtYXJrZXIgaWQ9InJlZC1hcnJvdyIgdmlld0JveD0iMCAwIDEwIDEwIiByZWZYPSI5IiByZWZZPSI1IiBtYXJrZXJXaWR0aD0iOCIgbWFya2VySGVpZ2h0PSI4IiBvcmllbnQ9ImF1dG8tc3RhcnQtcmV2ZXJzZSI+PHBhdGggZD0iTTAgMCBMMTAgNSBMMCAxMCBaIiBmaWxsPSIjYzUzMDMwIi8+PC9tYXJrZXI+CiAgPC9kZWZzPgogIDxyZWN0IHdpZHRoPSIxMjAwIiBoZWlnaHQ9IjU2MCIgcng9IjMwIiBmaWxsPSIjZWRmMmY3Ii8+CiAgPGcgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIj4KICAgIDx0ZXh0IHg9IjUwIiB5PSI2MiIgZm9udC1zaXplPSIzMCIgZm9udC13ZWlnaHQ9IjcwMCIgZmlsbD0iIzI0M2I1MyI+RE9DVU1FTlQgUFJPQ0VTU0lORyBGTE9XPC90ZXh0PgogICAgPGcgZmlsbD0iI2ZmZiIgc3Ryb2tlPSIjNDg2NTgxIiBzdHJva2Utd2lkdGg9IjUiPgogICAgICA8cmVjdCB4PSI1MCIgeT0iMTY4IiB3aWR0aD0iMTkwIiBoZWlnaHQ9IjExOCIgcng9IjE2Ii8+CiAgICAgIDxyZWN0IHg9IjMwMCIgeT0iMTY4IiB3aWR0aD0iMTkwIiBoZWlnaHQ9IjExOCIgcng9IjE2Ii8+CiAgICAgIDxyZWN0IHg9IjU1MCIgeT0iMTY4IiB3aWR0aD0iMTkwIiBoZWlnaHQ9IjExOCIgcng9IjE2Ii8+CiAgICAgIDxyZWN0IHg9IjgwMCIgeT0iMTY4IiB3aWR0aD0iMTkwIiBoZWlnaHQ9IjExOCIgcng9IjE2Ii8+CiAgICAgIDxyZWN0IHg9IjEwNDAiIHk9IjE2OCIgd2lkdGg9IjExMCIgaGVpZ2h0PSIxMTgiIHJ4PSIxNiIvPgogICAgPC9nPgogICAgPGcgZmlsbD0iIzI0M2I1MyIgdGV4dC1hbmNob3I9Im1pZGRsZSI+CiAgICAgIDx0ZXh0IHg9IjE0NSIgeT0iMjE4IiBmb250LXNpemU9IjIzIiBmb250LXdlaWdodD0iNzAwIj5BUEk8L3RleHQ+PHRleHQgeD0iMTQ1IiB5PSIyNTEiIGZvbnQtc2l6ZT0iMTYiPkFjY2VwdCByZXF1ZXN0PC90ZXh0PgogICAgICA8dGV4dCB4PSIzOTUiIHk9IjIxOCIgZm9udC1zaXplPSIyMyIgZm9udC13ZWlnaHQ9IjcwMCI+UVVFVUU8L3RleHQ+PHRleHQgeD0iMzk1IiB5PSIyNTEiIGZvbnQtc2l6ZT0iMTYiPlByb3RlY3QgcGF5bG9hZDwvdGV4dD4KICAgICAgPHRleHQgeD0iNjQ1IiB5PSIyMTEiIGZvbnQtc2l6ZT0iMjMiIGZvbnQtd2VpZ2h0PSI3MDAiPldPUktFUlM8L3RleHQ+PHRleHQgeD0iNjQ1IiB5PSIyNDQiIGZvbnQtc2l6ZT0iMTYiPlRyYW5zZm9ybSBhbmQgcm91dGU8L3RleHQ+CiAgICAgIDx0ZXh0IHg9Ijg5NSIgeT0iMjExIiBmb250LXNpemU9IjIzIiBmb250LXdlaWdodD0iNzAwIj5QT09MPC90ZXh0Pjx0ZXh0IHg9Ijg5NSIgeT0iMjQ0IiBmb250LXNpemU9IjE2Ij4yNCBjb25uZWN0aW9uczwvdGV4dD4KICAgICAgPHRleHQgeD0iMTA5NSIgeT0iMjE4IiBmb250LXNpemU9IjIwIiBmb250LXdlaWdodD0iNzAwIj5TVE9SRTwvdGV4dD48dGV4dCB4PSIxMDk1IiB5PSIyNTEiIGZvbnQtc2l6ZT0iMTUiPlBlcnNpc3Q8L3RleHQ+CiAgICA8L2c+CiAgICA8ZyBmaWxsPSJub25lIiBzdHJva2U9IiM0ODY1ODEiIHN0cm9rZS13aWR0aD0iNyIgbWFya2VyLWVuZD0idXJsKCNhcnJvdykiPgogICAgICA8cGF0aCBkPSJNMjQwIDIyNyBIMjkyIi8+PHBhdGggZD0iTTQ5MCAyMjcgSDU0MiIvPjxwYXRoIGQ9Ik03NDAgMjI3IEg3OTIiLz48cGF0aCBkPSJNOTkwIDIyNyBIMTAzMiIvPgogICAgPC9nPgogICAgPHBhdGggZD0iTTg5MyAzMDAgQzg5MCA0MTAgNjIwIDQxMiA2MjAgMzAwIiBmaWxsPSJub25lIiBzdHJva2U9IiNjNTMwMzAiIHN0cm9rZS13aWR0aD0iOSIgc3Ryb2tlLWRhc2hhcnJheT0iMTQgMTAiIG1hcmtlci1lbmQ9InVybCgjcmVkLWFycm93KSIvPgogICAgPHRleHQgeD0iNzU1IiB5PSI0MzAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiNjNTMwMzAiIGZvbnQtc2l6ZT0iMjEiIGZvbnQtd2VpZ2h0PSI3MDAiPjI1MCBtcyBSRVRSWSBMT09QPC90ZXh0PgogICAgPGc+CiAgICAgIDxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDc2IDM1NCkiPjxjaXJjbGUgY3g9IjI4IiBjeT0iMjgiIHI9IjI1IiBmaWxsPSIjMmY4NTVhIi8+PHRleHQgeD0iMjgiIHk9IjM2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjZmZmIiBmb250LXNpemU9IjIyIiBmb250LXdlaWdodD0iNzAwIj4xPC90ZXh0Pjx0ZXh0IHg9IjY1IiB5PSIzNSIgZmlsbD0iIzI0M2I1MyIgZm9udC1zaXplPSIxOCI+UG9vbCB3YWl0IGFsZXJ0PC90ZXh0PjwvZz4KICAgICAgPGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoNzYgNDI0KSI+PGNpcmNsZSBjeD0iMjgiIGN5PSIyOCIgcj0iMjUiIGZpbGw9IiMyZjg1NWEiLz48dGV4dCB4PSIyOCIgeT0iMzYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiNmZmYiIGZvbnQtc2l6ZT0iMjIiIGZvbnQtd2VpZ2h0PSI3MDAiPjI8L3RleHQ+PHRleHQgeD0iNjUiIHk9IjM1IiBmaWxsPSIjMjQzYjUzIiBmb250LXNpemU9IjE4Ij5SZXRyeSBqaXR0ZXI8L3RleHQ+PC9nPgogICAgICA8ZyB0cmFuc2Zvcm09InRyYW5zbGF0ZSg4MjggMzU0KSI+PGNpcmNsZSBjeD0iMjgiIGN5PSIyOCIgcj0iMjUiIGZpbGw9IiMyZjg1NWEiLz48dGV4dCB4PSIyOCIgeT0iMzYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiNmZmYiIGZvbnQtc2l6ZT0iMjIiIGZvbnQtd2VpZ2h0PSI3MDAiPjM8L3RleHQ+PHRleHQgeD0iNjUiIHk9IjM1IiBmaWxsPSIjMjQzYjUzIiBmb250LXNpemU9IjE4Ij5SZWNvbm5lY3QgdGVzdDwvdGV4dD48L2c+CiAgICAgIDxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDgyOCA0MjQpIj48Y2lyY2xlIGN4PSIyOCIgY3k9IjI4IiByPSIyNSIgZmlsbD0iIzJmODU1YSIvPjx0ZXh0IHg9IjI4IiB5PSIzNiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iI2ZmZiIgZm9udC1zaXplPSIyMiIgZm9udC13ZWlnaHQ9IjcwMCI+NDwvdGV4dD48dGV4dCB4PSI2NSIgeT0iMzUiIGZpbGw9IiMyNDNiNTMiIGZvbnQtc2l6ZT0iMTgiPkJhY2tsb2cgcmVwbGF5PC90ZXh0PjwvZz4KICAgIDwvZz4KICAgIDx0ZXh0IHg9IjUwIiB5PSI1MjUiIGZpbGw9IiM1MjY1NzkiIGZvbnQtc2l6ZT0iMTgiPlN5bnRoZXRpYyBhcmNoaXRlY3R1cmUg4oCiIG5vIHByb2R1Y3Rpb24gc3lzdGVtcyByZXByZXNlbnRlZDwvdGV4dD4KICA8L2c+Cjwvc3ZnPgo=\" alt=\"A service flow from API to queue to document workers to storage, with a red retry loop around the worker connection pool and four green control points.\" style=\"display:block;height:auto;border:1px solid #cfd5dc;border-radius:8px\" /><figcaption style=\"margin-top:8px;color:#4c5560;font-size:13px\">Synthetic architecture figure highlighting the retry loop and planned controls.<span style=\"display:block;color:#68727d;font-size:12px\">Source: Synthetic document-service architecture illustration</span></figcaption></figure>",
+        "layout": "full",
+        "sourceId": "architecture_illustration"
+      },
+      {
+        "id": "root_cause_and_contributing_conditions",
+        "type": "markdown",
+        "body": "## Root cause and contributing conditions\n\n**Root cause:** the rollout reduced the retry interval from two seconds to 250 milliseconds. Workers waiting for storage connections retried in near lockstep, keeping the fixed-size pool saturated.\n\nContributing conditions included missing saturation alerts, no jitter in the retry policy, and a load test that exercised throughput but not storage reconnection. The queue protected requests from loss, but it also delayed the visible symptom until processing age crossed the objective."
+      },
+      {
+        "id": "corrective_actions",
+        "type": "markdown",
+        "body": "## Corrective actions\n\n1. Add randomized exponential backoff to storage reconnects.\n2. Alert on connection-pool wait time and saturation, not only request failures.\n3. Add a reconnection storm scenario to the pre-production test suite.\n4. Require a bounded backlog replay check in the rollback procedure.\n\nThis incident, system, evidence, and architecture are entirely fictional and must not be treated as production history."
+      }
+    ]
+  },
+  "snapshot": {
+    "version": 1,
+    "generatedAt": "2026-07-21T22:30:00Z",
+    "status": "fixture",
+    "datasets": {
+      "headline": [
+        {
+          "duration_minutes": 47,
+          "affected_documents": 1840,
+          "peak_error_rate": 0.18,
+          "follow_up_actions": 4
+        }
+      ],
+      "intervals": [
+        {
+          "time": "14:05",
+          "errors": 8
+        },
+        {
+          "time": "14:10",
+          "errors": 46
+        },
+        {
+          "time": "14:15",
+          "errors": 91
+        },
+        {
+          "time": "14:20",
+          "errors": 134
+        },
+        {
+          "time": "14:25",
+          "errors": 118
+        },
+        {
+          "time": "14:30",
+          "errors": 72
+        },
+        {
+          "time": "14:35",
+          "errors": 39
+        },
+        {
+          "time": "14:40",
+          "errors": 17
+        },
+        {
+          "time": "14:45",
+          "errors": 3
+        }
+      ],
+      "timeline": [
+        {
+          "time": "14:00",
+          "event": "Rollout completed",
+          "signal": "Config version 42",
+          "action": "Observe",
+          "owner": "Release",
+          "status": "Complete"
+        },
+        {
+          "time": "14:08",
+          "event": "Queue age alert",
+          "signal": "Oldest item over 5 min",
+          "action": "Incident opened",
+          "owner": "On-call",
+          "status": "Complete"
+        },
+        {
+          "time": "14:14",
+          "event": "Pool saturation found",
+          "signal": "100% connections in use",
+          "action": "Pause rollout",
+          "owner": "Platform",
+          "status": "Complete"
+        },
+        {
+          "time": "14:22",
+          "event": "Prior setting restored",
+          "signal": "Retry interval 2000 ms",
+          "action": "Recycle workers",
+          "owner": "Platform",
+          "status": "Complete"
+        },
+        {
+          "time": "14:31",
+          "event": "Backlog declining",
+          "signal": "Queue depth 211",
+          "action": "Continue monitoring",
+          "owner": "On-call",
+          "status": "Complete"
+        },
+        {
+          "time": "14:47",
+          "event": "Recovery confirmed",
+          "signal": "Queue empty",
+          "action": "Close impact window",
+          "owner": "Incident lead",
+          "status": "Complete"
+        },
+        {
+          "time": "15:30",
+          "event": "Replay audit complete",
+          "signal": "No missing document IDs",
+          "action": "Begin review",
+          "owner": "Data operations",
+          "status": "Complete"
+        }
+      ]
+    }
+  },
+  "sources": [
+    {
+      "id": "incident_snapshot",
+      "label": "Synthetic incident telemetry and timeline",
+      "path": "report.data.json",
+      "query": {
+        "engine": "fixture",
+        "language": "sql",
+        "id": "ir-042-fixture",
+        "executed_at": "2026-07-21T22:30:00Z",
+        "description": "Invented incident metrics, interval samples, and response events.",
+        "sql": "SELECT * FROM fictional_incident_042"
+      }
+    },
+    {
+      "id": "architecture_illustration",
+      "label": "Synthetic document-service architecture illustration",
+      "path": "service-flow.svg"
+    }
+  ]
+}

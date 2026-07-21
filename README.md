@@ -70,6 +70,15 @@ py skill\create-auditable-reports\scripts\build_report_bundle.py `
 
 This one command compiles the Markdown, renders interactive HTML, embeds Chart.js visuals, paginates with Paged.js, and creates a PDF. Read [Report Markdown v0.1](skill/create-auditable-reports/references/report-markdown.md) for the four directives and fixed limits.
 
+Build the four synthetic lesson, project-report, journal, and incident-review fixtures together:
+
+```powershell
+py skill\create-auditable-reports\scripts\build_test_library.py `
+  --output-dir .work\test-library
+```
+
+The fixture catalog and feature coverage are documented in [Synthetic test library](skill/create-auditable-reports/references/test-library.md). None of the examples contain personal, customer, email, or ClickUp content.
+
 For direct artifact work or individual stages, use `compile_report.py`, `render_report.py`, `build_print_report.py`, `render_chartjs_output.py`, and `render_paged_output.py` separately.
 
 Validate the repository and shipped example:

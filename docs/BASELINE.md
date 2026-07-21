@@ -44,7 +44,7 @@ The synthetic project-health example under `skill/create-auditable-reports/asset
 
 The default handoff is a self-contained interactive HTML file plus the canonical artifact and its evidence files. Paginated output is optional and has four explicit stages:
 
-1. `report_print.html`: script-free, self-contained pagination source with CSS Paged Media rules.
+1. `report_print.html`: script-free, self-contained pagination source with CSS Paged Media rules and allowlisted inline figures extracted from interactive sandbox frames.
 2. `report_charted.html`: optional Chart.js-materialized source with embedded PNG visuals and semantic tables.
 3. `report_paged.html`: Paged.js browser preview when requested.
 4. `report.pdf`: Paged.js PDF handoff when requested.

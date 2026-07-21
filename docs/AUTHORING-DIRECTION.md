@@ -20,6 +20,8 @@ quarterly-health/
 
 Markdown owns headings, prose, lists, links, blockquotes, and fenced code. Four directives place metric strips, bar/pie charts, tables, and figures. The JSON sidecar owns prepared rows and canonical source metadata.
 
+An optional `document-type` selects one of four opening profiles: `report` uses `Executive Summary`, `technical` uses `Technical Summary`, `lesson` uses `Lesson Overview`, and `journal` uses `Entry Summary`. This is vocabulary, not theming; all four profiles share the same renderer and layout constraints.
+
 The complete v0.1 syntax and limits are in `skill/create-auditable-reports/references/report-markdown.md`.
 
 ## Design boundary

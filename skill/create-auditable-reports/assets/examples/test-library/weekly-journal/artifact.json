@@ -1,0 +1,370 @@
+{
+  "surface": "report",
+  "manifest": {
+    "version": 1,
+    "surface": "report",
+    "title": "A Week of Smaller Commitments",
+    "description": "A fictional weekly journal combining reflection, small quantitative visuals, a log table, and an illustration.",
+    "generatedAt": "2026-07-21T22:20:00Z",
+    "cards": [
+      {
+        "id": "week_snapshot_entries",
+        "description": "One short entry for each day.",
+        "dataset": "headline",
+        "sourceId": "journal_log",
+        "metrics": [
+          {
+            "label": "Journal entries",
+            "field": "entries",
+            "format": "number"
+          }
+        ]
+      },
+      {
+        "id": "week_snapshot_focused_hours",
+        "description": "Total protected focus time in the synthetic log.",
+        "dataset": "headline",
+        "sourceId": "journal_log",
+        "metrics": [
+          {
+            "label": "Focused hours",
+            "field": "focused_hours",
+            "format": "number"
+          }
+        ]
+      },
+      {
+        "id": "week_snapshot_outdoors_minutes",
+        "description": "Total outdoor time in the synthetic log.",
+        "dataset": "headline",
+        "sourceId": "journal_log",
+        "metrics": [
+          {
+            "label": "Minutes outdoors",
+            "field": "outdoors_minutes",
+            "format": "number"
+          }
+        ]
+      },
+      {
+        "id": "week_snapshot_average_energy",
+        "description": "Average self-rating on a ten-point scale.",
+        "dataset": "headline",
+        "sourceId": "journal_log",
+        "metrics": [
+          {
+            "label": "Average energy",
+            "field": "average_energy",
+            "format": "number"
+          }
+        ]
+      }
+    ],
+    "charts": [
+      {
+        "id": "daily_energy",
+        "title": "Daily energy check-in",
+        "type": "bar",
+        "dataset": "days",
+        "sourceId": "journal_log",
+        "intent": "comparison",
+        "encodings": {
+          "x": {
+            "field": "day",
+            "type": "nominal",
+            "label": "Day"
+          },
+          "y": {
+            "field": "energy",
+            "type": "quantitative",
+            "format": "number",
+            "label": "Energy score"
+          }
+        },
+        "valueFormat": "number",
+        "layout": "full",
+        "maxRows": 12,
+        "subtitle": "Fictional self-rating from 1 to 10",
+        "showDescription": true
+      },
+      {
+        "id": "time_allocation",
+        "title": "Deliberate time allocation",
+        "type": "pie",
+        "dataset": "allocation",
+        "sourceId": "journal_log",
+        "intent": "composition",
+        "encodings": {
+          "x": {
+            "field": "category",
+            "type": "nominal",
+            "label": "Category"
+          },
+          "y": {
+            "field": "hours",
+            "type": "quantitative",
+            "format": "number",
+            "label": "Hours"
+          },
+          "color": {
+            "field": "category",
+            "type": "nominal",
+            "label": "Category"
+          }
+        },
+        "valueFormat": "number",
+        "layout": "full",
+        "maxRows": 6,
+        "subtitle": "Twenty-eight fictional discretionary hours",
+        "showDescription": true
+      }
+    ],
+    "tables": [
+      {
+        "id": "daily_table",
+        "title": "Seven-day reflection log",
+        "dataset": "days",
+        "sourceId": "journal_log",
+        "density": "spacious",
+        "layout": "full",
+        "columns": [
+          {
+            "field": "day",
+            "label": "Day",
+            "type": "text"
+          },
+          {
+            "field": "sleep",
+            "label": "Sleep",
+            "format": "number"
+          },
+          {
+            "field": "focus",
+            "label": "Focus",
+            "format": "number"
+          },
+          {
+            "field": "outdoors",
+            "label": "Outdoors",
+            "format": "number"
+          },
+          {
+            "field": "energy",
+            "label": "Energy",
+            "format": "number"
+          },
+          {
+            "field": "note",
+            "label": "One-line note",
+            "type": "text"
+          }
+        ],
+        "subtitle": "Small observations rather than comprehensive tracking",
+        "showDescription": true
+      }
+    ],
+    "sources": [
+      {
+        "id": "journal_log",
+        "label": "Synthetic seven-day journal log",
+        "path": "report.data.json"
+      },
+      {
+        "id": "journal_illustration",
+        "label": "Synthetic weekly memory-map illustration",
+        "path": "week-map.svg"
+      }
+    ],
+    "blocks": [
+      {
+        "id": "title",
+        "type": "markdown",
+        "body": "# A Week of Smaller Commitments"
+      },
+      {
+        "id": "entry_summary",
+        "type": "markdown",
+        "body": "## Entry Summary\n\n\nThis fictional week was less about finishing a dramatic project and more about making promises small enough to keep. Seven brief entries captured the pattern: energy improved after time outdoors, focused work was best before lunch, and the most satisfying moments were ordinary conversations.\n\n> The question I want to carry forward is simple: what deserves unhurried attention today?",
+        "sourceId": "journal_log"
+      },
+      {
+        "id": "week_snapshot",
+        "type": "metric-strip",
+        "cardIds": [
+          "week_snapshot_entries",
+          "week_snapshot_focused_hours",
+          "week_snapshot_outdoors_minutes",
+          "week_snapshot_average_energy"
+        ]
+      },
+      {
+        "id": "energy_rose_toward_the_weekend",
+        "type": "markdown",
+        "body": "## Energy rose toward the weekend\n\n\nThe daily scores are not a health measure; they are a lightweight reflection cue. The strongest days also included a walk and fewer evening commitments.",
+        "sourceId": "journal_log"
+      },
+      {
+        "id": "daily_energy",
+        "type": "chart",
+        "chartId": "daily_energy"
+      },
+      {
+        "id": "time_went_mostly_to_work_and_relationships",
+        "type": "markdown",
+        "body": "## Time went mostly to work and relationships"
+      },
+      {
+        "id": "time_allocation",
+        "type": "chart",
+        "chartId": "time_allocation"
+      },
+      {
+        "id": "daily_log",
+        "type": "markdown",
+        "body": "## Daily log"
+      },
+      {
+        "id": "daily_table",
+        "type": "table",
+        "tableId": "daily_table"
+      },
+      {
+        "id": "a_reusable_evening_prompt",
+        "type": "markdown",
+        "body": "## A reusable evening prompt\n\nThe report also exercises a code-style block for text that should preserve line breaks:\n\n```text\nNOTICE: What held my attention?\nNAME:   What feeling or need was present?\nNEXT:   What is one kind, concrete next step?\n```"
+      },
+      {
+        "id": "memory_map",
+        "type": "markdown",
+        "body": "## Memory map"
+      },
+      {
+        "id": "weekly_memory_map",
+        "type": "html",
+        "body": "<style>.report-figure img{width:auto;max-width:100%;max-height:180px;margin:0 auto;object-fit:contain}@media print{.report-figure img{max-height:4.15in}}</style><figure class=\"report-figure\" style=\"margin:0\"><img src=\"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjAwIiBoZWlnaHQ9IjU2MCIgdmlld0JveD0iMCAwIDEyMDAgNTYwIiByb2xlPSJpbWciIGFyaWEtbGFiZWxsZWRieT0idGl0bGUgZGVzYyI+CiAgPHRpdGxlIGlkPSJ0aXRsZSI+V2Vla2x5IGpvdXJuYWwgbWVtb3J5IG1hcDwvdGl0bGU+CiAgPGRlc2MgaWQ9ImRlc2MiPkFuIG9wZW4gam91cm5hbCBvbiBhIHdvb2RlbiBkZXNrIHdpdGggc2V2ZW4gY29ubmVjdGVkIGRheSBtYXJrZXJzLCBhIG11ZywgYW5kIGEgcGxhbnQuPC9kZXNjPgogIDxyZWN0IHdpZHRoPSIxMjAwIiBoZWlnaHQ9IjU2MCIgcng9IjMwIiBmaWxsPSIjZDliODhmIi8+CiAgPHBhdGggZD0iTTAgMTEyIEgxMjAwIE0wIDI5NCBIMTIwMCBNMCA0NjggSDEyMDAiIHN0cm9rZT0iI2MzOWE2YiIgc3Ryb2tlLXdpZHRoPSI4IiBvcGFjaXR5PSIwLjU1Ii8+CiAgPGVsbGlwc2UgY3g9IjYwMCIgY3k9IjQ3MCIgcng9IjQwNSIgcnk9IjQyIiBmaWxsPSIjOGE2NzQ3IiBvcGFjaXR5PSIwLjI1Ii8+CiAgPHBhdGggZD0iTTIwOCAxMTggUTM5OCA2NCA1ODYgMTM1IEw1NzIgNDU2IFEzOTAgMzk3IDIxMCA0NDUgWiIgZmlsbD0iI2ZmZmRmNiIgc3Ryb2tlPSIjNWQ0YTNjIiBzdHJva2Utd2lkdGg9IjgiLz4KICA8cGF0aCBkPSJNNTg2IDEzNSBRNzc4IDY0IDk3MCAxMTggTDk2OCA0NDUgUTc4MCAzOTcgNTcyIDQ1NiBaIiBmaWxsPSIjZmZmYWYwIiBzdHJva2U9IiM1ZDRhM2MiIHN0cm9rZS13aWR0aD0iOCIvPgogIDxwYXRoIGQ9Ik01ODYgMTM1IEw1NzIgNDU2IiBzdHJva2U9IiM1ZDRhM2MiIHN0cm9rZS13aWR0aD0iNiIvPgogIDxwYXRoIGQ9Ik0yNzUgMjEwIEMzODAgMTUwIDQ0MCAyNjAgNTQ1IDE4OCBDNjUwIDEyMCA3MjggMjQwIDgyNCAxNzYgQzg5NCAxMzAgOTMwIDIxNSA5MTUgMzEyIiBmaWxsPSJub25lIiBzdHJva2U9IiM3YzZkYTgiIHN0cm9rZS13aWR0aD0iNyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtZGFzaGFycmF5PSI0IDE0Ii8+CiAgPGcgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXdlaWdodD0iNzAwIj4KICAgIDxnPjxjaXJjbGUgY3g9IjI3OCIgY3k9IjIxMCIgcj0iMjYiIGZpbGw9IiNkNjZkNWMiLz48dGV4dCB4PSIyNzgiIHk9IjIxOCIgZmlsbD0iI2ZmZiIgZm9udC1zaXplPSIyMCI+TTwvdGV4dD48L2c+CiAgICA8Zz48Y2lyY2xlIGN4PSIzODQiIGN5PSIxNjgiIHI9IjI2IiBmaWxsPSIjZDlhNDQxIi8+PHRleHQgeD0iMzg0IiB5PSIxNzYiIGZpbGw9IiNmZmYiIGZvbnQtc2l6ZT0iMjAiPlQ8L3RleHQ+PC9nPgogICAgPGc+PGNpcmNsZSBjeD0iNDc1IiBjeT0iMjQwIiByPSIyNiIgZmlsbD0iIzViOGY4YSIvPjx0ZXh0IHg9IjQ3NSIgeT0iMjQ4IiBmaWxsPSIjZmZmIiBmb250LXNpemU9IjIwIj5XPC90ZXh0PjwvZz4KICAgIDxnPjxjaXJjbGUgY3g9IjU3NCIgY3k9IjE3NSIgcj0iMjYiIGZpbGw9IiM2Mzg0YjgiLz48dGV4dCB4PSI1NzQiIHk9IjE4MyIgZmlsbD0iI2ZmZiIgZm9udC1zaXplPSIyMCI+VDwvdGV4dD48L2c+CiAgICA8Zz48Y2lyY2xlIGN4PSI2ODQiIGN5PSIyMjAiIHI9IjI2IiBmaWxsPSIjN2M2ZGE4Ii8+PHRleHQgeD0iNjg0IiB5PSIyMjgiIGZpbGw9IiNmZmYiIGZvbnQtc2l6ZT0iMjAiPkY8L3RleHQ+PC9nPgogICAgPGc+PGNpcmNsZSBjeD0iODA0IiBjeT0iMTY2IiByPSIyNiIgZmlsbD0iI2Q2NmQ1YyIvPjx0ZXh0IHg9IjgwNCIgeT0iMTc0IiBmaWxsPSIjZmZmIiBmb250LXNpemU9IjIwIj5TPC90ZXh0PjwvZz4KICAgIDxnPjxjaXJjbGUgY3g9IjkxNCIgY3k9IjMxMiIgcj0iMjYiIGZpbGw9IiM1YjhmOGEiLz48dGV4dCB4PSI5MTQiIHk9IjMyMCIgZmlsbD0iI2ZmZiIgZm9udC1zaXplPSIyMCI+UzwvdGV4dD48L2c+CiAgPC9nPgogIDxnIHN0cm9rZT0iI2I4YWFhMCIgc3Ryb2tlLXdpZHRoPSI1IiBzdHJva2UtbGluZWNhcD0icm91bmQiPgogICAgPHBhdGggZD0iTTI3MCAzMDUgTDUxMCAyODYiLz48cGF0aCBkPSJNMjcwIDMzOCBMNTEyIDMyMCIvPjxwYXRoIGQ9Ik0yNzAgMzcxIEw1MTAgMzU0Ii8+CiAgICA8cGF0aCBkPSJNNjQ2IDMwNiBMODgwIDI4NSIvPjxwYXRoIGQ9Ik02NDYgMzM5IEw4ODAgMzIwIi8+PHBhdGggZD0iTTY0NiAzNzIgTDgyMCAzNTYiLz4KICA8L2c+CiAgPGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMTAwMCA3MCkiPgogICAgPHBhdGggZD0iTTE4IDExNSBDLTEwIDYwIDIwIDE1IDYyIDQ1IEM3MCAwIDEyNyA2IDExOCA1OCBDMTYwIDQ1IDE3MiAxMDMgMTMyIDEyMSBaIiBmaWxsPSIjNGY3ZDU1Ii8+CiAgICA8cGF0aCBkPSJNNzQgNjggTDc2IDE2MCIgc3Ryb2tlPSIjMzg1NDNjIiBzdHJva2Utd2lkdGg9IjkiLz4KICAgIDxwYXRoIGQ9Ik0zNSAxNTEgSDEyMCBMMTA2IDIzMSBINTAgWiIgZmlsbD0iI2I0NjA0YSIvPgogIDwvZz4KICA8ZyB0cmFuc2Zvcm09InRyYW5zbGF0ZSg0NiAzNDApIj4KICAgIDxwYXRoIGQ9Ik0yMCAyOCBIMTMyIFYxNDUgUTc2IDE3NCAyMCAxNDUgWiIgZmlsbD0iIzQ4NjU4MSIvPgogICAgPHBhdGggZD0iTTEzMiA1MiBRMTg0IDQ4IDE3NCAxMDAgUTE2NyAxMzcgMTMyIDEyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNDg2NTgxIiBzdHJva2Utd2lkdGg9IjE3Ii8+CiAgICA8cGF0aCBkPSJNNDUgNiBDNTggLTE2IDcwIC0xMiA3NSAxMCBNODUgNiBDOTggLTE2IDExMCAtMTIgMTE1IDEwIiBmaWxsPSJub25lIiBzdHJva2U9IiNmZmZmZmYiIHN0cm9rZS13aWR0aD0iNiIgb3BhY2l0eT0iMC42NSIvPgogIDwvZz4KPC9zdmc+Cg==\" alt=\"A desk with an open journal, a mug, a small plant, and seven colored day markers connected by a loose line.\" style=\"display:block;height:auto;border:1px solid #cfd5dc;border-radius:8px\" /><figcaption style=\"margin-top:8px;color:#4c5560;font-size:13px\">Synthetic journal illustration used to test a decorative figure alongside reflective prose.<span style=\"display:block;color:#68727d;font-size:12px\">Source: Synthetic weekly memory-map illustration</span></figcaption></figure>",
+        "layout": "full",
+        "sourceId": "journal_illustration"
+      },
+      {
+        "id": "things_worth_carrying_forward",
+        "type": "markdown",
+        "body": "## Things worth carrying forward\n\n- Put the phone in another room during the first focus block.\n- Ask one better follow-up question in each important conversation.\n- Leave one evening unscheduled.\n- Treat the journal as a place to notice, not a scorecard to optimize.\n\nEvery entry, number, and image in this document is invented for report testing."
+      }
+    ]
+  },
+  "snapshot": {
+    "version": 1,
+    "generatedAt": "2026-07-21T22:20:00Z",
+    "status": "fixture",
+    "datasets": {
+      "headline": [
+        {
+          "entries": 7,
+          "focused_hours": 18,
+          "outdoors_minutes": 315,
+          "average_energy": 7
+        }
+      ],
+      "days": [
+        {
+          "day": "Mon",
+          "sleep": 6.5,
+          "focus": 2.0,
+          "outdoors": 25,
+          "energy": 5,
+          "note": "Started rushed; reset after a short walk."
+        },
+        {
+          "day": "Tue",
+          "sleep": 7.0,
+          "focus": 3.5,
+          "outdoors": 35,
+          "energy": 7,
+          "note": "Quiet morning made the hard task easier."
+        },
+        {
+          "day": "Wed",
+          "sleep": 6.0,
+          "focus": 2.0,
+          "outdoors": 20,
+          "energy": 5,
+          "note": "Too many small commitments competed."
+        },
+        {
+          "day": "Thu",
+          "sleep": 7.5,
+          "focus": 3.0,
+          "outdoors": 45,
+          "energy": 8,
+          "note": "A long conversation mattered most."
+        },
+        {
+          "day": "Fri",
+          "sleep": 7.0,
+          "focus": 3.0,
+          "outdoors": 50,
+          "energy": 7,
+          "note": "Finished one thing and stopped on time."
+        },
+        {
+          "day": "Sat",
+          "sleep": 8.0,
+          "focus": 2.0,
+          "outdoors": 80,
+          "energy": 9,
+          "note": "Unhurried breakfast and trail time."
+        },
+        {
+          "day": "Sun",
+          "sleep": 7.5,
+          "focus": 2.5,
+          "outdoors": 60,
+          "energy": 8,
+          "note": "Rest, worship, family, and a simple plan."
+        }
+      ],
+      "allocation": [
+        {
+          "category": "Focused work",
+          "hours": 9
+        },
+        {
+          "category": "Relationships",
+          "hours": 7
+        },
+        {
+          "category": "Outdoors",
+          "hours": 5
+        },
+        {
+          "category": "Reading and reflection",
+          "hours": 4
+        },
+        {
+          "category": "Household care",
+          "hours": 3
+        }
+      ]
+    }
+  },
+  "sources": [
+    {
+      "id": "journal_log",
+      "label": "Synthetic seven-day journal log",
+      "path": "report.data.json",
+      "query": {
+        "engine": "fixture",
+        "language": "sql",
+        "id": "weekly-journal-fixture",
+        "executed_at": "2026-07-21T22:20:00Z",
+        "description": "Invented daily reflection rows and time-allocation categories.",
+        "sql": "SELECT * FROM synthetic_weekly_journal"
+      }
+    },
+    {
+      "id": "journal_illustration",
+      "label": "Synthetic weekly memory-map illustration",
+      "path": "week-map.svg"
+    }
+  ]
+}

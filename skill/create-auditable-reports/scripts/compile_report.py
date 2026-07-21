@@ -16,6 +16,12 @@ ID_PATTERN = re.compile(r"^[a-z][a-z0-9_-]{0,63}$")
 PROPERTY_PATTERN = re.compile(r"^([a-z][a-z0-9-]*):\s*(.*?)\s*$")
 SOURCE_MARKER_PATTERN = re.compile(r"^\s*<!--\s*source:\s*([a-z][a-z0-9_-]*)\s*-->\s*$", re.I)
 SUPPORTED_STATUS = {"ready", "partial", "blocked", "fixture"}
+DOCUMENT_SUMMARY_HEADINGS = {
+    "report": "Executive Summary",
+    "technical": "Technical Summary",
+    "lesson": "Lesson Overview",
+    "journal": "Entry Summary",
+}
 SUPPORTED_FORMATS = {"number", "currency", "percent"}
 SUPPORTED_COLUMN_FORMATS = {"text", "number", "currency", "percent", "date"}
 MAX_BAR_ITEMS = 12
@@ -72,7 +78,7 @@ def parse_front_matter(text: str) -> tuple[dict[str, str], list[str], int]:
         raise error(1, "front matter is missing its closing ---") from exc
     parsed = parse_properties(lines[1:closing], 2, repeatable=set())
     meta = {key: values[0] for key, values in parsed.items()}
-    allowed = {"description", "generated-at", "status", "data"}
+    allowed = {"description", "document-type", "generated-at", "status", "data"}
     unknown = sorted(set(meta) - allowed)
     if unknown:
         raise error(2, f"unsupported front matter: {', '.join(unknown)}")
@@ -81,6 +87,10 @@ def parse_front_matter(text: str) -> tuple[dict[str, str], list[str], int]:
             raise error(2, f"missing front matter property: {required}")
     if meta["status"] not in SUPPORTED_STATUS:
         raise error(2, f"status must be one of: {', '.join(sorted(SUPPORTED_STATUS))}")
+    document_type = meta.get("document-type", "report")
+    if document_type not in DOCUMENT_SUMMARY_HEADINGS:
+        raise error(2, f"document-type must be one of: {', '.join(DOCUMENT_SUMMARY_HEADINGS)}")
+    meta["document-type"] = document_type
     return meta, lines[closing + 1 :], closing + 2
 
 
@@ -585,12 +595,16 @@ def compile_report(source_path: Path) -> dict[str, Any]:
     if len(blocks) < 2:
         raise error(first_line, "report needs content after its title")
     first_content = blocks[1]
+    expected_summary = DOCUMENT_SUMMARY_HEADINGS[meta["document-type"]]
     if first_content.get("type") != "markdown" or not re.match(
-        r"^##\s+(?:Executive|Technical) Summary\b",
+        rf"^##\s+{re.escape(expected_summary)}\b",
         first_content.get("body", ""),
         flags=re.I,
     ):
-        raise error(first_line, "the first report section must be '## Executive Summary' or '## Technical Summary'")
+        raise error(
+            first_line,
+            f"document-type '{meta['document-type']}' must begin with '## {expected_summary}'",
+        )
 
     compact_sources = [
         {key: source[key] for key in ("id", "label", "path") if key in source}

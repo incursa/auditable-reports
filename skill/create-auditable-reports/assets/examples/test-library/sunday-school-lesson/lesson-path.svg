@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="520" viewBox="0 0 1200 520" role="img" aria-labelledby="title desc">
+  <title id="title">Mercy moves toward a neighbor</title>
+  <desc id="desc">An open book, a winding road, three people, and a welcoming house.</desc>
+  <rect width="1200" height="520" rx="32" fill="#f7f2e8"/>
+  <circle cx="1020" cy="90" r="54" fill="#f2c14e" opacity="0.9"/>
+  <path d="M0 410 C220 320 335 455 525 360 C720 260 845 360 1200 225 L1200 520 L0 520 Z" fill="#dfe9d8"/>
+  <path d="M275 500 C320 410 505 420 560 330 C610 250 755 280 850 205 C930 143 1035 160 1135 130" fill="none" stroke="#c49a6c" stroke-width="42" stroke-linecap="round"/>
+  <path d="M72 142 Q185 88 300 150 L292 324 Q182 270 72 324 Z" fill="#ffffff" stroke="#334e68" stroke-width="8"/>
+  <path d="M300 150 Q415 88 528 142 L528 324 Q414 270 292 324 Z" fill="#fffdf7" stroke="#334e68" stroke-width="8"/>
+  <path d="M300 150 L292 324" stroke="#334e68" stroke-width="6"/>
+  <g stroke="#9aa7b4" stroke-width="6" stroke-linecap="round">
+    <path d="M112 180 L252 164"/><path d="M112 216 L250 201"/><path d="M344 165 L480 182"/><path d="M344 202 L478 219"/>
+  </g>
+  <g fill="#385170">
+    <circle cx="620" cy="280" r="23"/><path d="M620 305 L620 370 M620 325 L580 352 M620 327 L655 354 M620 370 L590 415 M620 370 L653 412" stroke="#385170" stroke-width="18" stroke-linecap="round"/>
+    <circle cx="730" cy="245" r="23"/><path d="M730 270 L730 337 M730 293 L695 320 M730 292 L766 310 M730 337 L701 381 M730 337 L760 379" stroke="#385170" stroke-width="18" stroke-linecap="round"/>
+    <circle cx="682" cy="355" r="20"/><path d="M682 378 L682 420 M682 392 L653 405 M682 394 L710 407" stroke="#9b5d45" stroke-width="16" stroke-linecap="round"/>
+  </g>
+  <path d="M995 150 L1090 80 L1180 150 V275 H995 Z" fill="#ffffff" stroke="#334e68" stroke-width="8"/>
+  <rect x="1050" y="195" width="50" height="80" rx="4" fill="#9b5d45"/>
+  <rect x="1120" y="180" width="32" height="34" fill="#b9d9e8" stroke="#334e68" stroke-width="5"/>
+  <g font-family="Arial, sans-serif" fill="#243b53">
+    <text x="72" y="74" font-size="38" font-weight="700">NOTICE</text>
+    <text x="530" y="78" font-size="38" font-weight="700">APPROACH</text>
+    <text x="945" y="390" font-size="38" font-weight="700">CARE</text>
+    <text x="72" y="455" font-size="22">Synthetic teaching illustration</text>
+  </g>
+</svg>

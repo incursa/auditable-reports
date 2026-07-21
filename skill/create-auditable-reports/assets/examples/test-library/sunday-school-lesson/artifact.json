@@ -1,0 +1,318 @@
+{
+  "surface": "report",
+  "manifest": {
+    "version": 1,
+    "surface": "report",
+    "title": "Neighborly Mercy: A Sunday School Lesson",
+    "description": "A synthetic Sunday school lesson plan demonstrating narrative, visual, table, and figure blocks.",
+    "generatedAt": "2026-07-21T22:00:00Z",
+    "cards": [
+      {
+        "id": "lesson_snapshot_duration_minutes",
+        "description": "Planned class time in minutes.",
+        "dataset": "headline",
+        "sourceId": "lesson_plan",
+        "metrics": [
+          {
+            "label": "Lesson length",
+            "field": "duration_minutes",
+            "format": "number"
+          }
+        ]
+      },
+      {
+        "id": "lesson_snapshot_activities",
+        "description": "Distinct teaching and response activities.",
+        "dataset": "headline",
+        "sourceId": "lesson_plan",
+        "metrics": [
+          {
+            "label": "Activities",
+            "field": "activities",
+            "format": "number"
+          }
+        ]
+      },
+      {
+        "id": "lesson_snapshot_discussion_prompts",
+        "description": "Prepared open-ended questions.",
+        "dataset": "headline",
+        "sourceId": "lesson_plan",
+        "metrics": [
+          {
+            "label": "Discussion prompts",
+            "field": "discussion_prompts",
+            "format": "number"
+          }
+        ]
+      },
+      {
+        "id": "lesson_snapshot_take_home_practices",
+        "description": "Concrete take-home invitation.",
+        "dataset": "headline",
+        "sourceId": "lesson_plan",
+        "metrics": [
+          {
+            "label": "Weekly practice",
+            "field": "take_home_practices",
+            "format": "number"
+          }
+        ]
+      }
+    ],
+    "charts": [
+      {
+        "id": "lesson_timing",
+        "title": "Planned lesson time",
+        "type": "pie",
+        "dataset": "segments",
+        "sourceId": "lesson_plan",
+        "intent": "composition",
+        "encodings": {
+          "x": {
+            "field": "phase",
+            "type": "nominal",
+            "label": "Lesson phase"
+          },
+          "y": {
+            "field": "minutes",
+            "type": "quantitative",
+            "format": "number",
+            "label": "Minutes"
+          },
+          "color": {
+            "field": "phase",
+            "type": "nominal",
+            "label": "Lesson phase"
+          }
+        },
+        "valueFormat": "number",
+        "layout": "full",
+        "maxRows": 6,
+        "subtitle": "Forty-five synthetic minutes across five phases",
+        "showDescription": true
+      }
+    ],
+    "tables": [
+      {
+        "id": "activity_table",
+        "title": "Activity sequence",
+        "dataset": "activities",
+        "sourceId": "lesson_plan",
+        "density": "spacious",
+        "layout": "full",
+        "columns": [
+          {
+            "field": "phase",
+            "label": "Phase",
+            "type": "text"
+          },
+          {
+            "field": "minutes",
+            "label": "Minutes",
+            "format": "number"
+          },
+          {
+            "field": "purpose",
+            "label": "Purpose",
+            "type": "text"
+          },
+          {
+            "field": "method",
+            "label": "Method",
+            "type": "text"
+          },
+          {
+            "field": "material",
+            "label": "Material",
+            "type": "text"
+          },
+          {
+            "field": "prompt",
+            "label": "Key prompt",
+            "type": "text"
+          }
+        ],
+        "subtitle": "A bounded five-part lesson outline",
+        "showDescription": true
+      }
+    ],
+    "sources": [
+      {
+        "id": "lesson_plan",
+        "label": "Synthetic lesson plan dataset",
+        "path": "report.data.json"
+      },
+      {
+        "id": "lesson_illustration",
+        "label": "Synthetic mercy-path illustration",
+        "path": "lesson-path.svg"
+      }
+    ],
+    "blocks": [
+      {
+        "id": "title",
+        "type": "markdown",
+        "body": "# Neighborly Mercy: A Sunday School Lesson"
+      },
+      {
+        "id": "lesson_overview",
+        "type": "markdown",
+        "body": "## Lesson Overview\n\n\n- **Big idea:** mercy notices a need, moves toward it, and offers practical care.\n- **Text:** Luke 10:25–37, read from the congregation's preferred translation during class.\n- **Outcome:** learners will name one barrier to compassion and choose one concrete act of neighborly care for the coming week.\n\n> Teaching frame: the lesson is not about identifying the minimum circle of people we must love. It asks what it looks like to become a neighbor when a need is in front of us.",
+        "sourceId": "lesson_plan"
+      },
+      {
+        "id": "lesson_snapshot",
+        "type": "metric-strip",
+        "cardIds": [
+          "lesson_snapshot_duration_minutes",
+          "lesson_snapshot_activities",
+          "lesson_snapshot_discussion_prompts",
+          "lesson_snapshot_take_home_practices"
+        ]
+      },
+      {
+        "id": "the_lesson_gives_discussion_the_most_room",
+        "type": "markdown",
+        "body": "## The lesson gives discussion the most room\n\n\nThe schedule reserves one-third of the class for guided discussion. If time becomes tight, shorten the opening activity before cutting the final practice and prayer.",
+        "sourceId": "lesson_plan"
+      },
+      {
+        "id": "lesson_timing",
+        "type": "chart",
+        "chartId": "lesson_timing"
+      },
+      {
+        "id": "teaching_plan",
+        "type": "markdown",
+        "body": "## Teaching plan"
+      },
+      {
+        "id": "activity_table",
+        "type": "table",
+        "tableId": "activity_table"
+      },
+      {
+        "id": "discussion_prompts",
+        "type": "markdown",
+        "body": "## Discussion prompts\n\n1. Which character in the story is easiest for you to understand? Why?\n2. What might the two passersby have been afraid of losing?\n3. What did mercy cost the helper in time, attention, and resources?\n4. Who is easy for our group to overlook?\n5. What is one small act of care we can complete this week?"
+      },
+      {
+        "id": "visual_teaching_aid",
+        "type": "markdown",
+        "body": "## Visual teaching aid"
+      },
+      {
+        "id": "mercy_path",
+        "type": "html",
+        "body": "<style>.report-figure img{width:auto;max-width:100%;max-height:180px;margin:0 auto;object-fit:contain}@media print{.report-figure img{max-height:4.15in}}</style><figure class=\"report-figure\" style=\"margin:0\"><img src=\"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjAwIiBoZWlnaHQ9IjUyMCIgdmlld0JveD0iMCAwIDEyMDAgNTIwIiByb2xlPSJpbWciIGFyaWEtbGFiZWxsZWRieT0idGl0bGUgZGVzYyI+CiAgPHRpdGxlIGlkPSJ0aXRsZSI+TWVyY3kgbW92ZXMgdG93YXJkIGEgbmVpZ2hib3I8L3RpdGxlPgogIDxkZXNjIGlkPSJkZXNjIj5BbiBvcGVuIGJvb2ssIGEgd2luZGluZyByb2FkLCB0aHJlZSBwZW9wbGUsIGFuZCBhIHdlbGNvbWluZyBob3VzZS48L2Rlc2M+CiAgPHJlY3Qgd2lkdGg9IjEyMDAiIGhlaWdodD0iNTIwIiByeD0iMzIiIGZpbGw9IiNmN2YyZTgiLz4KICA8Y2lyY2xlIGN4PSIxMDIwIiBjeT0iOTAiIHI9IjU0IiBmaWxsPSIjZjJjMTRlIiBvcGFjaXR5PSIwLjkiLz4KICA8cGF0aCBkPSJNMCA0MTAgQzIyMCAzMjAgMzM1IDQ1NSA1MjUgMzYwIEM3MjAgMjYwIDg0NSAzNjAgMTIwMCAyMjUgTDEyMDAgNTIwIEwwIDUyMCBaIiBmaWxsPSIjZGZlOWQ4Ii8+CiAgPHBhdGggZD0iTTI3NSA1MDAgQzMyMCA0MTAgNTA1IDQyMCA1NjAgMzMwIEM2MTAgMjUwIDc1NSAyODAgODUwIDIwNSBDOTMwIDE0MyAxMDM1IDE2MCAxMTM1IDEzMCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjYzQ5YTZjIiBzdHJva2Utd2lkdGg9IjQyIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KICA8cGF0aCBkPSJNNzIgMTQyIFExODUgODggMzAwIDE1MCBMMjkyIDMyNCBRMTgyIDI3MCA3MiAzMjQgWiIgZmlsbD0iI2ZmZmZmZiIgc3Ryb2tlPSIjMzM0ZTY4IiBzdHJva2Utd2lkdGg9IjgiLz4KICA8cGF0aCBkPSJNMzAwIDE1MCBRNDE1IDg4IDUyOCAxNDIgTDUyOCAzMjQgUTQxNCAyNzAgMjkyIDMyNCBaIiBmaWxsPSIjZmZmZGY3IiBzdHJva2U9IiMzMzRlNjgiIHN0cm9rZS13aWR0aD0iOCIvPgogIDxwYXRoIGQ9Ik0zMDAgMTUwIEwyOTIgMzI0IiBzdHJva2U9IiMzMzRlNjgiIHN0cm9rZS13aWR0aD0iNiIvPgogIDxnIHN0cm9rZT0iIzlhYTdiNCIgc3Ryb2tlLXdpZHRoPSI2IiBzdHJva2UtbGluZWNhcD0icm91bmQiPgogICAgPHBhdGggZD0iTTExMiAxODAgTDI1MiAxNjQiLz48cGF0aCBkPSJNMTEyIDIxNiBMMjUwIDIwMSIvPjxwYXRoIGQ9Ik0zNDQgMTY1IEw0ODAgMTgyIi8+PHBhdGggZD0iTTM0NCAyMDIgTDQ3OCAyMTkiLz4KICA8L2c+CiAgPGcgZmlsbD0iIzM4NTE3MCI+CiAgICA8Y2lyY2xlIGN4PSI2MjAiIGN5PSIyODAiIHI9IjIzIi8+PHBhdGggZD0iTTYyMCAzMDUgTDYyMCAzNzAgTTYyMCAzMjUgTDU4MCAzNTIgTTYyMCAzMjcgTDY1NSAzNTQgTTYyMCAzNzAgTDU5MCA0MTUgTTYyMCAzNzAgTDY1MyA0MTIiIHN0cm9rZT0iIzM4NTE3MCIgc3Ryb2tlLXdpZHRoPSIxOCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+CiAgICA8Y2lyY2xlIGN4PSI3MzAiIGN5PSIyNDUiIHI9IjIzIi8+PHBhdGggZD0iTTczMCAyNzAgTDczMCAzMzcgTTczMCAyOTMgTDY5NSAzMjAgTTczMCAyOTIgTDc2NiAzMTAgTTczMCAzMzcgTDcwMSAzODEgTTczMCAzMzcgTDc2MCAzNzkiIHN0cm9rZT0iIzM4NTE3MCIgc3Ryb2tlLXdpZHRoPSIxOCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+CiAgICA8Y2lyY2xlIGN4PSI2ODIiIGN5PSIzNTUiIHI9IjIwIi8+PHBhdGggZD0iTTY4MiAzNzggTDY4MiA0MjAgTTY4MiAzOTIgTDY1MyA0MDUgTTY4MiAzOTQgTDcxMCA0MDciIHN0cm9rZT0iIzliNWQ0NSIgc3Ryb2tlLXdpZHRoPSIxNiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+CiAgPC9nPgogIDxwYXRoIGQ9Ik05OTUgMTUwIEwxMDkwIDgwIEwxMTgwIDE1MCBWMjc1IEg5OTUgWiIgZmlsbD0iI2ZmZmZmZiIgc3Ryb2tlPSIjMzM0ZTY4IiBzdHJva2Utd2lkdGg9IjgiLz4KICA8cmVjdCB4PSIxMDUwIiB5PSIxOTUiIHdpZHRoPSI1MCIgaGVpZ2h0PSI4MCIgcng9IjQiIGZpbGw9IiM5YjVkNDUiLz4KICA8cmVjdCB4PSIxMTIwIiB5PSIxODAiIHdpZHRoPSIzMiIgaGVpZ2h0PSIzNCIgZmlsbD0iI2I5ZDllOCIgc3Ryb2tlPSIjMzM0ZTY4IiBzdHJva2Utd2lkdGg9IjUiLz4KICA8ZyBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZpbGw9IiMyNDNiNTMiPgogICAgPHRleHQgeD0iNzIiIHk9Ijc0IiBmb250LXNpemU9IjM4IiBmb250LXdlaWdodD0iNzAwIj5OT1RJQ0U8L3RleHQ+CiAgICA8dGV4dCB4PSI1MzAiIHk9Ijc4IiBmb250LXNpemU9IjM4IiBmb250LXdlaWdodD0iNzAwIj5BUFBST0FDSDwvdGV4dD4KICAgIDx0ZXh0IHg9Ijk0NSIgeT0iMzkwIiBmb250LXNpemU9IjM4IiBmb250LXdlaWdodD0iNzAwIj5DQVJFPC90ZXh0PgogICAgPHRleHQgeD0iNzIiIHk9IjQ1NSIgZm9udC1zaXplPSIyMiI+U3ludGhldGljIHRlYWNoaW5nIGlsbHVzdHJhdGlvbjwvdGV4dD4KICA8L2c+Cjwvc3ZnPgo=\" alt=\"An open book beside a winding path that passes three people and ends at a small house.\" style=\"display:block;height:auto;border:1px solid #cfd5dc;border-radius:8px\" /><figcaption style=\"margin-top:8px;color:#4c5560;font-size:13px\">Synthetic teaching illustration: mercy moves from noticing to approaching to caring.<span style=\"display:block;color:#68727d;font-size:12px\">Source: Synthetic mercy-path illustration</span></figcaption></figure>",
+        "layout": "full",
+        "sourceId": "lesson_illustration"
+      },
+      {
+        "id": "facilitator_notes",
+        "type": "markdown",
+        "body": "## Facilitator notes\n\n- Invite answers without forcing personal disclosure.\n- Keep political or demographic examples from becoming abstractions; return to practical care.\n- If children are present, let them draw or act out the sequence: notice, approach, help, follow through.\n- Close by allowing thirty quiet seconds for each learner to choose a realistic weekly practice.\n\nThis lesson is fictional test material. Confirm every theological claim, safeguarding practice, and quotation before using it with a real class."
+      }
+    ]
+  },
+  "snapshot": {
+    "version": 1,
+    "generatedAt": "2026-07-21T22:00:00Z",
+    "status": "fixture",
+    "datasets": {
+      "headline": [
+        {
+          "duration_minutes": 45,
+          "activities": 5,
+          "discussion_prompts": 5,
+          "take_home_practices": 1
+        }
+      ],
+      "segments": [
+        {
+          "phase": "Welcome",
+          "minutes": 5
+        },
+        {
+          "phase": "Story",
+          "minutes": 10
+        },
+        {
+          "phase": "Discussion",
+          "minutes": 15
+        },
+        {
+          "phase": "Practice",
+          "minutes": 10
+        },
+        {
+          "phase": "Prayer",
+          "minutes": 5
+        }
+      ],
+      "activities": [
+        {
+          "phase": "Welcome",
+          "minutes": 5,
+          "purpose": "Connect the theme to daily life",
+          "method": "Paired question",
+          "material": "None",
+          "prompt": "When did someone notice you?"
+        },
+        {
+          "phase": "Story",
+          "minutes": 10,
+          "purpose": "Hear the narrative as a whole",
+          "method": "Read and retell",
+          "material": "Bible and three cards",
+          "prompt": "What changes along the road?"
+        },
+        {
+          "phase": "Discussion",
+          "minutes": 15,
+          "purpose": "Explore barriers and costs",
+          "method": "Guided conversation",
+          "material": "Prompt sheet",
+          "prompt": "What makes care difficult?"
+        },
+        {
+          "phase": "Practice",
+          "minutes": 10,
+          "purpose": "Choose a realistic response",
+          "method": "Scenario sorting",
+          "material": "Four scenario cards",
+          "prompt": "What can be done this week?"
+        },
+        {
+          "phase": "Prayer",
+          "minutes": 5,
+          "purpose": "Commit attention and action",
+          "method": "Silence and prayer",
+          "material": "Take-home card",
+          "prompt": "Who will I notice?"
+        }
+      ]
+    }
+  },
+  "sources": [
+    {
+      "id": "lesson_plan",
+      "label": "Synthetic lesson plan dataset",
+      "path": "report.data.json",
+      "query": {
+        "engine": "fixture",
+        "language": "sql",
+        "id": "lesson-plan-v1",
+        "executed_at": "2026-07-21T22:00:00Z",
+        "description": "Invented timing and activity rows used only to exercise report rendering.",
+        "sql": "SELECT * FROM synthetic_lesson_plan"
+      }
+    },
+    {
+      "id": "lesson_illustration",
+      "label": "Synthetic mercy-path illustration",
+      "path": "lesson-path.svg"
+    }
+  ]
+}
