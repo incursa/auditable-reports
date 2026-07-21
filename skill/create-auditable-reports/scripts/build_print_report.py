@@ -141,6 +141,7 @@ body{padding:0;font-size:9.5pt;line-height:1.38}
 .portable-table-scroll td{padding:4pt 5pt !important;border-bottom:1px solid #d9dee4 !important;color:#29313a !important;font-size:7.2pt !important;line-height:1.2 !important;white-space:normal !important;overflow-wrap:anywhere}.portable-table-scroll td.portable-table-number{white-space:nowrap !important;overflow-wrap:normal}
 .portable-table-note{margin-top:4pt !important;font-size:7.5pt !important}
 .portable-sources{display:block !important;margin-top:16pt !important;padding-top:9pt !important;border-top:1px solid #aeb7c2 !important;break-before:page}.portable-sources h2{color:#17365d;font-size:12.5pt}.portable-sources ol{gap:5pt !important}.portable-sources p{margin:1pt 0 !important;font-size:8pt}.portable-source-meta{font-size:7.5pt !important}
+.portable-custom-html iframe{height:4.75in !important;min-height:4.75in !important}
 .print-source-value{text-decoration:none !important}a{color:inherit;text-decoration:none}
 .page-break{break-before:page !important}.avoid-break{break-inside:avoid-page !important}
 .portable-page-header h1{string-set:report-title content(text)}

@@ -1,11 +1,12 @@
 # Auditable Reports
 
-This repository is the source home for Incursa's reusable analytical-report baseline. It preserves the supplied `create-auditable-reports` agent skill, its deterministic utilities, and a synthetic golden example while leaving room for a friendlier authoring format later.
+This repository is the source home for Incursa's reusable analytical-report baseline. It contains the `create-auditable-reports` agent skill, a constrained Markdown authoring language, deterministic build utilities, and synthetic golden examples.
 
 The core design decision is simple:
 
 ```text
-human-friendly source (future)
+       report.report.md
+        + report.data.json
            |
            v
      artifact.json          canonical, auditable intermediate representation
@@ -29,7 +30,7 @@ human-friendly source (future)
                         +--> report.pdf
 ```
 
-Generated HTML is an output, not an authoring format. The current authoring source is `artifact.json`. A future Markdown-like source should compile to the same artifact rather than replace the evidence and provenance model.
+Generated HTML is an output, not an authoring format. Routine reports should start from `.report.md`; its compiler produces the same reviewable `artifact.json` used by advanced authors and every downstream renderer.
 
 ## Why this is a separate repository
 
@@ -39,7 +40,7 @@ This package owns an artifact contract, executable tooling, fixtures, validation
 
 - `skill/create-auditable-reports/` — self-contained agent skill imported from the source archive.
 - `docs/BASELINE.md` — the report content, visual, evidence, and output baseline.
-- `docs/AUTHORING-DIRECTION.md` — proposed path toward declarative `.report.md` authoring.
+- `docs/AUTHORING-DIRECTION.md` — accepted `.report.md` authoring model and boundaries.
 - `docs/INTAKE.md` — archive provenance, inventory, validation evidence, and identified gaps.
 - `docs/decisions/` — durable architectural decisions.
 - `scripts/Test-Repository.ps1` — local repository validation.
@@ -47,7 +48,7 @@ This package owns an artifact contract, executable tooling, fixtures, validation
 
 ## Quick start
 
-Create a synthetic working directory:
+Create a synthetic Markdown working directory:
 
 ```powershell
 py skill\create-auditable-reports\scripts\new_report.py `
@@ -55,13 +56,21 @@ py skill\create-auditable-reports\scripts\new_report.py `
   --output .work\quarterly-delivery-health
 ```
 
-Replace every synthetic value and source record, then render:
+Install the pinned browser tooling once, replace every synthetic value and source record, then render:
 
 ```powershell
-py skill\create-auditable-reports\scripts\render_report.py `
-  --artifact .work\quarterly-delivery-health\artifact.json `
-  --output .work\quarterly-delivery-health\report.html
+npm install
 ```
+
+```powershell
+py skill\create-auditable-reports\scripts\build_report_bundle.py `
+  --input .work\quarterly-delivery-health\report.report.md `
+  --output-dir .work\quarterly-delivery-health\output
+```
+
+This one command compiles the Markdown, renders interactive HTML, embeds Chart.js visuals, paginates with Paged.js, and creates a PDF. Read [Report Markdown v0.1](skill/create-auditable-reports/references/report-markdown.md) for the four directives and fixed limits.
+
+For direct artifact work or individual stages, use `compile_report.py`, `render_report.py`, `build_print_report.py`, `render_chartjs_output.py`, and `render_paged_output.py` separately.
 
 Validate the repository and shipped example:
 
@@ -71,13 +80,7 @@ pwsh -File scripts\Test-Repository.ps1
 
 Read `skill/create-auditable-reports/SKILL.md` before producing a real report.
 
-For paginated output, install the pinned tooling once:
-
-```powershell
-npm install
-```
-
-Then create the script-free print source and paginate it:
+To run the individual print stages instead, create the script-free source and paginate it:
 
 ```powershell
 py skill\create-auditable-reports\scripts\build_print_report.py `
@@ -94,7 +97,7 @@ py skill\create-auditable-reports\scripts\render_paged_output.py `
   --output .work\quarterly-delivery-health\report.pdf
 ```
 
-The Chart.js stage supports the initial `bar`, `line`, and `scatter` artifact forms and leaves the exact-value semantic table beside every embedded chart. If a report has no charts, pass `report_print.html` directly to Paged.js. The same pagination command creates a browser preview when the output ends in `.html`. Both browser-controlled stages use installed Chrome or Edge and block remote requests by default.
+The Chart.js stage supports the initial `bar`, `line`, `pie`, and `scatter` artifact forms and leaves the exact-value semantic table beside every embedded chart. If a report has no charts, pass `report_print.html` directly to Paged.js. The same pagination command creates a browser preview when the output ends in `.html`. Both browser-controlled stages use installed Chrome or Edge and block remote requests by default.
 
 ## Current boundaries
 
@@ -103,5 +106,5 @@ The Chart.js stage supports the initial `bar`, `line`, and `scatter` artifact fo
 - Paged.js 0.4.3 is the pinned print-pagination engine; it does not replace the interactive renderer or canonical artifact.
 - The project-health fixture is synthetic and must never be presented as operational evidence.
 - The artifact contract is documented but does not yet have a versioned JSON Schema.
-- The custom Markdown-like authoring format is a proposal, not implemented syntax.
+- Report Markdown v0.1 is intentionally constrained to ordinary Markdown plus metrics, bar/pie chart, table, and figure directives.
 - No public license has been selected for this imported package.

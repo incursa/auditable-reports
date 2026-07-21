@@ -11,7 +11,7 @@ Chart.js is a mature canvas charting library, but canvas has two relevant constr
 
 ## Decision
 
-Pin Chart.js 4.5.1 as a build-time visualization adapter for selected `bar`, `line`, and `scatter` charts. `render_chartjs_output.py` reads `artifact.json` and `report_print.html`, renders each chart in a local controlled browser with fixed dimensions and animations disabled, converts it to an embedded PNG, and writes script-free `report_charted.html`.
+Pin Chart.js 4.5.1 as a build-time visualization adapter for selected `bar`, `line`, `pie`, and `scatter` charts. `render_chartjs_output.py` reads `artifact.json` and `report_print.html`, renders each chart in a local controlled browser with fixed dimensions and animations disabled, converts it to an embedded PNG, and writes script-free `report_charted.html`.
 
 The embedded image is placed immediately before the existing semantic chart table. It receives a text alternative that names the chart and points readers to the table for exact values. Remote requests are always blocked. Paged.js receives `report_charted.html`, not a live Chart.js canvas.
 

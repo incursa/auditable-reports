@@ -56,3 +56,7 @@ The updated print path keeps `report_print.html` script-free, adds CSS Paged Med
 ## Post-intake Chart.js baseline
 
 Chart.js 4.5.1 was added after intake as a pinned build-time visualization adapter. It reads the existing artifact chart definitions, renders supported charts in a controlled local browser with animation disabled, and embeds PNG output in `report_charted.html`. The existing semantic data table remains immediately after each chart for exact lookup and accessibility. `report_charted.html` stays script-free and becomes the preferred Paged.js input when the artifact contains charts.
+
+## Post-intake authoring baseline
+
+Report Markdown v0.1 was added after intake as the default routine authoring surface. It preserves ordinary Markdown prose and code, adds only metrics/chart/table/figure directives, loads bounded datasets and sources from one JSON sidecar, and compiles deterministically to the canonical artifact. The direct artifact workflow remains available for advanced requirements.

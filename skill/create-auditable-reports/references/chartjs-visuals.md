@@ -6,6 +6,7 @@ Use Chart.js only as a build-time adapter for selected report visuals. The canon
 
 - `bar`: comparisons, rankings, and signed variance across categories
 - `line`: trends with a meaningful ordered x-axis and enough observed periods
+- `pie`: part-to-whole views with 2–6 positive, mutually exclusive slices
 - `scatter`: relationships between same-grain quantitative observations
 
 Use a table or narrative when these forms do not fit. Unsupported types should fail during materialization rather than be approximated.

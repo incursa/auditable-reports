@@ -1,0 +1,387 @@
+{
+  "surface": "report",
+  "manifest": {
+    "version": 1,
+    "surface": "report",
+    "title": "Simple Delivery Review",
+    "description": "A synthetic example of the constrained Markdown authoring format and its standard report blocks.",
+    "generatedAt": "2026-07-21T21:00:00Z",
+    "cards": [
+      {
+        "id": "headline_metrics_project_count",
+        "description": "Projects in the reviewed scope.",
+        "dataset": "headline",
+        "sourceId": "delivery_snapshot",
+        "metrics": [
+          {
+            "label": "Active projects",
+            "field": "project_count",
+            "format": "number"
+          }
+        ]
+      },
+      {
+        "id": "headline_metrics_approved_budget",
+        "description": "Approved budget across the portfolio.",
+        "dataset": "headline",
+        "sourceId": "delivery_snapshot",
+        "metrics": [
+          {
+            "label": "Approved budget",
+            "field": "approved_budget",
+            "format": "currency"
+          }
+        ]
+      },
+      {
+        "id": "headline_metrics_forecast_variance",
+        "description": "Forecast less approved budget.",
+        "dataset": "headline",
+        "sourceId": "delivery_snapshot",
+        "metrics": [
+          {
+            "label": "Forecast variance",
+            "field": "forecast_variance",
+            "format": "currency",
+            "signed": true
+          }
+        ]
+      },
+      {
+        "id": "headline_metrics_at_risk_count",
+        "description": "Projects requiring management attention.",
+        "dataset": "headline",
+        "sourceId": "delivery_snapshot",
+        "metrics": [
+          {
+            "label": "At-risk projects",
+            "field": "at_risk_count",
+            "format": "number"
+          }
+        ]
+      }
+    ],
+    "charts": [
+      {
+        "id": "variance_by_project",
+        "title": "Forecast variance by project",
+        "type": "bar",
+        "dataset": "projects",
+        "sourceId": "delivery_snapshot",
+        "intent": "comparison",
+        "encodings": {
+          "x": {
+            "field": "project",
+            "type": "nominal",
+            "label": "Project"
+          },
+          "y": {
+            "field": "variance",
+            "type": "quantitative",
+            "format": "currency",
+            "label": "Forecast less budget"
+          }
+        },
+        "valueFormat": "currency",
+        "layout": "full",
+        "maxRows": 12,
+        "subtitle": "Current forecast less approved budget; synthetic snapshot",
+        "showDescription": true
+      },
+      {
+        "id": "budget_by_region",
+        "title": "Approved budget by region",
+        "type": "pie",
+        "dataset": "regions",
+        "sourceId": "delivery_snapshot",
+        "intent": "composition",
+        "encodings": {
+          "x": {
+            "field": "region",
+            "type": "nominal",
+            "label": "Region"
+          },
+          "y": {
+            "field": "budget",
+            "type": "quantitative",
+            "format": "currency",
+            "label": "Approved budget"
+          },
+          "color": {
+            "field": "region",
+            "type": "nominal",
+            "label": "Region"
+          }
+        },
+        "valueFormat": "currency",
+        "layout": "full",
+        "maxRows": 6,
+        "subtitle": "Four mutually exclusive regions; synthetic snapshot",
+        "showDescription": true
+      }
+    ],
+    "tables": [
+      {
+        "id": "project_detail",
+        "title": "Project budget and forecast detail",
+        "dataset": "projects",
+        "sourceId": "delivery_snapshot",
+        "density": "spacious",
+        "layout": "full",
+        "columns": [
+          {
+            "field": "project",
+            "label": "Project",
+            "type": "text"
+          },
+          {
+            "field": "owner",
+            "label": "Owner",
+            "type": "text"
+          },
+          {
+            "field": "region",
+            "label": "Region",
+            "type": "text"
+          },
+          {
+            "field": "risk",
+            "label": "Risk",
+            "type": "text"
+          },
+          {
+            "field": "completion",
+            "label": "Completion",
+            "format": "percent"
+          },
+          {
+            "field": "budget",
+            "label": "Budget",
+            "format": "currency"
+          },
+          {
+            "field": "forecast",
+            "label": "Forecast",
+            "format": "currency"
+          },
+          {
+            "field": "variance",
+            "label": "Variance",
+            "format": "currency",
+            "movement": true
+          }
+        ],
+        "subtitle": "Six synthetic active projects",
+        "showDescription": true,
+        "defaultSort": {
+          "field": "variance",
+          "direction": "desc"
+        }
+      }
+    ],
+    "sources": [
+      {
+        "id": "delivery_snapshot",
+        "label": "Synthetic delivery snapshot",
+        "path": "report.data.json"
+      },
+      {
+        "id": "workflow_capture",
+        "label": "Synthetic review-state illustration",
+        "path": "review-state.svg"
+      }
+    ],
+    "blocks": [
+      {
+        "id": "title",
+        "type": "markdown",
+        "body": "# Simple Delivery Review"
+      },
+      {
+        "id": "executive_summary",
+        "type": "markdown",
+        "body": "## Executive Summary\n\n\n- **The six-project portfolio is forecast $320K over budget.** Two projects account for most of the unfavorable variance.\n- **The work remains concentrated in the Central region.** That region holds 39% of approved budget.\n- **Keep the report simple.** A short narrative, bounded charts, exact table, reproducible code, and one screenshot are sufficient for this review.",
+        "sourceId": "delivery_snapshot"
+      },
+      {
+        "id": "headline_metrics",
+        "type": "metric-strip",
+        "cardIds": [
+          "headline_metrics_project_count",
+          "headline_metrics_approved_budget",
+          "headline_metrics_forecast_variance",
+          "headline_metrics_at_risk_count"
+        ]
+      },
+      {
+        "id": "variance_is_concentrated_in_two_projects",
+        "type": "markdown",
+        "body": "## Variance is concentrated in two projects\n\n\nAtlas and Cedar contribute $430K of unfavorable variance, partly offset by favorable forecasts elsewhere.",
+        "sourceId": "delivery_snapshot"
+      },
+      {
+        "id": "variance_by_project",
+        "type": "chart",
+        "chartId": "variance_by_project"
+      },
+      {
+        "id": "central_holds_the_largest_budget_share",
+        "type": "markdown",
+        "body": "## Central holds the largest budget share\n\n\nThe pie is intentionally limited to four positive, mutually exclusive regional totals.",
+        "sourceId": "delivery_snapshot"
+      },
+      {
+        "id": "budget_by_region",
+        "type": "chart",
+        "chartId": "budget_by_region"
+      },
+      {
+        "id": "project_detail_remains_available_for_exact_lookup",
+        "type": "markdown",
+        "body": "## Project detail remains available for exact lookup"
+      },
+      {
+        "id": "project_detail",
+        "type": "table",
+        "tableId": "project_detail"
+      },
+      {
+        "id": "reproducible_method",
+        "type": "markdown",
+        "body": "## Reproducible method\n\nThe report can include ordinary fenced code without an HTML component:\n\n```sql\nSELECT\n  project,\n  forecast - budget AS variance\nFROM reviewed_projects\nORDER BY variance DESC;\n```"
+      },
+      {
+        "id": "supporting_screenshot",
+        "type": "markdown",
+        "body": "## Supporting screenshot\n\nUse a figure directive rather than raw HTML or Markdown image syntax so the file is validated and embedded."
+      },
+      {
+        "id": "review_state",
+        "type": "html",
+        "body": "<style>.report-figure img{width:auto;max-width:100%;max-height:180px;margin:0 auto;object-fit:contain}@media print{.report-figure img{max-height:4.15in}}</style><figure class=\"report-figure\" style=\"margin:0\"><img src=\"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjAwIiBoZWlnaHQ9IjYyMCIgdmlld0JveD0iMCAwIDEyMDAgNjIwIiByb2xlPSJpbWciIGFyaWEtbGFiZWxsZWRieT0idGl0bGUgZGVzYyI+CiAgPHRpdGxlIGlkPSJ0aXRsZSI+U3ludGhldGljIGRlbGl2ZXJ5IHJldmlldyBzY3JlZW48L3RpdGxlPgogIDxkZXNjIGlkPSJkZXNjIj5BIHNpbXBsZSBhcHBsaWNhdGlvbiBzY3JlZW4gd2l0aCBzaXggcHJvamVjdHMgbG9hZGVkIGFuZCBhIHJlYWR5IHN0YXR1cy48L2Rlc2M+CiAgPHJlY3Qgd2lkdGg9IjEyMDAiIGhlaWdodD0iNjIwIiByeD0iMjAiIGZpbGw9IiNmNWY3ZmEiLz4KICA8cmVjdCB4PSIyOCIgeT0iMjgiIHdpZHRoPSIxMTQ0IiBoZWlnaHQ9IjU2NCIgcng9IjE0IiBmaWxsPSIjZmZmZmZmIiBzdHJva2U9IiNjYmQ1ZTEiIHN0cm9rZS13aWR0aD0iMiIvPgogIDxyZWN0IHg9IjI4IiB5PSIyOCIgd2lkdGg9IjExNDQiIGhlaWdodD0iNjQiIHJ4PSIxNCIgZmlsbD0iIzE3MzY1ZCIvPgogIDxjaXJjbGUgY3g9IjY2IiBjeT0iNjAiIHI9IjgiIGZpbGw9IiNlZjZhNjQiLz4KICA8Y2lyY2xlIGN4PSI5MiIgY3k9IjYwIiByPSI4IiBmaWxsPSIjZjJjMTRlIi8+CiAgPGNpcmNsZSBjeD0iMTE4IiBjeT0iNjAiIHI9IjgiIGZpbGw9IiM1ZGJiNzMiLz4KICA8dGV4dCB4PSIxNTgiIHk9IjY4IiBmaWxsPSIjZmZmZmZmIiBmb250LWZhbWlseT0iU2Vnb2UgVUksQXJpYWwsc2Fucy1zZXJpZiIgZm9udC1zaXplPSIyNCIgZm9udC13ZWlnaHQ9IjYwMCI+RGVsaXZlcnkgcmV2aWV3PC90ZXh0PgogIDxyZWN0IHg9IjY4IiB5PSIxMzIiIHdpZHRoPSI3NjAiIGhlaWdodD0iNTQiIHJ4PSI4IiBmaWxsPSIjZWRmM2Y5Ii8+CiAgPHRleHQgeD0iOTIiIHk9IjE2NiIgZmlsbD0iIzE3MzY1ZCIgZm9udC1mYW1pbHk9IlNlZ29lIFVJLEFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMjIiIGZvbnQtd2VpZ2h0PSI2MDAiPkp1bHkgcG9ydGZvbGlvIHNuYXBzaG90PC90ZXh0PgogIDxyZWN0IHg9Ijg2NiIgeT0iMTMyIiB3aWR0aD0iMjU0IiBoZWlnaHQ9IjU0IiByeD0iMjciIGZpbGw9IiNlNmY2ZWIiIHN0cm9rZT0iIzc3Yjk4ZCIvPgogIDxjaXJjbGUgY3g9IjkwMCIgY3k9IjE1OSIgcj0iOSIgZmlsbD0iIzJmODU1YSIvPgogIDx0ZXh0IHg9IjkyMiIgeT0iMTY3IiBmaWxsPSIjMWY2YjQ0IiBmb250LWZhbWlseT0iU2Vnb2UgVUksQXJpYWwsc2Fucy1zZXJpZiIgZm9udC1zaXplPSIyMSIgZm9udC13ZWlnaHQ9IjYwMCI+UmVhZHkgdG8gcHVibGlzaDwvdGV4dD4KICA8ZyBmb250LWZhbWlseT0iU2Vnb2UgVUksQXJpYWwsc2Fucy1zZXJpZiI+CiAgICA8dGV4dCB4PSI3NiIgeT0iMjM0IiBmaWxsPSIjNjQ3NDhiIiBmb250LXNpemU9IjE2IiBmb250LXdlaWdodD0iNjAwIj5QUk9KRUNUPC90ZXh0PgogICAgPHRleHQgeD0iNDE4IiB5PSIyMzQiIGZpbGw9IiM2NDc0OGIiIGZvbnQtc2l6ZT0iMTYiIGZvbnQtd2VpZ2h0PSI2MDAiPlJFR0lPTjwvdGV4dD4KICAgIDx0ZXh0IHg9IjY2MiIgeT0iMjM0IiBmaWxsPSIjNjQ3NDhiIiBmb250LXNpemU9IjE2IiBmb250LXdlaWdodD0iNjAwIj5TVEFUVVM8L3RleHQ+CiAgICA8dGV4dCB4PSI5MTgiIHk9IjIzNCIgZmlsbD0iIzY0NzQ4YiIgZm9udC1zaXplPSIxNiIgZm9udC13ZWlnaHQ9IjYwMCI+VkFSSUFOQ0U8L3RleHQ+CiAgICA8ZyBmaWxsPSIjMWYyOTM3IiBmb250LXNpemU9IjIwIj4KICAgICAgPHRleHQgeD0iNzYiIHk9IjI4MiI+QXRsYXM8L3RleHQ+PHRleHQgeD0iNDE4IiB5PSIyODIiPkNlbnRyYWw8L3RleHQ+PHRleHQgeD0iNjYyIiB5PSIyODIiPkF0IHJpc2s8L3RleHQ+PHRleHQgeD0iOTE4IiB5PSIyODIiPiskMjgwSzwvdGV4dD4KICAgICAgPHRleHQgeD0iNzYiIHk9IjMzNiI+Q2VkYXI8L3RleHQ+PHRleHQgeD0iNDE4IiB5PSIzMzYiPlNvdXRoPC90ZXh0Pjx0ZXh0IHg9IjY2MiIgeT0iMzM2Ij5BdCByaXNrPC90ZXh0Pjx0ZXh0IHg9IjkxOCIgeT0iMzM2Ij4rJDE1MEs8L3RleHQ+CiAgICAgIDx0ZXh0IHg9Ijc2IiB5PSIzOTAiPk9yaW9uPC90ZXh0Pjx0ZXh0IHg9IjQxOCIgeT0iMzkwIj5XZXN0PC90ZXh0Pjx0ZXh0IHg9IjY2MiIgeT0iMzkwIj5TdGFibGU8L3RleHQ+PHRleHQgeD0iOTE4IiB5PSIzOTAiPiskNjBLPC90ZXh0PgogICAgICA8dGV4dCB4PSI3NiIgeT0iNDQ0Ij5QaW9uZWVyPC90ZXh0Pjx0ZXh0IHg9IjQxOCIgeT0iNDQ0Ij5DZW50cmFsPC90ZXh0Pjx0ZXh0IHg9IjY2MiIgeT0iNDQ0Ij5TdGFibGU8L3RleHQ+PHRleHQgeD0iOTE4IiB5PSI0NDQiPi0kMTBLPC90ZXh0PgogICAgPC9nPgogIDwvZz4KICA8ZyBzdHJva2U9IiNlMmU4ZjAiIHN0cm9rZS13aWR0aD0iMiI+PGxpbmUgeDE9IjY4IiB5MT0iMjUwIiB4Mj0iMTEyMCIgeTI9IjI1MCIvPjxsaW5lIHgxPSI2OCIgeTE9IjMwNCIgeDI9IjExMjAiIHkyPSIzMDQiLz48bGluZSB4MT0iNjgiIHkxPSIzNTgiIHgyPSIxMTIwIiB5Mj0iMzU4Ii8+PGxpbmUgeDE9IjY4IiB5MT0iNDEyIiB4Mj0iMTEyMCIgeTI9IjQxMiIvPjxsaW5lIHgxPSI2OCIgeTE9IjQ2NiIgeDI9IjExMjAiIHkyPSI0NjYiLz48L2c+CiAgPHJlY3QgeD0iNjgiIHk9IjUwNCIgd2lkdGg9IjEwNTIiIGhlaWdodD0iNDgiIHJ4PSI4IiBmaWxsPSIjZjhmYWZjIi8+CiAgPHRleHQgeD0iOTIiIHk9IjUzNSIgZmlsbD0iIzQ3NTU2OSIgZm9udC1mYW1pbHk9IlNlZ29lIFVJLEFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTgiPjYgcHJvamVjdHMgbG9hZGVkIMK3IDIgbmVlZCBhdHRlbnRpb24gwrcgc291cmNlIHJldmlldyBjb21wbGV0ZTwvdGV4dD4KPC9zdmc+Cg==\" alt=\"Synthetic review screen with six projects loaded and the report marked ready.\" style=\"display:block;height:auto;border:1px solid #cfd5dc;border-radius:8px\" /><figcaption style=\"margin-top:8px;color:#4c5560;font-size:13px\">Synthetic workflow capture demonstrating the standard figure treatment.<span style=\"display:block;color:#68727d;font-size:12px\">Source: Synthetic review-state illustration</span></figcaption></figure>",
+        "layout": "full",
+        "sourceId": "workflow_capture"
+      },
+      {
+        "id": "caveats_and_assumptions",
+        "type": "markdown",
+        "body": "## Caveats and assumptions\n\nThis fixture contains invented values and an illustrative interface image. It demonstrates authoring and rendering behavior only and must not be used for an operational decision."
+      }
+    ]
+  },
+  "snapshot": {
+    "version": 1,
+    "generatedAt": "2026-07-21T21:00:00Z",
+    "status": "fixture",
+    "datasets": {
+      "headline": [
+        {
+          "project_count": 6,
+          "approved_budget": 15800000,
+          "forecast_variance": 320000,
+          "at_risk_count": 2
+        }
+      ],
+      "projects": [
+        {
+          "project": "Atlas",
+          "owner": "R. Singh",
+          "region": "Central",
+          "risk": "At risk",
+          "completion": 0.78,
+          "budget": 3200000,
+          "forecast": 3480000,
+          "variance": 280000
+        },
+        {
+          "project": "Cedar",
+          "owner": "M. Lopez",
+          "region": "South",
+          "risk": "At risk",
+          "completion": 0.61,
+          "budget": 2700000,
+          "forecast": 2850000,
+          "variance": 150000
+        },
+        {
+          "project": "Orion",
+          "owner": "J. Reed",
+          "region": "West",
+          "risk": "Stable",
+          "completion": 0.5,
+          "budget": 2400000,
+          "forecast": 2460000,
+          "variance": 60000
+        },
+        {
+          "project": "Pioneer",
+          "owner": "S. Patel",
+          "region": "Central",
+          "risk": "Stable",
+          "completion": 0.66,
+          "budget": 3000000,
+          "forecast": 2990000,
+          "variance": -10000
+        },
+        {
+          "project": "Summit",
+          "owner": "K. Evans",
+          "region": "East",
+          "risk": "Stable",
+          "completion": 0.73,
+          "budget": 2500000,
+          "forecast": 2460000,
+          "variance": -40000
+        },
+        {
+          "project": "Harbor",
+          "owner": "T. Brooks",
+          "region": "South",
+          "risk": "Stable",
+          "completion": 0.81,
+          "budget": 2000000,
+          "forecast": 1880000,
+          "variance": -120000
+        }
+      ],
+      "regions": [
+        {
+          "region": "Central",
+          "budget": 6200000
+        },
+        {
+          "region": "South",
+          "budget": 4700000
+        },
+        {
+          "region": "East",
+          "budget": 2500000
+        },
+        {
+          "region": "West",
+          "budget": 2400000
+        }
+      ]
+    }
+  },
+  "sources": [
+    {
+      "id": "delivery_snapshot",
+      "label": "Synthetic delivery snapshot",
+      "path": "report.data.json",
+      "query": {
+        "engine": "fixture",
+        "language": "sql",
+        "id": "simple-delivery-review",
+        "executed_at": "2026-07-21T21:00:00Z",
+        "description": "Provides the bounded synthetic project and region rows used by the report.",
+        "sql": "SELECT * FROM reviewed_projects"
+      }
+    },
+    {
+      "id": "workflow_capture",
+      "label": "Synthetic review-state illustration",
+      "path": "review-state.svg"
+    }
+  ]
+}

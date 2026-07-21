@@ -1,0 +1,46 @@
+{
+  "datasets": {
+    "headline": [
+      {
+        "project_count": 6,
+        "approved_budget": 15800000,
+        "forecast_variance": 320000,
+        "at_risk_count": 2
+      }
+    ],
+    "projects": [
+      {"project": "Atlas", "owner": "R. Singh", "region": "Central", "risk": "At risk", "completion": 0.78, "budget": 3200000, "forecast": 3480000, "variance": 280000},
+      {"project": "Cedar", "owner": "M. Lopez", "region": "South", "risk": "At risk", "completion": 0.61, "budget": 2700000, "forecast": 2850000, "variance": 150000},
+      {"project": "Orion", "owner": "J. Reed", "region": "West", "risk": "Stable", "completion": 0.50, "budget": 2400000, "forecast": 2460000, "variance": 60000},
+      {"project": "Pioneer", "owner": "S. Patel", "region": "Central", "risk": "Stable", "completion": 0.66, "budget": 3000000, "forecast": 2990000, "variance": -10000},
+      {"project": "Summit", "owner": "K. Evans", "region": "East", "risk": "Stable", "completion": 0.73, "budget": 2500000, "forecast": 2460000, "variance": -40000},
+      {"project": "Harbor", "owner": "T. Brooks", "region": "South", "risk": "Stable", "completion": 0.81, "budget": 2000000, "forecast": 1880000, "variance": -120000}
+    ],
+    "regions": [
+      {"region": "Central", "budget": 6200000},
+      {"region": "South", "budget": 4700000},
+      {"region": "East", "budget": 2500000},
+      {"region": "West", "budget": 2400000}
+    ]
+  },
+  "sources": [
+    {
+      "id": "delivery_snapshot",
+      "label": "Synthetic delivery snapshot",
+      "path": "report.data.json",
+      "query": {
+        "engine": "fixture",
+        "language": "sql",
+        "id": "simple-delivery-review",
+        "executed_at": "2026-07-21T21:00:00Z",
+        "description": "Provides the bounded synthetic project and region rows used by the report.",
+        "sql": "SELECT * FROM reviewed_projects"
+      }
+    },
+    {
+      "id": "workflow_capture",
+      "label": "Synthetic review-state illustration",
+      "path": "review-state.svg"
+    }
+  ]
+}

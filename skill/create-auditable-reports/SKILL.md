@@ -1,6 +1,6 @@
 ---
 name: create-auditable-reports
-description: Create evidence-backed analytical reports as self-contained interactive HTML, with optional Chart.js print visuals and Paged.js paginated HTML/PDF editions. Use when Codex needs to turn spreadsheets, CSV files, database queries, extracts, or reviewed analytical results into a durable executive or technical report with an answer-first narrative, metric cards, charts, audit tables, caveats, recommendations, page-ready output, and traceable source metadata; also use when revising or reproducing reports built from the canonical Data Analytics artifact format.
+description: Create evidence-backed analytical reports from constrained Report Markdown or the canonical artifact format as self-contained interactive HTML, with Chart.js print visuals and Paged.js paginated HTML/PDF editions. Use when Codex needs to turn spreadsheets, CSV files, database queries, extracts, reviewed analytical results, Markdown prose, code blocks, screenshots, simple bar/pie charts, or bounded tables into a durable executive or technical report with traceable source metadata; also use when revising or reproducing an existing report.
 ---
 
 # Create Auditable Reports
@@ -13,7 +13,7 @@ Build reports from a canonical `artifact.json`, then let the shared Data Analyti
 2. Inventory every source and note whether it honors the requested cutoff.
 3. Select one audience: `product stakeholders` for answer-first business reporting or `technical` for methods-first reporting.
 4. Create a dedicated output directory. Preserve the source extracts or durable queries, reviewed result datasets, `artifact.json`, `source_notes.md`, and generated page together.
-5. Read [report-workflow.md](references/report-workflow.md). Read [artifact-authoring.md](references/artifact-authoring.md) before writing `artifact.json`.
+5. Read [report-workflow.md](references/report-workflow.md). For standard authoring, read [report-markdown.md](references/report-markdown.md); for direct artifact work, read [artifact-authoring.md](references/artifact-authoring.md).
 
 When the Data Analytics plugin is available, use its focused analysis skill first when appropriate, then use `$data-analytics:build-report` and `$data-analytics:visualize-data`. Treat those skills as authoritative for the current renderer and chart contract.
 
@@ -25,6 +25,16 @@ When the Data Analytics plugin is available, use its focused analysis skill firs
 - Distinguish observed facts, inferred explanations, and unresolved questions.
 - Never invent a metric, source, mapping, or historical state.
 - Record unsupported requests and the evidence needed to answer them.
+
+## Author the report
+
+For a standard report, write `report.report.md` plus its `report.data.json` sidecar. Use ordinary Markdown for prose and code. Use only the standard metrics, bar/pie chart, table, and figure directives. Compile before rendering:
+
+```powershell
+py scripts/compile_report.py --input path\to\report.report.md --output path\to\artifact.json
+```
+
+Use direct artifact authoring only when a reviewed requirement cannot fit the constrained language.
 
 ## Author the canonical artifact
 
@@ -90,15 +100,23 @@ Use the starter copier when a blank report workspace is useful:
 py scripts/new_report.py --name "Quarterly Delivery Health" --output path\to\new-report
 ```
 
-The copied files are synthetic placeholders. Replace them before presenting the report as real evidence.
+The default starter uses Report Markdown. Pass `--format artifact` only for advanced direct-artifact work. All copied files are synthetic placeholders; replace them before presenting the report as real evidence.
+
+For a complete printable bundle from Markdown, run:
+
+```powershell
+py scripts/build_report_bundle.py --input path\to\report.report.md --output-dir path\to\output
+```
 
 ## Package resources
 
 - `references/report-workflow.md`: end-to-end workflow and folder conventions
 - `references/artifact-authoring.md`: canonical artifact patterns and examples
+- `references/report-markdown.md`: constrained Markdown syntax, standard blocks, and hard limits
 - `references/chartjs-visuals.md`: supported Chart.js print forms and deterministic capture rules
 - `references/quality-checklist.md`: pre-handoff validation checklist
 - `references/sample-prompts.md`: reusable request patterns
 - `assets/starter/`: synthetic starter artifact, data, brief, and source notes
 - `assets/examples/project-health/`: rendered interactive, Chart.js, and paginated print examples
+- `assets/examples/report-markdown/`: source, data, figure, and compiled DSL fixture
 - `scripts/`: deterministic scaffolding, rendering, print extraction, Chart.js materialization, Paged.js pagination, and validation tools

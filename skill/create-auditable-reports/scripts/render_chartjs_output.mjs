@@ -96,7 +96,15 @@ async function main() {
 
         const manifest = artifactValue.manifest ?? {};
         const datasets = artifactValue.snapshot?.datasets ?? {};
-        const supportedTypes = new Set(["bar", "line", "scatter"]);
+        const supportedTypes = new Set(["bar", "line", "pie", "scatter"]);
+        const categoricalColors = [
+          "#1d4e89",
+          "#2f6fad",
+          "#5b8fc2",
+          "#7b61a8",
+          "#4b8f8c",
+          "#b7793f",
+        ];
         const rendered = [];
 
         const compactNumber = (value, format) => {
@@ -166,9 +174,13 @@ async function main() {
           document.body.append(canvas);
 
           const isScatter = chartDefinition.type === "scatter";
+          const isPie = chartDefinition.type === "pie";
           const values = isScatter
             ? rows.map((row) => ({ x: row[xEncoding.field], y: row[yEncoding.field] }))
             : rows.map((row) => row[yEncoding.field]);
+          if (isPie && values.some((value) => !Number.isFinite(Number(value)) || Number(value) <= 0)) {
+            throw new Error(`Pie chart ${chartDefinition.id} requires positive numeric values.`);
+          }
           const labels = isScatter ? undefined : rows.map((row) => String(row[xEncoding.field]));
           const chart = new window.Chart(canvas.getContext("2d"), {
             type: chartDefinition.type,
@@ -178,13 +190,16 @@ async function main() {
                 {
                   label: yEncoding.label ?? chartDefinition.title,
                   data: values,
-                  backgroundColor:
-                    chartDefinition.type === "line" ? "rgba(29, 78, 137, 0.12)" : "#2f6fad",
-                  borderColor: "#1d4e89",
-                  borderWidth: chartDefinition.type === "line" ? 3 : 1,
+                  backgroundColor: isPie
+                    ? values.map((_, index) => categoricalColors[index % categoricalColors.length])
+                    : chartDefinition.type === "line"
+                      ? "rgba(29, 78, 137, 0.12)"
+                      : "#2f6fad",
+                  borderColor: isPie ? "#ffffff" : "#1d4e89",
+                  borderWidth: isPie ? 3 : chartDefinition.type === "line" ? 3 : 1,
                   borderRadius: chartDefinition.type === "bar" ? 5 : 0,
                   pointBackgroundColor: "#1d4e89",
-                  pointRadius: chartDefinition.type === "bar" ? 0 : 4,
+                  pointRadius: chartDefinition.type === "bar" || isPie ? 0 : 4,
                   tension: chartDefinition.type === "line" ? 0.15 : 0,
                   fill: chartDefinition.type === "line",
                 },
@@ -199,11 +214,21 @@ async function main() {
               parsing: isScatter ? false : true,
               layout: { padding: { top: 10, right: 24, bottom: 4, left: 8 } },
               plugins: {
-                legend: { display: false },
+                legend: {
+                  display: isPie,
+                  position: "right",
+                  labels: {
+                    boxWidth: 18,
+                    boxHeight: 18,
+                    color: "#334155",
+                    font: { family: "Arial, sans-serif", size: 15 },
+                    padding: 18,
+                  },
+                },
                 title: { display: false },
                 tooltip: { enabled: false },
               },
-              scales: {
+              scales: isPie ? undefined : {
                 x: {
                   title: {
                     display: true,

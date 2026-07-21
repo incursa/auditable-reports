@@ -5,6 +5,7 @@ $ErrorActionPreference = 'Stop'
 $repoRoot = Split-Path -Parent $PSScriptRoot
 $skillRoot = Join-Path $repoRoot 'skill\create-auditable-reports'
 $exampleRoot = Join-Path $skillRoot 'assets\examples\project-health'
+$dslRoot = Join-Path $skillRoot 'assets\examples\report-markdown'
 
 Write-Host 'Compiling Python utilities...'
 $previousPycachePrefix = $env:PYTHONPYCACHEPREFIX
@@ -19,6 +20,19 @@ try {
 }
 finally {
     $env:PYTHONPYCACHEPREFIX = $previousPycachePrefix
+}
+
+Write-Host 'Testing the Report Markdown compiler...'
+py -m unittest (Join-Path $repoRoot 'tests\test_compile_report.py')
+if ($LASTEXITCODE -ne 0) {
+    throw 'Report Markdown compiler tests failed.'
+}
+py (Join-Path $skillRoot 'scripts\compile_report.py') `
+    --input (Join-Path $dslRoot 'report.report.md') `
+    --output (Join-Path $dslRoot 'artifact.json') `
+    --check
+if ($LASTEXITCODE -ne 0) {
+    throw 'Report Markdown golden artifact is stale.'
 }
 
 node --check (Join-Path $skillRoot 'scripts\render_paged_output.mjs')
@@ -92,6 +106,34 @@ $fixturePagedHash = (Get-FileHash -Algorithm SHA256 -LiteralPath (Join-Path $exa
 $smokePagedHash = (Get-FileHash -Algorithm SHA256 -LiteralPath $smokeHtml).Hash
 if ($fixturePagedHash -ne $smokePagedHash) {
     throw 'Paginated HTML is not deterministic after transient Paged.js identifiers are removed.'
+}
+
+Write-Host 'Building the Report Markdown end-to-end fixture...'
+$dslSmokeRoot = Join-Path $repoRoot '.work\dsl-smoke'
+py (Join-Path $skillRoot 'scripts\build_report_bundle.py') `
+    --input (Join-Path $dslRoot 'report.report.md') `
+    --output-dir $dslSmokeRoot
+if ($LASTEXITCODE -ne 0) {
+    throw 'Report Markdown bundle build failed.'
+}
+py (Join-Path $skillRoot 'scripts\check_report.py') `
+    --artifact (Join-Path $dslSmokeRoot 'artifact.json') `
+    --html (Join-Path $dslSmokeRoot 'report.html') `
+    --print-html (Join-Path $dslSmokeRoot 'report_print.html') `
+    --charted-html (Join-Path $dslSmokeRoot 'report_charted.html') `
+    --paged-html (Join-Path $dslSmokeRoot 'report_paged.html') `
+    --pdf (Join-Path $dslSmokeRoot 'report.pdf')
+if ($LASTEXITCODE -ne 0) {
+    throw 'Report Markdown bundle validation failed.'
+}
+$fixtureDslHash = (Get-FileHash -Algorithm SHA256 -LiteralPath (Join-Path $dslRoot 'artifact.json')).Hash
+$smokeDslHash = (Get-FileHash -Algorithm SHA256 -LiteralPath (Join-Path $dslSmokeRoot 'artifact.json')).Hash
+if ($fixtureDslHash -ne $smokeDslHash) {
+    throw 'Report Markdown compilation is not deterministic.'
+}
+$dslHtml = Get-Content -Raw -LiteralPath (Join-Path $dslSmokeRoot 'report.html')
+if ($dslHtml -notmatch '<pre><code>SELECT' -or $dslHtml -notmatch 'data:image/svg\+xml;base64,') {
+    throw 'Report Markdown output lacks the expected code block or embedded figure.'
 }
 
 $skillValidator = Join-Path $env:USERPROFILE '.codex\skills\.system\skill-creator\scripts\quick_validate.py'

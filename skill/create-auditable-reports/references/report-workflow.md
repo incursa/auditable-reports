@@ -20,6 +20,8 @@ Use one directory per report:
 
 ```text
 report-name/
+  report.report.md        # preferred standard authoring source
+  report.data.json        # bounded datasets and source records
   artifact.json
   report.html
   report_print.html        # only when requested
@@ -85,7 +87,7 @@ Avoid charts when the dataset is too sparse to show a trustworthy pattern. Use a
 
 ## 6. Author and render
 
-Copy `assets/starter/` or run `scripts/new_report.py`. Replace the synthetic brief, data, artifact content, and source metadata. Then render with `scripts/render_report.py`.
+Run `scripts/new_report.py` for the Report Markdown starter. Replace the synthetic prose, data, figure, and source metadata, then compile with `scripts/compile_report.py`. Use `--format artifact` only when the constrained syntax cannot express a reviewed requirement. Render the resulting artifact with `scripts/render_report.py`, or run `scripts/build_report_bundle.py` for the complete HTML/PDF pipeline.
 
 When paginated output is requested, create the script-free source with `scripts/build_print_report.py`. If the artifact contains supported charts, materialize them with `scripts/render_chartjs_output.py` and retain the semantic tables. Then run `scripts/render_paged_output.py` for paginated HTML preview or PDF. Chart.js owns only build-time visual materialization. Paged.js owns pagination, running matter, page counters, and CSS break behavior. Neither owns report semantics or evidence.
 

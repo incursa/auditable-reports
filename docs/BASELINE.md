@@ -65,6 +65,12 @@ Acceptance checks:
 - Paginated HTML is normalized to remove Paged.js run-specific DOM identifiers. PDF validation is structural because browser-generated PDF metadata may vary between runs.
 - Validation passes before handoff.
 
+## Authoring contract
+
+Use Report Markdown v0.1 for routine reports. Keep prose and fenced code in ordinary Markdown; use only the standard metrics, chart, table, and figure directives. Compile to `artifact.json` before rendering. Direct artifact authoring remains available for requirements outside the constrained language.
+
+The compiler enforces the visual baseline rather than exposing design controls: at most 6 metrics, 12 bars, 6 pie slices, 8 table columns, 50 table rows, and a 5 MB embedded figure. Arbitrary HTML, CSS, JavaScript, layouts, and chart options are outside the authoring contract.
+
 ## Baseline QA status
 
 The supplied example passes artifact, interactive-HTML, Chart.js-materialization, and print-safety checks. It reproduces byte-for-byte through the installed renderer and through the controlled Chart.js/Paged.js browser pipeline in the validated environment.
