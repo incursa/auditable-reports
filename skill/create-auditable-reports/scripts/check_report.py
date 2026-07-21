@@ -17,6 +17,8 @@ def main() -> int:
     parser.add_argument("--artifact", required=True)
     parser.add_argument("--html", required=True)
     parser.add_argument("--print-html")
+    parser.add_argument("--paged-html")
+    parser.add_argument("--pdf")
     args = parser.parse_args()
 
     errors: list[str] = []
@@ -69,14 +71,37 @@ def main() -> int:
             for label, pattern in checks.items():
                 require(not re.search(pattern, printable, flags=re.I), f"print HTML contains {label}", errors)
             require("@page" in printable, "print HTML lacks an @page rule", errors)
+            require("counter(page)" in printable, "print HTML lacks a current-page counter", errors)
+            require("counter(pages)" in printable, "print HTML lacks a total-pages counter", errors)
+            require("string-set:report-title" in printable, "print HTML lacks a running-title string", errors)
+            require(".page-break" in printable, "print HTML lacks the page-break utility", errors)
+            require(".avoid-break" in printable, "print HTML lacks the avoid-break utility", errors)
             require(manifest.get("title", "") in printable, "print HTML does not contain the report title", errors)
+
+    if args.paged_html:
+        paged_path = Path(args.paged_html).expanduser().resolve()
+        require(paged_path.is_file(), f"Missing paginated HTML: {paged_path}", errors)
+        if paged_path.is_file():
+            paged = paged_path.read_text(encoding="utf-8")
+            require("pagedjs_pages" in paged, "paginated HTML lacks Paged.js page output", errors)
+            require("pagedjs_page" in paged, "paginated HTML lacks Paged.js page elements", errors)
+            require(not re.search(r"<script\b", paged, flags=re.I), "paginated HTML contains a script", errors)
+            require(manifest.get("title", "") in paged, "paginated HTML does not contain the report title", errors)
+
+    if args.pdf:
+        pdf_path = Path(args.pdf).expanduser().resolve()
+        require(pdf_path.is_file(), f"Missing PDF: {pdf_path}", errors)
+        if pdf_path.is_file():
+            pdf = pdf_path.read_bytes()
+            require(pdf.startswith(b"%PDF-"), "PDF lacks the PDF file signature", errors)
+            require(len(pdf) > 1024, "PDF is unexpectedly small", errors)
 
     if errors:
         for error in errors:
             print(f"FAIL: {error}")
         return 1
 
-    print("PASS: artifact, interactive HTML, and requested print checks succeeded")
+    print("PASS: artifact, interactive HTML, and requested print/Paged.js checks succeeded")
     return 0
 
 

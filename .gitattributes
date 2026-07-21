@@ -5,3 +5,9 @@
 *.py text eol=lf
 *.ps1 text eol=lf
 skill/create-auditable-reports/** -text
+skill/create-auditable-reports/*.md text eol=lf
+skill/create-auditable-reports/references/*.md text eol=lf
+skill/create-auditable-reports/scripts/* text eol=lf
+skill/create-auditable-reports/assets/examples/project-health/report_print.html text eol=lf
+skill/create-auditable-reports/assets/examples/project-health/report_paged.html text eol=lf
+*.pdf binary

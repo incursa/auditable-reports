@@ -15,7 +15,9 @@ quarterly-health/
   data/
   artifact.json           generated and reviewable
   report.html             generated
-  report_print.html       generated only when requested
+  report_print.html       script-free pagination source, generated when requested
+  report_paged.html       Paged.js preview, generated when requested
+  report.pdf              Paged.js PDF, generated when requested
 ```
 
 Markdown should own prose and reading order. Declarative directives should place metric strips, charts, tables, caveats, and source references. YAML should own structured definitions that are awkward or error-prone in prose. Arbitrary JavaScript and arbitrary embedded HTML should not be part of the authoring language.
@@ -47,7 +49,7 @@ id: variance-by-project
 :::
 ```
 
-The compiler would resolve the directives and citations against structured definitions, enforce the evidence rules, and emit the existing canonical artifact. The renderer would remain unchanged.
+The compiler would resolve the directives and citations against structured definitions, enforce the evidence rules, and emit the existing canonical artifact. The interactive renderer would remain unchanged. When print output is requested, the generated print source would pass through Paged.js for paginated preview or PDF.
 
 ## Why not plain Markdown or MDX
 

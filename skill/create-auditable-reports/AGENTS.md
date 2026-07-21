@@ -11,4 +11,4 @@ These instructions apply to all work inside this package.
 7. Never replace synthetic labels with real claims until source data has been inspected and validated.
 8. Keep machine-local credentials, connection strings, signed URLs, and secrets out of artifacts and HTML.
 9. Validate every generated report with `scripts/check_report.py` before handoff.
-10. Create a script-free print edition only when requested or when the report brief explicitly requires one.
+10. Create a script-free print source only when requested or when the report brief explicitly requires one; use pinned Paged.js for paginated HTML preview or PDF output.

@@ -1,6 +1,6 @@
 ---
 name: create-auditable-reports
-description: Create evidence-backed analytical reports as self-contained interactive HTML, with an optional static print edition. Use when Codex needs to turn spreadsheets, CSV files, database queries, extracts, or reviewed analytical results into a durable executive or technical report with an answer-first narrative, metric cards, charts, audit tables, caveats, recommendations, and traceable source metadata; also use when revising or reproducing reports built from the canonical Data Analytics artifact format.
+description: Create evidence-backed analytical reports as self-contained interactive HTML, with optional Paged.js paginated HTML and PDF editions. Use when Codex needs to turn spreadsheets, CSV files, database queries, extracts, or reviewed analytical results into a durable executive or technical report with an answer-first narrative, metric cards, charts, audit tables, caveats, recommendations, page-ready output, and traceable source metadata; also use when revising or reproducing reports built from the canonical Data Analytics artifact format.
 ---
 
 # Create Auditable Reports
@@ -47,20 +47,29 @@ py scripts/render_report.py --artifact path\to\artifact.json --output path\to\re
 
 The wrapper locates the installed Data Analytics plugin and invokes its canonical portable builder. Do not hand-code a parallel interactive page or edit generated `report.html` directly. Revise `artifact.json` and rerender.
 
-If the user explicitly requests a print/PDF-friendly companion page, create it from the generated semantic fallback:
+If the user explicitly requests a print/PDF-friendly companion, first create the script-free print source from the generated semantic fallback:
 
 ```powershell
 py scripts/build_print_report.py --input path\to\report.html --output path\to\report_print.html
 ```
 
-The print edition must contain no scripts, dialogs, buttons, tooltip elements, or expandable controls. It defaults to Letter landscape and includes static sources.
+The print source must contain no scripts, dialogs, buttons, tooltip elements, or expandable controls. It defaults to Letter landscape, includes static sources, and defines CSS Paged Media rules for running headers, page numbers, and controlled breaks.
+
+Then use pinned Paged.js to create a browser-previewable paginated HTML file or PDF:
+
+```powershell
+py scripts/render_paged_output.py --input path\to\report_print.html --output path\to\report_paged.html
+py scripts/render_paged_output.py --input path\to\report_print.html --output path\to\report.pdf
+```
+
+Run `npm install` at the repository root once to install pinned Paged.js and browser-control dependencies. The wrapper locates installed Chrome or Edge, blocks remote requests by default, and does not modify the interactive report. Use `--allow-remote` only when reviewed report assets genuinely require it.
 
 ## Validate and hand off
 
 Run:
 
 ```powershell
-py scripts/check_report.py --artifact path\to\artifact.json --html path\to\report.html --print-html path\to\report_print.html
+py scripts/check_report.py --artifact path\to\artifact.json --html path\to\report.html --print-html path\to\report_print.html --paged-html path\to\report_paged.html --pdf path\to\report.pdf
 ```
 
 Apply [quality-checklist.md](references/quality-checklist.md). Treat the renderer receipt as the HTML structural/browser result. If it reports `structural_only`, keep the semantic chart table and disclose that compatible Chromium was unavailable.
@@ -85,4 +94,4 @@ The copied files are synthetic placeholders. Replace them before presenting the 
 - `references/sample-prompts.md`: reusable request patterns
 - `assets/starter/`: synthetic starter artifact, data, brief, and source notes
 - `assets/examples/project-health/`: rendered interactive and print examples
-- `scripts/`: deterministic scaffolding, rendering, print extraction, and validation tools
+- `scripts/`: deterministic scaffolding, rendering, print extraction, Paged.js pagination, and validation tools

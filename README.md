@@ -14,7 +14,13 @@ human-friendly source (future)
  shared Data Analytics renderer
            |
            +--> report.html
-           +--> report_print.html (optional)
+           +--> report_print.html (optional, script-free pagination source)
+                        |
+                        v
+                 Paged.js 0.4.3
+                        |
+                        +--> report_paged.html
+                        +--> report.pdf
 ```
 
 Generated HTML is an output, not an authoring format. The current authoring source is `artifact.json`. A future Markdown-like source should compile to the same artifact rather than replace the evidence and provenance model.
@@ -31,6 +37,7 @@ This package owns an artifact contract, executable tooling, fixtures, validation
 - `docs/INTAKE.md` — archive provenance, inventory, validation evidence, and identified gaps.
 - `docs/decisions/` — durable architectural decisions.
 - `scripts/Test-Repository.ps1` — local repository validation.
+- `package.json` and `package-lock.json` — pinned Paged.js browser-pagination tooling.
 
 ## Quick start
 
@@ -58,9 +65,30 @@ pwsh -File scripts\Test-Repository.ps1
 
 Read `skill/create-auditable-reports/SKILL.md` before producing a real report.
 
+For paginated output, install the pinned tooling once:
+
+```powershell
+npm install
+```
+
+Then create the script-free print source and paginate it:
+
+```powershell
+py skill\create-auditable-reports\scripts\build_print_report.py `
+  --input .work\quarterly-delivery-health\report.html `
+  --output .work\quarterly-delivery-health\report_print.html
+
+py skill\create-auditable-reports\scripts\render_paged_output.py `
+  --input .work\quarterly-delivery-health\report_print.html `
+  --output .work\quarterly-delivery-health\report.pdf
+```
+
+The same pagination command creates a browser preview when the output ends in `.html`. It uses installed Chrome or Edge and blocks remote requests by default.
+
 ## Current boundaries
 
 - The interactive renderer is supplied by the installed Data Analytics plugin; this repo intentionally does not fork that runtime.
+- Paged.js 0.4.3 is the pinned print-pagination engine; it does not replace the interactive renderer or canonical artifact.
 - The project-health fixture is synthetic and must never be presented as operational evidence.
 - The artifact contract is documented but does not yet have a versioned JSON Schema.
 - The custom Markdown-like authoring format is a proposal, not implemented syntax.

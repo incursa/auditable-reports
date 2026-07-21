@@ -86,6 +86,8 @@ Avoid charts when the dataset is too sparse to show a trustworthy pattern. Use a
 
 Copy `assets/starter/` or run `scripts/new_report.py`. Replace the synthetic brief, data, artifact content, and source metadata. Then render with `scripts/render_report.py`.
 
+When paginated output is requested, create the script-free source with `scripts/build_print_report.py`, then run `scripts/render_paged_output.py` for paginated HTML preview or PDF. Paged.js owns pagination, running matter, page counters, and CSS break behavior; it does not own report semantics or evidence.
+
 The renderer owns the shared interactive reader, responsive layout, source affordances, semantic fallback, and visual styles. Do not patch those into the generated page manually.
 
 ## 7. Revise safely
@@ -100,4 +102,4 @@ When revising an existing report:
 
 ## 8. Validate and deliver
 
-Run `scripts/check_report.py` and the checklist in `quality-checklist.md`. Deliver clickable paths to the interactive report, optional print edition, canonical artifact, and the most relevant supporting evidence.
+Run `scripts/check_report.py` and the checklist in `quality-checklist.md`. Deliver clickable paths to the interactive report, optional print source, paginated HTML/PDF, canonical artifact, and the most relevant supporting evidence.

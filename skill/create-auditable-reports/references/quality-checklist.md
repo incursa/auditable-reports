@@ -42,3 +42,6 @@
 - Renderer verification is `passed` or the `structural_only` limitation is disclosed.
 - The optional print HTML contains no scripts, dialogs, buttons, tooltips, or expandable controls.
 - The print page uses readable page size, margins, table headers, and page breaks.
+- CSS Paged Media defines a running title, `Page X of Y`, and explicit break utilities.
+- Paged.js pagination runs with the pinned version and remote resources blocked unless reviewed assets require them.
+- Paginated HTML contains Paged.js page elements, and PDF output has been opened or structurally checked before handoff.

@@ -41,7 +41,11 @@ The synthetic project-health example under `skill/create-auditable-reports/asset
 
 ## Output contract
 
-The default handoff is a self-contained interactive HTML file plus the canonical artifact and its evidence files. A script-free print edition is optional.
+The default handoff is a self-contained interactive HTML file plus the canonical artifact and its evidence files. Paginated output is optional and has three explicit stages:
+
+1. `report_print.html`: script-free, self-contained pagination source with CSS Paged Media rules.
+2. `report_paged.html`: Paged.js browser preview when requested.
+3. `report.pdf`: Paged.js PDF handoff when requested.
 
 Acceptance checks:
 
@@ -52,6 +56,10 @@ Acceptance checks:
 - Source affordances work with pointer, keyboard, and touch input.
 - The semantic fallback remains understandable without the interactive runtime.
 - The print edition contains no scripts, dialogs, buttons, tooltips, or expandable controls.
+- Paged pages show a running report title and `Page X of Y`.
+- Deliberate section breaks use `.page-break`; cards, charts, and other atomic content use `.avoid-break` or equivalent component rules.
+- Paged.js runs with remote requests blocked unless every remote dependency was reviewed and intentionally allowed.
+- Paginated HTML is normalized to remove Paged.js run-specific DOM identifiers. PDF validation is structural because browser-generated PDF metadata may vary between runs.
 - Validation passes before handoff.
 
 ## Baseline QA status

@@ -46,3 +46,9 @@ The archive was imported without changing its package files. Repository-level do
 - The enhanced mobile reader overflows a 390 px viewport.
 - The repo has no selected public license.
 - No Markdown-like compiler exists yet, by design.
+
+## Post-intake pagination baseline
+
+Paged.js 0.4.3 was added after intake as the pinned pagination engine. The original archive remains preserved under `skill/create-auditable-reports/` except for intentional follow-up changes to its instructions, print CSS, validation, and scripts.
+
+The updated print path keeps `report_print.html` script-free, adds CSS Paged Media running matter and break rules, and uses `render_paged_output.py` for paginated HTML or PDF. Remote requests are blocked by default.

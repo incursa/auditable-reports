@@ -128,6 +128,7 @@ body{padding:0;font-size:9.5pt;line-height:1.38}
 .portable-block-stack{display:block !important;width:100% !important;max-width:none !important;margin:0 !important}
 .portable-block{margin:0 0 12pt}.portable-markdown{max-width:none !important}
 .portable-markdown h2,.portable-content-card h2{margin:0 0 4pt !important;color:#17365d !important;font-size:12.5pt !important;font-weight:650 !important;break-after:avoid-page}
+.portable-markdown h3,.portable-visual-header{break-after:avoid-page}
 .portable-markdown p,.portable-markdown ul,.portable-markdown ol{margin-top:3pt;margin-bottom:5pt}.portable-markdown li+li{margin-top:2pt}
 .portable-metric-grid{grid-template-columns:repeat(4,minmax(0,1fr)) !important;gap:7pt !important}
 .portable-metric-card{min-height:66pt;padding:10pt !important;border:1px solid #cfd5dc !important;border-radius:7pt !important;background:#fff !important;break-inside:avoid-page}
@@ -140,6 +141,8 @@ body{padding:0;font-size:9.5pt;line-height:1.38}
 .portable-table-note{margin-top:4pt !important;font-size:7.5pt !important}
 .portable-sources{display:block !important;margin-top:16pt !important;padding-top:9pt !important;border-top:1px solid #aeb7c2 !important;break-before:page}.portable-sources h2{color:#17365d;font-size:12.5pt}.portable-sources ol{gap:5pt !important}.portable-sources p{margin:1pt 0 !important;font-size:8pt}.portable-source-meta{font-size:7.5pt !important}
 .print-source-value{text-decoration:none !important}a{color:inherit;text-decoration:none}
+.page-break{break-before:page !important}.avoid-break{break-inside:avoid-page !important}
+.portable-page-header h1{string-set:report-title content(text)}
 @media screen{body{max-width:11in;margin:0 auto;padding:.42in}}
 @media print{body{margin:0}.portable-sources{display:block !important}}
 """
@@ -175,17 +178,26 @@ def main() -> int:
         line for line in style_match.group(1).splitlines() if "source-tooltip" not in line
     )
     title = unescape(title_match.group(1).strip()) if title_match else "Printable report"
-    page_rule = f"@page{{size:{args.page_size} {args.orientation};margin:.42in}}"
+    page_rule = f"""
+@page{{
+  size:{args.page_size} {args.orientation};
+  margin:.55in .42in .62in;
+  @top-left{{content:string(report-title);color:#5b6570;font-size:8pt}}
+  @bottom-right{{content:"Page " counter(page) " of " counter(pages);color:#5b6570;font-size:8pt}}
+}}
+@page:first{{@top-left{{content:none}}}}
+"""
 
     document = f"""<!doctype html>
 <html lang="en"><head><meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <meta name="color-scheme" content="light" />
+<meta name="generator" content="create-auditable-reports print source for Paged.js" />
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src data:; style-src 'unsafe-inline';" />
 <meta name="referrer" content="no-referrer" />
 <title>{escape(title)} — Print Edition</title>
 <style>{base_css}\n{PRINT_CSS}\n{page_rule}</style></head>
-<body>{main_html}</body></html>
+<body class="pagedjs-source">{main_html}</body></html>
 """
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(document, encoding="utf-8")

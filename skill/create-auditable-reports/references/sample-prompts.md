@@ -8,6 +8,8 @@
 
 > Create a separate print-ready HTML from the existing report. Keep the interactive report unchanged. Use Letter landscape and remove scripts, tooltips, dialogs, buttons, and expandable sections.
 
+> Paginate the script-free print source with Paged.js. Include a running report title, `Page X of Y`, deliberate section breaks, and avoid splitting metric cards or charts. Produce both a paginated HTML preview and PDF with remote requests blocked.
+
 ## Reconcile a workbook to a database
 
 > Compare both workbook tabs to the database by project. Identify the most defensible control totals for costs, billings, revenue, contracts, budgets, change orders, and forecast. Enforce the stated cutoff in accounting/source dates and call out extracts that extend beyond it.
