@@ -1,0 +1,188 @@
+{
+  "surface": "report",
+  "manifest": {
+    "version": 1,
+    "surface": "report",
+    "title": "Synthetic Project Portfolio Health",
+    "description": "A synthetic, source-backed example showing how to turn a reviewed project snapshot into an answer-first report.",
+    "generatedAt": "2026-07-21T21:00:00Z",
+    "cards": [
+      {
+        "id": "project_count",
+        "description": "Active projects in the reviewed synthetic snapshot.",
+        "dataset": "headline",
+        "sourceId": "portfolio_snapshot",
+        "metrics": [
+          {"label": "Active projects", "field": "project_count", "format": "number"}
+        ]
+      },
+      {
+        "id": "portfolio_budget",
+        "description": "Approved budget across all projects.",
+        "dataset": "headline",
+        "sourceId": "portfolio_snapshot",
+        "metrics": [
+          {"label": "Portfolio budget", "field": "portfolio_budget", "format": "currency"}
+        ]
+      },
+      {
+        "id": "forecast_variance",
+        "description": "Current forecast less approved budget.",
+        "dataset": "headline",
+        "sourceId": "portfolio_snapshot",
+        "metrics": [
+          {"label": "Forecast variance", "field": "forecast_variance", "format": "currency", "signed": true}
+        ]
+      },
+      {
+        "id": "at_risk_projects",
+        "description": "Projects labeled At risk in the reviewed snapshot.",
+        "dataset": "headline",
+        "sourceId": "portfolio_snapshot",
+        "metrics": [
+          {"label": "At-risk projects", "field": "at_risk_projects", "format": "number"}
+        ]
+      },
+      {
+        "id": "stable_rate",
+        "description": "Share of active projects labeled Stable.",
+        "dataset": "headline",
+        "sourceId": "portfolio_snapshot",
+        "metrics": [
+          {"label": "Stable project rate", "field": "stable_rate", "format": "percent"}
+        ]
+      }
+    ],
+    "charts": [
+      {
+        "id": "variance_chart",
+        "title": "Forecast variance by project",
+        "subtitle": "Current forecast less approved budget; synthetic July 2026 snapshot",
+        "type": "bar",
+        "dataset": "project_detail",
+        "sourceId": "portfolio_snapshot",
+        "intent": "comparison",
+        "question": "Which projects drive the portfolio forecast variance?",
+        "rationale": "A category bar chart makes signed differences across eight projects directly comparable.",
+        "encodings": {
+          "x": {"field": "project", "type": "nominal", "label": "Project"},
+          "y": {"field": "variance", "type": "quantitative", "format": "currency", "label": "Forecast less budget"},
+          "tooltip": [
+            {"field": "budget", "type": "quantitative", "format": "currency", "label": "Budget"},
+            {"field": "forecast", "type": "quantitative", "format": "currency", "label": "Forecast"},
+            {"field": "completion", "type": "quantitative", "format": "percent", "label": "Completion"},
+            {"field": "risk", "type": "text", "label": "Risk"}
+          ]
+        },
+        "valueFormat": "currency",
+        "layout": "full",
+        "maxRows": 8
+      }
+    ],
+    "tables": [
+      {
+        "id": "project_detail_table",
+        "title": "Project-level budget and forecast detail",
+        "subtitle": "Eight active synthetic projects; sorted by forecast variance",
+        "dataset": "project_detail",
+        "sourceId": "portfolio_snapshot",
+        "defaultSort": {"field": "variance", "direction": "desc"},
+        "density": "spacious",
+        "layout": "full",
+        "columns": [
+          {"field": "project", "label": "Project", "type": "text"},
+          {"field": "owner", "label": "Owner", "type": "text"},
+          {"field": "region", "label": "Region", "type": "text"},
+          {"field": "risk", "label": "Risk", "type": "text"},
+          {"field": "completion", "label": "Completion", "format": "percent"},
+          {"field": "budget", "label": "Budget", "format": "currency"},
+          {"field": "actual", "label": "Actual cost", "format": "currency"},
+          {"field": "forecast", "label": "Forecast", "format": "currency"},
+          {"field": "variance", "label": "Variance", "format": "currency", "movement": true}
+        ]
+      }
+    ],
+    "sources": [
+      {"id": "portfolio_snapshot", "label": "Synthetic project health snapshot", "path": "project_health.csv"}
+    ],
+    "blocks": [
+      {"id": "title", "type": "markdown", "body": "# Synthetic Project Portfolio Health"},
+      {
+        "id": "executive_summary",
+        "type": "markdown",
+        "sourceId": "portfolio_snapshot",
+        "body": "## Executive Summary\n\n- **The portfolio is forecast $850K over its $24.3M approved budget.** The current $25.15M forecast is 3.5% above plan.\n- **Three projects explain almost the entire gap.** Northstar, Atlas, and Cedar contribute $820K, or 96% of the forecast overrun.\n- **Recovery attention should stay concentrated.** Five of eight projects are stable, while the three at-risk projects are also the three largest unfavorable variances."
+      },
+      {"id": "headline_metrics", "type": "metric-strip", "cardIds": ["project_count", "portfolio_budget", "forecast_variance", "at_risk_projects", "stable_rate"]},
+      {
+        "id": "definitions",
+        "type": "markdown",
+        "body": "## The comparison basis is a current project snapshot\n\nForecast variance equals current forecast less approved budget at one row per active project. Positive values indicate a forecast overrun; negative values indicate a forecast underrun. Risk status is a synthetic management classification rather than a statistical prediction."
+      },
+      {
+        "id": "variance_finding",
+        "type": "markdown",
+        "sourceId": "portfolio_snapshot",
+        "body": "## Three projects drive 96% of the projected overrun\n\nNorthstar (+$350K), Atlas (+$280K), and Cedar (+$190K) account for $820K of the $850K portfolio variance. That concentration makes project-level recovery plans more decision-useful than a broad portfolio-wide reduction target."
+      },
+      {"id": "variance_chart_block", "type": "chart", "chartId": "variance_chart"},
+      {
+        "id": "detail_finding",
+        "type": "markdown",
+        "sourceId": "portfolio_snapshot",
+        "body": "## Stable projects provide little offset to the three exceptions\n\nHarbor and Willow are forecast $40K and $20K under budget, respectively. Their combined $60K favorable position offsets only a small share of the $910K unfavorable variance across the other six projects, so the net portfolio result remains $850K over budget."
+      },
+      {"id": "project_detail_block", "type": "table", "tableId": "project_detail_table"},
+      {
+        "id": "recommendations",
+        "type": "markdown",
+        "body": "## Recommended next steps\n\n1. Require Northstar, Atlas, and Cedar owners to document the cost drivers, recovery actions, and decision dates behind their current forecasts.\n2. Revalidate the three forecasts at the next close before applying portfolio-level contingency.\n3. Monitor Harbor and Willow so their favorable positions are not used as offsets until the remaining scope and risk are confirmed."
+      },
+      {
+        "id": "questions",
+        "type": "markdown",
+        "body": "## Further questions\n\n- How much approved contingency remains outside the project budgets?\n- Which portion of each at-risk variance is committed versus estimated?\n- Are any schedule delays likely to create additional indirect cost exposure?"
+      },
+      {
+        "id": "caveats",
+        "type": "markdown",
+        "body": "## Caveats and assumptions\n\nThis is a synthetic fixture designed to demonstrate the report package. It contains one current snapshot, not a historical trend, and risk labels are illustrative. Do not use these values for an operational decision."
+      }
+    ]
+  },
+  "snapshot": {
+    "version": 1,
+    "generatedAt": "2026-07-21T21:00:00Z",
+    "status": "fixture",
+    "datasets": {
+      "headline": [
+        {"project_count": 8, "portfolio_budget": 24300000, "portfolio_forecast": 25150000, "forecast_variance": 850000, "at_risk_projects": 3, "stable_rate": 0.625}
+      ],
+      "project_detail": [
+        {"project": "Northstar", "owner": "A. Chen", "region": "Central", "risk": "At risk", "completion": 0.72, "budget": 4000000, "actual": 2900000, "forecast": 4350000, "variance": 350000},
+        {"project": "Atlas", "owner": "R. Singh", "region": "East", "risk": "At risk", "completion": 0.78, "budget": 3200000, "actual": 2600000, "forecast": 3480000, "variance": 280000},
+        {"project": "Cedar", "owner": "M. Lopez", "region": "South", "risk": "At risk", "completion": 0.61, "budget": 2700000, "actual": 1700000, "forecast": 2890000, "variance": 190000},
+        {"project": "Orion", "owner": "J. Reed", "region": "West", "risk": "Stable", "completion": 0.50, "budget": 2400000, "actual": 1200000, "forecast": 2460000, "variance": 60000},
+        {"project": "Pioneer", "owner": "S. Patel", "region": "Central", "risk": "Stable", "completion": 0.66, "budget": 3100000, "actual": 2000000, "forecast": 3120000, "variance": 20000},
+        {"project": "Summit", "owner": "K. Evans", "region": "East", "risk": "Stable", "completion": 0.73, "budget": 2600000, "actual": 1900000, "forecast": 2610000, "variance": 10000},
+        {"project": "Harbor", "owner": "T. Brooks", "region": "South", "risk": "Stable", "completion": 0.81, "budget": 3500000, "actual": 2800000, "forecast": 3460000, "variance": -40000},
+        {"project": "Willow", "owner": "D. Morgan", "region": "West", "risk": "Stable", "completion": 0.74, "budget": 2800000, "actual": 2000000, "forecast": 2780000, "variance": -20000}
+      ]
+    }
+  },
+  "sources": [
+    {
+      "id": "portfolio_snapshot",
+      "label": "Synthetic project health snapshot",
+      "path": "project_health.csv",
+      "query": {
+        "engine": "duckdb",
+        "language": "sql",
+        "id": "synthetic-project-health-example",
+        "executed_at": "2026-07-21T21:00:00Z",
+        "description": "Loads the reviewed synthetic project-level snapshot used throughout the example report.",
+        "sql": "SELECT project, owner, region, risk, completion, budget, actual, forecast, forecast - budget AS variance FROM read_csv_auto('project_health.csv', header = true)"
+      }
+    }
+  ]
+}

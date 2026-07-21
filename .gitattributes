@@ -1,0 +1,7 @@
+* text=auto eol=lf
+*.html text eol=lf
+*.json text eol=lf
+*.md text eol=lf
+*.py text eol=lf
+*.ps1 text eol=lf
+skill/create-auditable-reports/** -text
