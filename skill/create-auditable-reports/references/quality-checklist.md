@@ -13,6 +13,7 @@
 - The visible title matches the document title.
 - The visible first section matches the document profile: Executive Summary, Technical Summary, Lesson Overview, or Entry Summary.
 - Each major section begins with its takeaway.
+- Avoid a heading-only Markdown section immediately before a titled chart or table unless the extra section label adds meaning.
 - Each major finding pairs evidence with interpretation and an implication.
 - Recommendations are supported by evidence.
 - Decision-relevant caveats appear near the affected finding or in a visible caveat section.
@@ -46,6 +47,7 @@
 - The optional print HTML contains no scripts, dialogs, buttons, tooltips, or expandable controls.
 - When charts are present, `report_charted.html` contains one embedded image per artifact chart and retains each exact-value semantic table.
 - The print page uses readable page size, margins, table headers, and page breaks.
+- Pagination does not leave avoidable half-empty pages; headings stay with their first content, atomic visuals stay intact, and short source lists use remaining final-page space when available.
 - CSS Paged Media defines a running title, `Page X of Y`, and explicit break utilities.
 - Paged.js pagination runs with the pinned version and remote resources blocked unless reviewed assets require them.
 - Paginated HTML contains Paged.js page elements, and PDF output has been opened or structurally checked before handoff.

@@ -19,7 +19,7 @@ The expected reading order is:
 
 ## Visual language
 
-- Use generous whitespace and a narrow reading measure for prose.
+- Use purposeful whitespace and a narrow reading measure for prose. Avoid half-empty pages caused only by over-broad keep-together rules.
 - Use a clear hierarchy with restrained typography rather than decorative chrome.
 - Use cards only for a small set of distinct headline metrics.
 - Use one chart per analytical question and place interpretation beside it.
@@ -28,6 +28,8 @@ The expected reading order is:
 - Keep report titles and chart titles neutral. Put scope, unit, cutoff, and comparison basis in supporting text.
 - Retain useful content in the semantic fallback when scripts or chart rendering are unavailable.
 - Materialize selected print charts as embedded images with fixed dimensions and no runtime scripts; retain the exact-value table directly below each image.
+- Keep headings with their first content, metric cards and figures atomic, and table rows intact. Allow longer narrative sections and visual cards to split at safe internal boundaries.
+- Let a short source list follow the final content when it fits; move it as a unit when it does not.
 
 The synthetic project-health example under `skill/create-auditable-reports/assets/examples/project-health/` is the initial visual fixture. It is a reference point, not an immutable brand system.
 
@@ -60,6 +62,7 @@ Acceptance checks:
 - Every Chart.js image has a text alternative, fixed capture dimensions, disabled animation, and an adjacent semantic table with exact values.
 - The print edition contains no scripts, dialogs, buttons, tooltips, or expandable controls.
 - Paged pages show a running report title and `Page X of Y`.
+- Page density remains readable: body text is not reduced below 9.5 pt merely to avoid a break, and ordinary fixtures do not end with an otherwise empty sources-only page when the source list fits safely above.
 - Deliberate section breaks use `.page-break`; cards, charts, and other atomic content use `.avoid-break` or equivalent component rules.
 - Paged.js runs with remote requests blocked unless every remote dependency was reviewed and intentionally allowed.
 - Paginated HTML is normalized to remove Paged.js run-specific DOM identifiers. PDF validation is structural because browser-generated PDF metadata may vary between runs.

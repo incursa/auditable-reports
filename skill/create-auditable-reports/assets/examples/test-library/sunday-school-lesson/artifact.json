@@ -183,11 +183,6 @@
         "chartId": "lesson_timing"
       },
       {
-        "id": "teaching_plan",
-        "type": "markdown",
-        "body": "## Teaching plan"
-      },
-      {
         "id": "activity_table",
         "type": "table",
         "tableId": "activity_table"

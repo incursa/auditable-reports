@@ -47,8 +47,6 @@ value-label: Minutes
 format: number
 :::
 
-## Teaching plan
-
 ::: table
 id: activity_table
 title: Activity sequence

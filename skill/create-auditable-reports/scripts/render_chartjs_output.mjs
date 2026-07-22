@@ -169,7 +169,7 @@ async function main() {
 
           const canvas = document.createElement("canvas");
           canvas.width = 1280;
-          canvas.height = 500;
+          canvas.height = 360;
           canvas.setAttribute("aria-hidden", "true");
           document.body.append(canvas);
 
@@ -277,7 +277,7 @@ async function main() {
           const image = document.createElement("img");
           image.src = chart.toBase64Image("image/png", 1);
           image.width = 1280;
-          image.height = 500;
+          image.height = 360;
           image.loading = "eager";
           image.decoding = "sync";
           image.setAttribute("role", "img");
@@ -285,7 +285,14 @@ async function main() {
             yEncoding.label ?? yEncoding.field
           } by ${xEncoding.label ?? xEncoding.field}; exact values are provided in the following table.`;
           container.append(image);
-          caption?.insertAdjacentElement("afterend", container);
+          if (caption) {
+            const group = document.createElement("div");
+            group.className = "chartjs-visual-group avoid-break";
+            caption.before(group);
+            group.append(caption, container);
+          } else {
+            figure.prepend(container);
+          }
 
           chart.destroy();
           canvas.remove();
@@ -295,10 +302,11 @@ async function main() {
         const style = document.createElement("style");
         style.dataset.chartjsMaterialized = version;
         style.textContent = `
-.chartjs-static{width:100%;max-width:9.8in;margin:0 auto 10pt;break-inside:avoid-page}
-.chartjs-static img{display:block;width:100%;height:auto;max-height:4.45in;object-fit:contain}
+.chartjs-static{width:100%;max-width:9.8in;margin:0 auto 6pt;break-inside:avoid-page}
+.chartjs-visual-group{break-inside:avoid-page}
+.chartjs-static img{display:block;width:100%;height:auto;max-height:3.2in;object-fit:contain}
 @media screen{.chartjs-static{max-width:960px}}
-@media print{.chartjs-static img{max-height:4.25in}}
+@media print{.chartjs-static img{max-height:3.05in}}
 `;
         document.head.append(style);
         const versionMeta = document.createElement("meta");
