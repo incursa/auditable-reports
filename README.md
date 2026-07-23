@@ -41,6 +41,7 @@ This package owns an artifact contract, executable tooling, fixtures, validation
 - `skill/create-auditable-reports/` — self-contained agent skill imported from the source archive.
 - `docs/BASELINE.md` — the report content, visual, evidence, and output baseline.
 - `docs/AUTHORING-DIRECTION.md` — accepted `.report.md` authoring model and boundaries.
+- `docs/REPORT-GENERATION-AGENT-GUIDE.md` — standalone agent operating guide, DSL reference, report structures, build contract, and known gaps.
 - `docs/INTAKE.md` — archive provenance, inventory, validation evidence, and identified gaps.
 - `docs/decisions/` — durable architectural decisions.
 - `scripts/Test-Repository.ps1` — local repository validation.
