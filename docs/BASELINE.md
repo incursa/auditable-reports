@@ -70,7 +70,7 @@ Acceptance checks:
 
 ## Authoring contract
 
-Use Report Markdown v0.1 for routine reports. Keep prose and fenced code in ordinary Markdown; use only the standard metrics, chart, table, and figure directives. Compile to `artifact.json` before rendering. Direct artifact authoring remains available for requirements outside the constrained language.
+Use Report Markdown v0.1 for routine reports. Keep prose and fenced code in ordinary Markdown; use only the standard metrics, optional chart, semantic table, and figure directives. Compile to `artifact.json` before rendering. For decision briefs, preserve the complete canonical evidence package separately from the stakeholder edition. Direct artifact authoring remains available for requirements outside the constrained language.
 
 The compiler enforces the visual baseline rather than exposing design controls: at most 6 metrics, 12 bars, 6 pie slices, 8 table columns, 50 table rows, and a 5 MB embedded figure. Arbitrary HTML, CSS, JavaScript, layouts, and chart options are outside the authoring contract.
 

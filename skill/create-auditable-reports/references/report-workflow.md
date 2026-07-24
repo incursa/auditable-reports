@@ -20,16 +20,19 @@ Use one directory per report:
 
 ```text
 report-name/
-  report.report.md        # preferred standard authoring source
-  report.data.json        # bounded datasets and source records
-  artifact.json
-  report.html
-  report_print.html        # only when requested
-  report_charted.html      # generated when print output contains charts
+  stakeholder-report.md    # or report.report.md
+  evidence-package.json    # or report.data.json for a simple analytical report
+  rebuild-report.ps1
   source_notes.md
   queries/
   data/
   analysis/
+  output/
+    artifact.json
+    stakeholder-report.html
+    stakeholder-report_print.html
+    stakeholder-report_paged.html
+    stakeholder-report.pdf
 ```
 
 Keep raw inputs read-only. Save normalized or aggregated report datasets separately. Use deterministic file names and stable field names.
@@ -59,7 +62,7 @@ Do not assume that an extract date equals an accounting cutoff. A current databa
 
 ## 4. Build the report spine
 
-Plan the reading order before writing the artifact:
+Plan the reading order before writing the edition:
 
 1. Title
 2. Executive or technical summary
@@ -71,7 +74,14 @@ Plan the reading order before writing the artifact:
 8. Open questions
 9. Caveats and uncertainty
 
-Every chart needs an adjacent narrative block explaining the takeaway and why it matters. Tables carry exact values; they do not replace interpretation.
+Every included chart needs an adjacent narrative block explaining the takeaway and why it matters. Charts are optional. Tables carry exact values; they do not replace interpretation.
+
+For a decision brief, maintain two layers:
+
+- Canonical evidence package: requirements, conflicts, decisions, assumptions, recommendations, datasets, sources, and provenance.
+- Stakeholder edition: the selected narrative, tables, figures, and visibility settings.
+
+Edition choices never delete canonical evidence.
 
 ## 5. Choose evidence forms
 
@@ -87,9 +97,9 @@ Avoid charts when the dataset is too sparse to show a trustworthy pattern. Use a
 
 ## 6. Author and render
 
-Run `scripts/new_report.py` for the Report Markdown starter. Replace the synthetic prose, data, figure, and source metadata, then compile with `scripts/compile_report.py`. Use `--format artifact` only when the constrained syntax cannot express a reviewed requirement. Render the resulting artifact with `scripts/render_report.py`, or run `scripts/build_report_bundle.py` for the complete HTML/PDF pipeline.
+Run `scripts/new_report.py` for the Report Markdown starter. Use `--document-type decision-brief` for the evidence/edition starter. Replace the synthetic prose, data, figure, and source metadata, then run the generated `rebuild-report.ps1`. Use `--format artifact` only when the constrained syntax cannot express a reviewed requirement.
 
-When paginated output is requested, create the script-free source with `scripts/build_print_report.py`. If the artifact contains supported charts, materialize them with `scripts/render_chartjs_output.py` and retain the semantic tables. Then run `scripts/render_paged_output.py` for paginated HTML preview or PDF. Chart.js owns only build-time visual materialization. Paged.js owns pagination, running matter, page counters, and CSS break behavior. Neither owns report semantics or evidence.
+The bundle command forwards safe page size, orientation, PDF name, source visibility, and date visibility. It always creates paginated HTML before the PDF. If the artifact contains supported charts, it materializes them with Chart.js; chartless reports skip that stage. Paged.js owns pagination, running matter, page counters, and CSS break behavior. Neither tool owns report semantics or evidence.
 
 The renderer owns the shared interactive reader, responsive layout, source affordances, semantic fallback, and visual styles. Do not patch those into the generated page manually.
 
@@ -97,9 +107,9 @@ The renderer owns the shared interactive reader, responsive layout, source affor
 
 When revising an existing report:
 
-- Start from the full existing `artifact.json`.
+- Start from the full existing evidence package and edition source, not generated output.
 - Preserve unrelated block IDs, order, data, prose, and sources.
-- Patch only the requested section and directly dependent elements.
+- Patch only the requested section and directly dependent elements; preserve unselected canonical evidence.
 - Rerender the complete report.
 - Compare old and new artifact structure before handoff.
 

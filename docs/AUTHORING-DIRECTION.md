@@ -20,7 +20,9 @@ quarterly-health/
 
 Markdown owns headings, prose, lists, links, blockquotes, and fenced code. Four directives place metric strips, bar/pie charts, tables, and figures. The JSON sidecar owns prepared rows and canonical source metadata.
 
-An optional `document-type` selects one of four opening profiles: `report` uses `Executive Summary`, `technical` uses `Technical Summary`, `lesson` uses `Lesson Overview`, and `journal` uses `Entry Summary`. This is vocabulary, not theming; all four profiles share the same renderer and layout constraints.
+An optional `document-type` selects an opening profile: `report` uses `Executive Summary`, `technical` uses `Technical Summary`, `lesson` uses `Lesson Overview`, `journal` uses `Entry Summary`, and `decision-brief` uses `Executive Summary` followed by `Immediate Direction`. The decision-brief profile also owns safe stakeholder-edition defaults; all profiles share the same renderer and constrained blocks.
+
+Routine analytical reports use `report.data.json`. Decision briefs and other multi-edition documents use `evidence-package.json` so the canonical requirements, conflicts, decisions, assumptions, recommendations, sources, and provenance remain independent of visible edition choices.
 
 The complete v0.1 syntax and limits are in `skill/create-auditable-reports/references/report-markdown.md`.
 

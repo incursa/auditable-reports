@@ -1,5 +1,13 @@
 {
   "surface": "report",
+  "reportConfig": {
+    "documentType": "lesson",
+    "orientation": "portrait",
+    "pageSize": "Letter",
+    "sourceDisplay": "visible",
+    "dateDisplay": "date-only",
+    "pdfName": "report.pdf"
+  },
   "manifest": {
     "version": 1,
     "surface": "report",
@@ -99,6 +107,7 @@
         "title": "Activity sequence",
         "dataset": "activities",
         "sourceId": "lesson_plan",
+        "kind": "standard",
         "density": "spacious",
         "layout": "full",
         "columns": [

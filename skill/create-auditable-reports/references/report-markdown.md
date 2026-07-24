@@ -17,7 +17,7 @@ data: report.data.json
 # Quarterly Delivery Health
 ```
 
-`description`, `generated-at`, `status`, and `data` are required. `document-type` is optional and defaults to `report`. The fixed profiles and required first sections are:
+`description`, `generated-at`, and `status` are required. Supply exactly one of `data` or `evidence`. `document-type` is optional and defaults to `report`. The fixed profiles and required first sections are:
 
 | `document-type` | Required first section |
 | --- | --- |
@@ -25,8 +25,22 @@ data: report.data.json
 | `technical` | `## Technical Summary` |
 | `lesson` | `## Lesson Overview` |
 | `journal` | `## Entry Summary` |
+| `decision-brief` | `## Executive Summary`, then `## Immediate Direction` |
 
-`status` is `ready`, `partial`, `blocked`, or `fixture`. The data path must be relative to the Markdown file. Document profiles change only the opening vocabulary; they do not expose themes or layout controls.
+`status` is `ready`, `partial`, `blocked`, or `fixture`. Sidecar paths must be relative to the Markdown file. A decision brief keeps its executive summary and immediate-direction callout first so they can be validated on page 1.
+
+Safe print settings belong in front matter:
+
+```yaml
+document-type: decision-brief
+print-orientation: portrait
+page-size: Letter
+source-display: hidden
+date-display: date-only
+pdf-name: stakeholder-report.pdf
+```
+
+Supported page sizes are `Letter`, `Legal`, and `A4`; orientations are `portrait` and `landscape`; source display is `visible` or `hidden`; date display is `timestamp`, `date-only`, or `hidden`. The build emits explicit page dimensions and validates every PDF `MediaBox`. CLI values override front matter.
 
 The JSON sidecar contains exactly `datasets` and `sources`:
 
@@ -48,6 +62,12 @@ The JSON sidecar contains exactly `datasets` and `sources`:
 ```
 
 Keep datasets reviewed and bounded. The compiler allows at most 200 rows in any artifact dataset.
+
+## Canonical evidence and stakeholder editions
+
+Use `evidence: evidence-package.json` when the internal record must be broader than the visible edition. The package has `version`, `datasets`, `sources`, and any of these evidence collections: `requirements`, `conflicts`, `decisions`, `assumptions`, and `recommendations`.
+
+Every evidence entry needs a globally unique lowercase `id`. Optional `sourceIds` must reference canonical sources. Evidence collections are exposed as table datasets, while their full rows remain under `artifact.evidence`. The stakeholder Markdown selects what appears. Omitting a chart or setting `source-display: hidden` never deletes canonical data, sources, or evidence.
 
 ## Ordinary Markdown
 
@@ -133,7 +153,18 @@ sort: variance | desc
 :::
 ```
 
-Tables accept 1–8 columns and datasets of at most 50 rows. Column formats are `text`, `date`, `number`, `currency`, or `percent`. `movement` is the only optional visual semantic. `sort` is optional.
+Tables accept 1–8 columns and datasets of at most 50 rows. Column formats are `text`, `date`, `number`, `currency`, or `percent`. Add an optional semantic role after the format:
+
+```markdown
+kind: decision
+column: item | Item | text | item
+column: decision | Decision | text | decision
+column: recommendation | Recommendation | text | recommendation
+column: owner | Owner | text | owner
+column: status | Status | text | status
+```
+
+Table kinds are `standard`, `decision`, `incompatibility`, `recommendation`, and `assumption`. Column roles are `item`, `narrative`, `decision`, `recommendation`, `owner`, `status`, `date`, and `amount`. The renderer converts roles to safe proportional widths and checks readable minimums after pagination. The legacy fourth field `movement` remains supported; when combined with a role it is the fifth field. `sort` is optional.
 
 ## Figure or screenshot
 
@@ -149,6 +180,17 @@ source: workflow_capture
 
 Figures accept relative PNG, JPEG, WebP, GIF, or SVG files up to 5 MB. `alt` is required; `caption` and `source` are optional. The compiler embeds the file as a data URI for a self-contained report and escapes all supplied text.
 
+## Safe page controls
+
+Metrics, charts, tables, and figures accept:
+
+```text
+break-before: page
+keep-together: true
+```
+
+These compile to constrained print rules. Do not add author CSS for ordinary pagination.
+
 ## Deliberate exclusions
 
-Version 0.1 has no columns, arbitrary HTML, JavaScript, CSS, chart themes, multi-series charts, nested directives, dashboards, or component plug-ins. Revise the compiler only after repeated reports demonstrate a missing standard block.
+Version 0.1 has no arbitrary page columns, HTML, JavaScript, author CSS, chart themes, multi-series charts, nested directives, dashboards, or component plug-ins. Charts are always optional. Revise the compiler only after repeated reports demonstrate a missing standard block.

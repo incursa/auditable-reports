@@ -18,21 +18,33 @@ def main() -> int:
         default="markdown",
         help="Authoring source to create; default markdown",
     )
+    parser.add_argument(
+        "--document-type",
+        choices=("report", "decision-brief"),
+        default="report",
+        help="Markdown profile to scaffold; default report",
+    )
     args = parser.parse_args()
 
     skill_root = Path(__file__).resolve().parent.parent
     starter = skill_root / "assets" / "starter"
     markdown_example = skill_root / "assets" / "examples" / "report-markdown"
+    decision_example = skill_root / "assets" / "examples" / "test-library" / "decision-brief"
     output = Path(args.output).expanduser().resolve()
     if output.exists() and any(output.iterdir()):
         raise FileExistsError(f"Output directory is not empty: {output}")
 
     output.mkdir(parents=True, exist_ok=True)
-    sources = (
-        [markdown_example / name for name in ("report.report.md", "report.data.json", "review-state.svg")]
-        if args.format == "markdown"
-        else list(starter.iterdir())
-    )
+    if args.format == "markdown" and args.document_type == "decision-brief":
+        sources = [
+            decision_example / "report.report.md",
+            decision_example / "evidence-package.json",
+            decision_example / "source-notes.md",
+        ]
+    elif args.format == "markdown":
+        sources = [markdown_example / name for name in ("report.report.md", "report.data.json", "review-state.svg")]
+    else:
+        sources = list(starter.iterdir())
     for source in sources:
         destination = output / source.name
         if source.is_dir():
@@ -41,7 +53,14 @@ def main() -> int:
             shutil.copy2(source, destination)
 
     replace_in = (
-        [("report.report.md", "Simple Delivery Review")]
+        [
+            (
+                "report.report.md",
+                "Field Contract Mobilization Decision"
+                if args.document_type == "decision-brief"
+                else "Simple Delivery Review",
+            )
+        ]
         if args.format == "markdown"
         else [("artifact.json", "Synthetic Project Portfolio Health"), ("report_brief.md", "Synthetic Project Portfolio Health")]
     )
@@ -51,9 +70,47 @@ def main() -> int:
         path.write_text(text.replace(old_title, args.name), encoding="utf-8")
 
     if args.format == "markdown":
+        report_source = output / "report.report.md"
+        if args.document_type == "decision-brief":
+            report_source = output / "stakeholder-report.md"
+            (output / "report.report.md").replace(report_source)
         artifact_path = output / "artifact.json"
         artifact_path.write_text(
-            json.dumps(compile_report(output / "report.report.md"), indent=2, ensure_ascii=False) + "\n",
+            json.dumps(compile_report(report_source), indent=2, ensure_ascii=False) + "\n",
+            encoding="utf-8",
+        )
+        tool_root = Path(__file__).resolve().parents[3]
+        rebuild = output / "rebuild-report.ps1"
+        rebuild.write_text(
+            """param(
+    [string]$Browser
+)
+$ErrorActionPreference = "Stop"
+$toolRoot = $env:AUDITABLE_REPORTS_ROOT
+if (-not $toolRoot) {
+    $toolRoot = '"""
+            + str(tool_root).replace("'", "''")
+            + """'
+}
+$builder = Join-Path $toolRoot 'skill\\create-auditable-reports\\scripts\\build_report_bundle.py'
+if (-not (Test-Path -LiteralPath $builder -PathType Leaf)) {
+    throw "Set AUDITABLE_REPORTS_ROOT to the auditable-reports repository."
+}
+$arguments = @(
+    $builder,
+    '--input', '"""
+            + report_source.name.replace("'", "''")
+            + """',
+    '--output-dir', 'output'
+)
+if ($Browser) {
+    $arguments += @('--browser', $Browser)
+}
+& python @arguments
+if ($LASTEXITCODE -ne 0) {
+    throw "Report build failed with exit code $LASTEXITCODE."
+}
+""",
             encoding="utf-8",
         )
 

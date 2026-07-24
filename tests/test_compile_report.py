@@ -11,6 +11,7 @@ import unittest
 REPO_ROOT = Path(__file__).resolve().parents[1]
 SCRIPT_ROOT = REPO_ROOT / "skill" / "create-auditable-reports" / "scripts"
 FIXTURE_ROOT = REPO_ROOT / "skill" / "create-auditable-reports" / "assets" / "examples" / "report-markdown"
+DECISION_ROOT = REPO_ROOT / "skill" / "create-auditable-reports" / "assets" / "examples" / "test-library" / "decision-brief"
 sys.path.insert(0, str(SCRIPT_ROOT))
 
 from compile_report import DslError, compile_report  # noqa: E402
@@ -101,6 +102,40 @@ class CompileReportTests(unittest.TestCase):
             )
         )
         with self.assertRaisesRegex(DslError, "document-type must be one of"):
+            compile_report(self.root / "report.report.md")
+
+    def test_decision_brief_keeps_canonical_evidence_but_omits_source_arrays_from_widget_data(self) -> None:
+        decision_root = self.root / "decision"
+        shutil.copytree(DECISION_ROOT, decision_root)
+        artifact = compile_report(decision_root / "report.report.md")
+
+        self.assertEqual("decision-brief", artifact["reportConfig"]["documentType"])
+        self.assertEqual("portrait", artifact["reportConfig"]["orientation"])
+        self.assertEqual("hidden", artifact["reportConfig"]["sourceDisplay"])
+        self.assertEqual([], artifact["manifest"]["charts"])
+        self.assertEqual("decision", artifact["manifest"]["tables"][0]["kind"])
+        self.assertEqual("narrative", artifact["manifest"]["tables"][1]["columns"][1]["role"])
+        self.assertIn("sourceIds", artifact["evidence"]["decisions"][0])
+        self.assertNotIn("sourceIds", artifact["snapshot"]["datasets"]["decisions"][0])
+
+    def test_decision_brief_rejects_duplicate_evidence_ids(self) -> None:
+        decision_root = self.root / "decision"
+        shutil.copytree(DECISION_ROOT, decision_root)
+        evidence_path = decision_root / "evidence-package.json"
+        evidence = json.loads(evidence_path.read_text(encoding="utf-8"))
+        evidence["assumptions"][0]["id"] = evidence["decisions"][0]["id"]
+        evidence_path.write_text(json.dumps(evidence), encoding="utf-8")
+        with self.assertRaisesRegex(DslError, "duplicate evidence item id"):
+            compile_report(decision_root / "report.report.md")
+
+    def test_rejects_unsafe_print_configuration(self) -> None:
+        self.write_source(
+            self.source().replace(
+                "description: A synthetic example",
+                "print-orientation: diagonal\ndescription: A synthetic example",
+            )
+        )
+        with self.assertRaisesRegex(DslError, "print-orientation"):
             compile_report(self.root / "report.report.md")
 
 

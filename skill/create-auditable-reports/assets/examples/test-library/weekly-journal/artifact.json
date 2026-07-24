@@ -1,5 +1,13 @@
 {
   "surface": "report",
+  "reportConfig": {
+    "documentType": "journal",
+    "orientation": "portrait",
+    "pageSize": "Letter",
+    "sourceDisplay": "visible",
+    "dateDisplay": "date-only",
+    "pdfName": "report.pdf"
+  },
   "manifest": {
     "version": 1,
     "surface": "report",
@@ -125,6 +133,7 @@
         "title": "Seven-day reflection log",
         "dataset": "days",
         "sourceId": "journal_log",
+        "kind": "standard",
         "density": "spacious",
         "layout": "full",
         "columns": [

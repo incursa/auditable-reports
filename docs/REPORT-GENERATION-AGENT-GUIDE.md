@@ -167,9 +167,11 @@ Required fields:
 | `description` | One-sentence scope |
 | `generated-at` | ISO timestamp for this snapshot |
 | `status` | `ready`, `partial`, `blocked`, or `fixture` |
-| `data` | Relative path to the JSON sidecar |
+| `data` or `evidence` | Relative path to the simple data sidecar or canonical evidence package |
 
-`document-type` is optional and defaults to `report`.
+Supply exactly one of `data` or `evidence`. `document-type` is optional and
+defaults to `report`. Safe edition fields are `print-orientation`, `page-size`,
+`source-display`, `date-display`, and `pdf-name`.
 
 ### Document profiles
 
@@ -181,8 +183,24 @@ Profiles change the required opening vocabulary, not the design:
 | `technical` | `## Technical Summary` | Methods, validation, system, or engineering reviews |
 | `lesson` | `## Lesson Overview` | Lesson plans and instructional documents |
 | `journal` | `## Entry Summary` | Reflective or journal-style documents |
+| `decision-brief` | `## Executive Summary`, then `## Immediate Direction` | Stakeholder direction backed by a complete internal evidence package |
 
 All profiles use the same blocks, artifact contract, renderer, and limits.
+`decision-brief` defaults to Letter portrait, hidden sources, date-only output,
+and requires no chart. It keeps Immediate Direction directly after the
+executive summary so both can be validated on page 1.
+
+### Canonical evidence and stakeholder edition
+
+For a decision brief, use `evidence-package.json` as the durable record of
+requirements, conflicts, decisions, assumptions, recommendations, datasets,
+sources, and provenance. Use Markdown as the stakeholder edition: it selects
+which narrative, tables, charts, and figures appear.
+
+The compiler carries the complete evidence package into `artifact.json`.
+`source-display: hidden` affects the print edition only. Omitting a chart from
+Markdown removes it from the stakeholder edition, not from canonical evidence.
+Never delete evidence merely to simplify a PDF.
 
 ### Ordinary Markdown
 
@@ -364,9 +382,21 @@ Column formats are:
 - `currency`
 - `percent`
 
-`movement` is the only visual semantic. Apply it only to a signed,
-decision-relevant movement column. The `sort` field must be one of the displayed
-columns.
+For decision-oriented tables, add `kind: decision`, `incompatibility`,
+`recommendation`, or `assumption`, then use semantic column roles:
+
+```text
+item | narrative | decision | recommendation | owner | status | date | amount
+```
+
+A full column definition is `field | label | format | optional role | optional
+movement`. Semantic roles produce safe proportional widths for portrait and
+landscape editions and are measured after pagination. Apply `movement` only to
+a signed, decision-relevant movement column. The `sort` field must be one of the
+displayed columns.
+
+Metrics, charts, tables, and figures also accept `break-before: page` and
+`keep-together: true`. These are safe compiler-owned controls, not raw CSS.
 
 ### Figure or screenshot
 
@@ -572,7 +602,12 @@ py skill\create-auditable-reports\scripts\build_report_bundle.py `
 ```
 
 The bundle command compiles, renders interactive HTML, creates script-free print
-HTML, materializes supported charts, paginates HTML, and creates PDF.
+HTML, materializes supported charts when present, always paginates HTML, and
+creates PDF. It accepts `--orientation`, `--page-size`, `--pdf-name`,
+`--source-display`, and `--date-display`; CLI values override front matter.
+Named page sizes compile to explicit dimensions, and the resulting PDF
+`MediaBox` is checked. Final PDF replacement is atomic; if the requested file
+is locked, the command writes a timestamped `.locked-*.pdf` fallback.
 
 Compile only:
 
@@ -596,6 +631,7 @@ Create portrait print output with individual stages:
 py skill\create-auditable-reports\scripts\build_print_report.py `
   --input path\to\report.html `
   --output path\to\report_print.html `
+  --artifact path\to\artifact.json `
   --page-size Letter `
   --orientation portrait
 ```
@@ -610,16 +646,16 @@ py skill\create-auditable-reports\scripts\render_chartjs_output.py `
 ```powershell
 py skill\create-auditable-reports\scripts\render_paged_output.py `
   --input path\to\report_charted.html `
-  --output path\to\report_paged.html
+  --output path\to\report_paged.html `
+  --artifact path\to\artifact.json
 
 py skill\create-auditable-reports\scripts\render_paged_output.py `
   --input path\to\report_charted.html `
-  --output path\to\report.pdf
+  --output path\to\report.pdf `
+  --artifact path\to\artifact.json
 ```
 
-The bundle currently uses the print builder's default `Letter landscape`.
-Use the individual print stages when another orientation or CSS page size is
-required.
+If the report has no charts, pass `report_print.html` directly to Paged.js.
 
 ## Validation contract
 
@@ -646,6 +682,7 @@ The agent should also verify:
 - Every chart has an adjacent interpretation.
 - Chart signs, scales, labels, and units are honest.
 - Tables remain readable and preserve exact values.
+- Semantic table columns meet their readable minimum widths and do not overflow.
 - Figures have meaningful alternative text.
 - Interactive HTML is self-contained.
 - Desktop and narrow layouts do not clip or widen the page.
@@ -653,7 +690,9 @@ The agent should also verify:
 - Print HTML contains no scripts, dialogs, buttons, or tooltips.
 - Charted print HTML contains one static image and one semantic table per chart.
 - Paged HTML has running matter and `Page X of Y`.
-- PDF and paginated HTML have no blank or avoidably sparse pages.
+- PDF orientation matches its `MediaBox`; source/date visibility matches the edition.
+- PDF and paginated HTML have no blank or avoidably sparse intermediate pages.
+- Headings are not stranded and short numbered lists do not split awkwardly.
 - Remote requests remain blocked unless explicitly reviewed.
 
 If the renderer reports `structural_only`, disclose it. The Chart.js and
@@ -671,7 +710,7 @@ pwsh -NoProfile -File scripts\Test-Repository.ps1
 
 When revising an existing report:
 
-1. Start from the existing `report.report.md`, `report.data.json`, and full
+1. Start from the existing edition Markdown, data or evidence package, and full
    `artifact.json`.
 2. Preserve unrelated IDs, section order, prose, data, and source metadata.
 3. Change only the requested section and directly dependent datasets or
@@ -752,25 +791,25 @@ Analytics plugin version.
 Likely fix: package or version the renderer contract independently, or add an
 explicit compatibility lock and CI matrix.
 
-### 6. Bundle command does not expose print orientation or page size
+### 6. General Markdown sections do not yet expose print-break controls
 
-`build_print_report.py` supports page size and portrait/landscape orientation,
-but `build_report_bundle.py` currently uses the default Letter landscape
-settings.
+Metrics, charts, tables, and figures support constrained `break-before` and
+`keep-together` properties. Ordinary Markdown sections do not yet have an
+equivalent annotation.
 
-Likely fix: forward `--page-size` and `--orientation` through the bundle command
-and record them in build metadata.
+Current response: split long narrative sections at meaningful headings. Add a
+Markdown-section print annotation only after repeated examples show it is
+necessary.
 
-### 7. DSL has no deliberate page-break or keep-together controls
+### 7. Chartless reports require a temporary renderer compatibility adapter
 
-Paged.js supports page breaks and the print CSS has safe component rules, but
-Report Markdown deliberately does not expose layout classes.
+The installed Data Analytics renderer currently rejects `surface: report`
+artifacts without a chart. The local renderer boundary temporarily adds a
+compatibility chart, packages the page, removes that block, and restores the
+canonical chartless payload.
 
-Current response: rely on the editorial pagination baseline, split overly large
-sections, and use individual stages for page orientation.
-
-Likely extension: add a very small semantic print-break directive only after
-repeated reports prove that content structure alone is insufficient.
+Likely fix: remove this adapter when the shared renderer accepts chartless
+reports directly.
 
 ### 8. Long audit appendices exceed the standard table contract
 
@@ -783,11 +822,11 @@ deliver the full reviewed CSV, workbook, or separate audit attachment.
 Likely extension: add a bounded appendix/attachment contract rather than making
 the primary report an unbounded data browser.
 
-### 9. No reusable report templates beyond fixed opening profiles
+### 9. Reusable templates remain limited
 
-The four document profiles change only the first-section vocabulary. There is
-no reusable section schema for recurring reconciliation, status, incident,
-monthly close, or customer-review reports.
+The decision-brief scaffold now supplies a complete evidence/edition example
+and one-command rebuild. There is still no reusable section schema for
+recurring reconciliation, monthly close, or customer-review reports.
 
 Likely extension: introduce optional scaffolding templates that generate normal
 Report Markdown. Templates should not add hidden renderer behavior.
@@ -863,7 +902,7 @@ When a complicated report does not fit, classify the requirement:
 Keep this invariant:
 
 ```text
-report.report.md + report.data.json
+edition.report.md + (report.data.json | evidence-package.json)
   -> artifact.json
   -> shared interactive and print renderers
 ```
@@ -873,8 +912,9 @@ report.report.md + report.data.json
 The agent is finished only when it can hand off:
 
 - The primary interactive `report.html`
-- `report.report.md`
-- `report.data.json`
+- Edition Markdown
+- `report.data.json` or `evidence-package.json`
+- `rebuild-report.ps1`
 - Canonical `artifact.json`
 - `source_notes.md`
 - Relevant queries, reviewed data, and images

@@ -88,12 +88,14 @@ if ($LASTEXITCODE -ne 0) {
     throw 'Chart.js HTML smoke render failed.'
 }
 py (Join-Path $skillRoot 'scripts\render_paged_output.py') `
+    --artifact (Join-Path $exampleRoot 'artifact.json') `
     --input $smokeCharted `
     --output $smokeHtml
 if ($LASTEXITCODE -ne 0) {
     throw 'Paged.js HTML smoke render failed.'
 }
 py (Join-Path $skillRoot 'scripts\render_paged_output.py') `
+    --artifact (Join-Path $exampleRoot 'artifact.json') `
     --input $smokeCharted `
     --output $smokePdf
 if ($LASTEXITCODE -ne 0) {
@@ -146,6 +148,33 @@ if ($fixtureDslHash -ne $smokeDslHash) {
 $dslHtml = Get-Content -Raw -LiteralPath (Join-Path $dslSmokeRoot 'report.html')
 if ($dslHtml -notmatch '<pre><code>SELECT' -or $dslHtml -notmatch 'data:image/svg\+xml;base64,') {
     throw 'Report Markdown output lacks the expected code block or embedded figure.'
+}
+
+Write-Host 'Building the chartless decision-brief fixture...'
+$decisionSourceRoot = Join-Path $testLibraryRoot 'decision-brief'
+$decisionSmokeRoot = Join-Path $repoRoot '.work\decision-brief-smoke'
+py (Join-Path $skillRoot 'scripts\build_report_bundle.py') `
+    --input (Join-Path $decisionSourceRoot 'report.report.md') `
+    --output-dir $decisionSmokeRoot
+if ($LASTEXITCODE -ne 0) {
+    throw 'Decision-brief bundle build failed.'
+}
+py (Join-Path $skillRoot 'scripts\check_report.py') `
+    --artifact (Join-Path $decisionSmokeRoot 'artifact.json') `
+    --html (Join-Path $decisionSmokeRoot 'stakeholder-report.html') `
+    --print-html (Join-Path $decisionSmokeRoot 'stakeholder-report_print.html') `
+    --paged-html (Join-Path $decisionSmokeRoot 'stakeholder-report_paged.html') `
+    --pdf (Join-Path $decisionSmokeRoot 'stakeholder-report.pdf')
+if ($LASTEXITCODE -ne 0) {
+    throw 'Decision-brief bundle validation failed.'
+}
+$decisionArtifact = Get-Content -Raw -LiteralPath (Join-Path $decisionSmokeRoot 'artifact.json')
+$decisionPrint = Get-Content -Raw -LiteralPath (Join-Path $decisionSmokeRoot 'stakeholder-report_print.html')
+if ($decisionArtifact -notmatch '"evidence"' -or $decisionArtifact -notmatch '"sourceIds"') {
+    throw 'Decision-brief artifact does not retain the canonical evidence package.'
+}
+if ($decisionPrint -match '<section[^>]+portable-sources' -or $decisionPrint -match 'renderer_compat_chart') {
+    throw 'Decision-brief stakeholder edition leaked hidden sources or renderer compatibility content.'
 }
 
 $skillValidator = Join-Path $env:USERPROFILE '.codex\skills\.system\skill-creator\scripts\quick_validate.py'

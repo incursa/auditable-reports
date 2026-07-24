@@ -21,6 +21,7 @@ function parseArguments(argv) {
       "--output": "output",
       "--browser": "browser",
       "--timeout": "timeout",
+      "--artifact": "artifact",
     }[argument];
     if (!key || index + 1 >= argv.length) {
       throw new Error(`Unknown or incomplete argument: ${argument}`);
@@ -69,6 +70,10 @@ async function main() {
     "dist",
     "paged.polyfill.js",
   );
+  let artifact = null;
+  if (options.artifact) {
+    artifact = JSON.parse(await fs.readFile(path.resolve(options.artifact), "utf8"));
+  }
   const browser = await puppeteer.launch({
     executablePath: path.resolve(options.browser),
     headless: true,
@@ -99,7 +104,7 @@ async function main() {
     await page.emulateMediaType("print");
     await page.goto(sourceUrl, { waitUntil: "load", timeout: options.timeout });
     await page.addScriptTag({ path: pagedjsScript });
-    const result = await page.evaluate(async () => {
+    const result = await page.evaluate(async (artifactValue) => {
       if (!window.PagedPolyfill?.preview) {
         throw new Error("Paged.js polyfill did not initialize.");
       }
@@ -130,8 +135,199 @@ async function main() {
         margin.append(label);
         pagedPage.classList.add("auditable-running-title-set");
       });
-      return { pages: flow.total, runningTitles: Math.max(0, pages.length - 1) };
-    });
+
+      const failures = [];
+      const warnings = [];
+      const tolerance = 2;
+      const roleMinimums = {
+        item: 40,
+        narrative: 80,
+        decision: 72,
+        recommendation: 72,
+        owner: 48,
+        status: 38,
+        date: 50,
+        amount: 45,
+      };
+      const meta = (name) =>
+        document.querySelector(`meta[name="${name}"]`)?.getAttribute("content") || "";
+
+      pages.forEach((pagedPage, pageIndex) => {
+        const content = pagedPage.querySelector(".pagedjs_page_content");
+        if (!content) {
+          failures.push(`page ${pageIndex + 1} lacks a Paged.js content box`);
+          return;
+        }
+        const contentRect = content.getBoundingClientRect();
+        content.querySelectorAll("table").forEach((table) => {
+          const fragments = [...table.getClientRects()].filter(
+            (rect) =>
+              rect.width > 0 &&
+              rect.height > 0 &&
+              rect.bottom > contentRect.top &&
+              rect.top < contentRect.bottom &&
+              rect.right > contentRect.left &&
+              rect.left < contentRect.right,
+          );
+          fragments.forEach((tableRect) => {
+            if (
+              tableRect.left < contentRect.left - tolerance ||
+              tableRect.right > contentRect.right + tolerance
+            ) {
+              failures.push(
+                `table in ${table.closest("[data-artifact-block-id]")?.getAttribute("data-artifact-block-id") || "unknown block"} ` +
+                `overflows page ${pageIndex + 1} by ` +
+                `${Math.max(0, contentRect.left - tableRect.left, tableRect.right - contentRect.right).toFixed(1)}px ` +
+                `(fragment ${tableRect.width.toFixed(1)}px, content ${contentRect.width.toFixed(1)}px)`,
+              );
+            }
+          });
+          const bodyVisible = [...table.querySelectorAll("tbody tr")].some((row) =>
+            [...row.getClientRects()].some(
+              (rect) =>
+                rect.width > 0 &&
+                rect.height > 0 &&
+                rect.bottom > contentRect.top &&
+                rect.top < contentRect.bottom &&
+                rect.right > contentRect.left &&
+                rect.left < contentRect.right,
+            ),
+          );
+          const headerVisible = [...table.querySelectorAll("thead tr")].some((row) =>
+            [...row.getClientRects()].some(
+              (rect) =>
+                rect.width > 0 &&
+                rect.height > 0 &&
+                rect.bottom > contentRect.top &&
+                rect.top < contentRect.bottom &&
+                rect.right > contentRect.left &&
+                rect.left < contentRect.right,
+            ),
+          );
+          if (bodyVisible && !headerVisible) {
+            failures.push(
+              `table in ${table.closest("[data-artifact-block-id]")?.getAttribute("data-artifact-block-id") || "unknown block"} ` +
+              `continues on page ${pageIndex + 1} without a visible header`,
+            );
+          }
+        });
+        if (pageIndex > 0 && pageIndex < pages.length - 1) {
+          const text = (content.innerText || "").replace(/\s+/g, " ").trim();
+          const hasMaterial = content.querySelector("table,img,svg,pre,figure");
+          if (text.length < 30 && !hasMaterial) {
+            failures.push(`page ${pageIndex + 1} is nearly blank`);
+          }
+        }
+        if (pageIndex === pages.length - 1 && pages.length > 1) {
+          const text = (content.innerText || "").replace(/\s+/g, " ").trim();
+          const hasMaterial = content.querySelector("table,img,svg,figure");
+          if (text.length < 120 && !hasMaterial) {
+            warnings.push(`final page ${pageIndex + 1} is sparse`);
+          }
+        }
+        content.querySelectorAll("h2,h3").forEach((heading) => {
+          const rect = heading.getBoundingClientRect();
+          const following = heading.nextElementSibling;
+          if (
+            contentRect.bottom - rect.bottom < 24 &&
+            (!following || following.getBoundingClientRect().top > contentRect.bottom)
+          ) {
+            warnings.push(`heading may be stranded on page ${pageIndex + 1}: ${heading.textContent.trim()}`);
+          }
+        });
+        content.querySelectorAll("ol").forEach((list) => {
+          const itemCount = list.querySelectorAll(":scope > li").length;
+          if (itemCount > 0 && itemCount <= 5 && (list.hasAttribute("data-split-from") || list.hasAttribute("data-split-to"))) {
+            warnings.push(`short numbered list is split on page ${pageIndex + 1}`);
+          }
+        });
+      });
+
+      const sourceDisplay = meta("report-source-display");
+      const sourceSections = document.querySelectorAll(".portable-sources").length;
+      if (sourceDisplay === "hidden" && sourceSections) {
+        failures.push("source-display hidden left a visible sources section");
+      }
+      if (sourceDisplay === "visible" && !sourceSections) {
+        failures.push("source-display visible omitted the sources section");
+      }
+      if (document.body.classList.contains("document-decision-brief")) {
+        const firstPageHeadings = [...pages[0].querySelectorAll("h2")]
+          .map((heading) => heading.textContent.trim().toLowerCase());
+        if (!firstPageHeadings.includes("executive summary") || !firstPageHeadings.includes("immediate direction")) {
+          failures.push("decision brief executive summary and immediate direction are not both on page 1");
+        }
+      }
+
+      const dateDisplay = meta("report-date-display");
+      const reportTimes = [...document.querySelectorAll(".portable-page-meta time")];
+      if (dateDisplay === "hidden" && reportTimes.length) {
+        failures.push("date-display hidden left a report timestamp");
+      }
+      if (
+        dateDisplay === "date-only" &&
+        reportTimes.some(
+          (item) =>
+            /(?:\d{1,2}:\d{2}|\b(?:AM|PM|UTC)\b)/i.test(item.textContent || "") ||
+            /T\d{2}:\d{2}/.test(item.getAttribute("datetime") || ""),
+        )
+      ) {
+        failures.push("date-display date-only exposed a timestamp");
+      }
+
+      const tables = artifactValue?.manifest?.tables || [];
+      tables.forEach((tableSpec) => {
+        const roles = (tableSpec.columns || []).map((column) => column.role || "");
+        if (!roles.some(Boolean)) return;
+        const blocks = document.querySelectorAll(
+          `[data-artifact-block-id="${CSS.escape(tableSpec.id)}"]`,
+        );
+        blocks.forEach((block) => {
+          const headers = block.querySelectorAll("table thead th");
+          roles.forEach((role, index) => {
+            const minimum = roleMinimums[role];
+            const header = headers[index];
+            const widths = header
+              ? [...header.getClientRects()].map((rect) => rect.width).filter((width) => width > 0)
+              : [];
+            const measuredWidth = widths.length ? Math.min(...widths) : 0;
+            if (minimum && header && measuredWidth < minimum) {
+              failures.push(
+                `table ${tableSpec.id} column ${index + 1} (${role}) is narrower than ${minimum}px`,
+              );
+            }
+          });
+        });
+      });
+
+      const charts = artifactValue?.manifest?.charts || [];
+      charts.forEach((chart) => {
+        const chartBlock = (artifactValue?.manifest?.blocks || []).find(
+          (block) => block.type === "chart" && block.chartId === chart.id,
+        );
+        const blockId = chartBlock?.id || chart.id;
+        const blocks = document.querySelectorAll(
+          `[data-artifact-block-id="${CSS.escape(blockId)}"]`,
+        );
+        if (!blocks.length) {
+          failures.push(`chart ${chart.id} is missing from the stakeholder edition`);
+          return;
+        }
+        if (![...blocks].some((block) => block.querySelector(".chartjs-static,table"))) {
+          failures.push(`chart ${chart.id} lacks both a materialized visual and companion data table`);
+        }
+      });
+      if (!charts.length && document.querySelector('[data-artifact-block-type="chart"]')) {
+        failures.push("a chart block remained after charts were removed from the stakeholder edition");
+      }
+
+      return {
+        pages: flow.total,
+        runningTitles: Math.max(0, pages.length - 1),
+        failures: [...new Set(failures)],
+        warnings: [...new Set(warnings)],
+      };
+    }, artifact);
 
     if (!Number.isInteger(result.pages) || result.pages < 1) {
       throw new Error(`Paged.js returned an invalid page count: ${result.pages}`);
@@ -141,6 +337,12 @@ async function main() {
         `Paged.js running-title count mismatch: ${result.runningTitles} for ${result.pages} pages.`,
       );
     }
+    if (result.failures.length) {
+      throw new Error(`Pagination validation failed:\n- ${result.failures.join("\n- ")}`);
+    }
+    result.warnings.forEach((warning) => {
+      process.stderr.write(`WARNING: ${warning}\n`);
+    });
 
     if (extension === ".html") {
       await page.evaluate(() => {

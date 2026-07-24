@@ -1,5 +1,13 @@
 {
   "surface": "report",
+  "reportConfig": {
+    "documentType": "report",
+    "orientation": "landscape",
+    "pageSize": "Letter",
+    "sourceDisplay": "visible",
+    "dateDisplay": "timestamp",
+    "pdfName": "report.pdf"
+  },
   "manifest": {
     "version": 1,
     "surface": "report",
@@ -126,6 +134,7 @@
         "title": "Project budget and forecast detail",
         "dataset": "projects",
         "sourceId": "delivery_snapshot",
+        "kind": "standard",
         "density": "spacious",
         "layout": "full",
         "columns": [

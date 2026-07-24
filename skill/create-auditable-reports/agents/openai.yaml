@@ -1,4 +1,4 @@
 interface:
   display_name: "Create Auditable Reports"
   short_description: "Build auditable Markdown-driven HTML reports"
-  default_prompt: "Use $create-auditable-reports to turn these sources into a constrained Report Markdown document, interactive HTML report, and print-ready PDF."
+  default_prompt: "Use $create-auditable-reports to preserve the canonical evidence, author the appropriate Report Markdown edition, and build validated interactive HTML, paginated HTML, and print-ready PDF outputs."

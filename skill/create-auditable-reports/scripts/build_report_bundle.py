@@ -3,15 +3,30 @@ from __future__ import annotations
 import argparse
 import json
 from pathlib import Path
+import re
 import subprocess
 import sys
 
+from report_config import (
+    DATE_DISPLAYS,
+    ORIENTATIONS,
+    PAGE_SIZES_INCHES,
+    SOURCE_DISPLAYS,
+    ConfigError,
+    resolve_report_config,
+)
 
-def run(script: Path, *arguments: str) -> None:
+
+def run(script: Path, *arguments: str) -> str:
     command = [sys.executable, str(script), *arguments]
-    completed = subprocess.run(command, check=False)
+    completed = subprocess.run(command, check=False, text=True, capture_output=True)
+    if completed.stdout:
+        print(completed.stdout, end="")
+    if completed.stderr:
+        print(completed.stderr, end="", file=sys.stderr)
     if completed.returncode:
         raise RuntimeError(f"Report build stage failed: {script.name}")
+    return completed.stdout
 
 
 def main() -> int:
@@ -21,6 +36,11 @@ def main() -> int:
     parser.add_argument("--input", required=True, help="Input .report.md file")
     parser.add_argument("--output-dir", required=True, help="Directory for generated outputs")
     parser.add_argument("--browser", help="Path to Chrome or Chromium")
+    parser.add_argument("--orientation", choices=tuple(sorted(ORIENTATIONS)))
+    parser.add_argument("--page-size", choices=tuple(PAGE_SIZES_INCHES))
+    parser.add_argument("--pdf-name", help="Final PDF file name")
+    parser.add_argument("--source-display", choices=tuple(sorted(SOURCE_DISPLAYS)))
+    parser.add_argument("--date-display", choices=tuple(sorted(DATE_DISPLAYS)))
     args = parser.parse_args()
 
     source = Path(args.input).expanduser().resolve()
@@ -31,17 +51,67 @@ def main() -> int:
     scripts = Path(__file__).resolve().parent
 
     artifact = output_dir / "artifact.json"
-    report = output_dir / "report.html"
-    print_report = output_dir / "report_print.html"
-    charted_report = output_dir / "report_charted.html"
-    paged_report = output_dir / "report_paged.html"
-    pdf_report = output_dir / "report.pdf"
-
     run(scripts / "compile_report.py", "--input", str(source), "--output", str(artifact))
-    run(scripts / "render_report.py", "--artifact", str(artifact), "--output", str(report))
-    run(scripts / "build_print_report.py", "--input", str(report), "--output", str(print_report))
-
     artifact_value = json.loads(artifact.read_text(encoding="utf-8"))
+    artifact_config = artifact_value.get("reportConfig", {})
+    try:
+        config = resolve_report_config(
+            {
+                "document-type": artifact_config.get("documentType", "report"),
+                "print-orientation": artifact_config.get("orientation", ""),
+                "page-size": artifact_config.get("pageSize", ""),
+                "source-display": artifact_config.get("sourceDisplay", ""),
+                "date-display": artifact_config.get("dateDisplay", ""),
+                "pdf-name": artifact_config.get("pdfName", ""),
+            },
+            orientation=args.orientation,
+            page_size=args.page_size,
+            source_display=args.source_display,
+            date_display=args.date_display,
+            pdf_name=args.pdf_name,
+        )
+    except ConfigError as exc:
+        parser.error(str(exc))
+
+    artifact_value["reportConfig"] = {
+        "documentType": config.document_type,
+        "orientation": config.orientation,
+        "pageSize": config.page_size,
+        "sourceDisplay": config.source_display,
+        "dateDisplay": config.date_display,
+        "pdfName": config.pdf_name,
+    }
+    artifact.write_text(
+        json.dumps(artifact_value, indent=2, ensure_ascii=False) + "\n",
+        encoding="utf-8",
+    )
+
+    stem = Path(config.pdf_name).stem
+    report = output_dir / f"{stem}.html"
+    print_report = output_dir / f"{stem}_print.html"
+    charted_report = output_dir / f"{stem}_charted.html"
+    paged_report = output_dir / f"{stem}_paged.html"
+    pdf_report = output_dir / config.pdf_name
+
+    run(scripts / "render_report.py", "--artifact", str(artifact), "--output", str(report))
+    run(
+        scripts / "build_print_report.py",
+        "--input",
+        str(report),
+        "--output",
+        str(print_report),
+        "--artifact",
+        str(artifact),
+        "--orientation",
+        config.orientation,
+        "--page-size",
+        config.page_size,
+        "--source-display",
+        config.source_display,
+        "--date-display",
+        config.date_display,
+    )
+
     pagination_source = print_report
     browser_args = ["--browser", str(Path(args.browser).expanduser().resolve())] if args.browser else []
     if artifact_value.get("manifest", {}).get("charts"):
@@ -63,27 +133,35 @@ def main() -> int:
         str(pagination_source),
         "--output",
         str(paged_report),
+        "--artifact",
+        str(artifact),
         *browser_args,
     )
-    run(
+    pdf_stdout = run(
         scripts / "render_paged_output.py",
         "--input",
         str(pagination_source),
         "--output",
         str(pdf_report),
+        "--artifact",
+        str(artifact),
         *browser_args,
     )
+    actual_pdf = pdf_report
+    result_match = re.search(r"^PAGED_OUTPUT_RESULT=(\{.*\})$", pdf_stdout, flags=re.M)
+    if result_match:
+        actual_pdf = Path(json.loads(result_match.group(1))["actual"])
 
     print(f"Built report bundle: {output_dir}")
     print(f"Interactive HTML: {report}")
     print(f"Paginated HTML: {paged_report}")
-    print(f"PDF: {pdf_report}")
+    print(f"PDF: {actual_pdf}")
     return 0
 
 
 if __name__ == "__main__":
     try:
         sys.exit(main())
-    except (FileNotFoundError, RuntimeError) as exc:
+    except (ConfigError, FileNotFoundError, RuntimeError) as exc:
         print(f"FAIL: {exc}", file=sys.stderr)
         sys.exit(1)

@@ -5,11 +5,11 @@ This repository is the source home for Incursa's reusable analytical-report base
 The core design decision is simple:
 
 ```text
-       report.report.md
-        + report.data.json
+       report.report.md               stakeholder-report.md
+        + report.data.json             + evidence-package.json
            |
            v
-     artifact.json          canonical, auditable intermediate representation
+     artifact.json          canonical intermediate plus complete evidence snapshot
            |
            v
  shared Data Analytics renderer
@@ -31,6 +31,8 @@ The core design decision is simple:
 ```
 
 Generated HTML is an output, not an authoring format. Routine reports should start from `.report.md`; its compiler produces the same reviewable `artifact.json` used by advanced authors and every downstream renderer.
+
+Decision briefs separate the canonical evidence package from the stakeholder edition. Hiding sources or omitting a chart from a stakeholder PDF changes only the edition; requirements, conflicts, decisions, assumptions, recommendations, datasets, sources, and provenance remain available in the evidence package and compiled artifact.
 
 ## Why this is a separate repository
 
@@ -71,7 +73,21 @@ py skill\create-auditable-reports\scripts\build_report_bundle.py `
 
 This one command compiles the Markdown, renders interactive HTML, embeds Chart.js visuals, paginates with Paged.js, and creates a PDF. Read [Report Markdown v0.1](skill/create-auditable-reports/references/report-markdown.md) for the four directives and fixed limits.
 
-Build the four synthetic lesson, project-report, journal, and incident-review fixtures together:
+Create a portrait stakeholder decision brief with a one-command rebuild script:
+
+```powershell
+py skill\create-auditable-reports\scripts\new_report.py `
+  --name "Contract Mobilization Decision" `
+  --document-type decision-brief `
+  --output .work\contract-mobilization
+
+cd .work\contract-mobilization
+.\rebuild-report.ps1
+```
+
+Print settings normally live in front matter. The bundle command also accepts `--orientation`, `--page-size`, `--pdf-name`, `--source-display`, and `--date-display` overrides. It emits explicit page dimensions, validates PDF `MediaBox` values, always creates paginated HTML, and uses atomic replacement with a named fallback when the requested PDF is locked.
+
+Build the five synthetic lesson, project-report, journal, incident-review, and decision-brief fixtures together:
 
 ```powershell
 py skill\create-auditable-reports\scripts\build_test_library.py `
@@ -116,5 +132,5 @@ The Chart.js stage supports the initial `bar`, `line`, `pie`, and `scatter` arti
 - Paged.js 0.4.3 is the pinned print-pagination engine; it does not replace the interactive renderer or canonical artifact.
 - The project-health fixture is synthetic and must never be presented as operational evidence.
 - The artifact contract is documented but does not yet have a versioned JSON Schema.
-- Report Markdown v0.1 is intentionally constrained to ordinary Markdown plus metrics, bar/pie chart, table, and figure directives.
+- Report Markdown v0.1 is intentionally constrained to ordinary Markdown plus metrics, optional bar/pie charts, semantic tables, and figure directives.
 - No public license has been selected for this imported package.

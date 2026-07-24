@@ -6,6 +6,8 @@ from pathlib import Path
 import re
 import sys
 
+from report_config import ConfigError, ReportConfig, validate_pdf_media_boxes
+
 
 def require(condition: bool, message: str, errors: list[str]) -> None:
     if not condition:
@@ -37,12 +39,32 @@ def main() -> int:
     snapshot = artifact.get("snapshot", {})
     datasets = snapshot.get("datasets", {})
     source_ids = {source.get("id") for source in artifact.get("sources", [])}
+    config_value = artifact.get("reportConfig", {})
+    report_config = ReportConfig(
+        document_type=config_value.get("documentType", "report"),
+        orientation=config_value.get("orientation", "landscape"),
+        page_size=config_value.get("pageSize", "Letter"),
+        source_display=config_value.get("sourceDisplay", "visible"),
+        date_display=config_value.get("dateDisplay", "timestamp"),
+        pdf_name=config_value.get("pdfName", "report.pdf"),
+    )
 
     require(artifact.get("surface") == "report", "surface must be report", errors)
     require(manifest.get("surface") == "report", "manifest.surface must be report", errors)
     require(bool(manifest.get("title")), "manifest.title is required", errors)
     require(bool(manifest.get("blocks")), "manifest.blocks must not be empty", errors)
     require(bool(datasets), "snapshot.datasets must not be empty", errors)
+    widget_ids: list[str] = []
+    for family in ("cards", "charts", "tables"):
+        widget_ids.extend(item.get("id") for item in manifest.get(family, []) if item.get("id"))
+    block_ids = [item.get("id") for item in manifest.get("blocks", []) if item.get("id")]
+    evidence_ids: list[str] = []
+    evidence = artifact.get("evidence", {})
+    for family in ("requirements", "conflicts", "decisions", "assumptions", "recommendations"):
+        evidence_ids.extend(item.get("id") for item in evidence.get(family, []) if item.get("id"))
+    require(len(widget_ids) == len(set(widget_ids)), "widget item ids must be unique across the report", errors)
+    require(len(block_ids) == len(set(block_ids)), "block ids must be unique across the report", errors)
+    require(len(evidence_ids) == len(set(evidence_ids)), "evidence item ids must be unique across the canonical package", errors)
 
     for family in ("cards", "charts", "tables"):
         for item in manifest.get(family, []):
@@ -75,9 +97,26 @@ def main() -> int:
             require("counter(page)" in printable, "print HTML lacks a current-page counter", errors)
             require("counter(pages)" in printable, "print HTML lacks a total-pages counter", errors)
             require("string-set:report-title" in printable, "print HTML lacks a running-title string", errors)
+            require(
+                f"size:{report_config.css_size}" in printable,
+                f"print HTML does not use explicit {report_config.css_size} page dimensions",
+                errors,
+            )
             require(".page-break" in printable, "print HTML lacks the page-break utility", errors)
             require(".avoid-break" in printable, "print HTML lacks the avoid-break utility", errors)
             require(manifest.get("title", "") in printable, "print HTML does not contain the report title", errors)
+            has_sources = bool(re.search(r'<section\b[^>]*class=["\'][^"\']*\bportable-sources\b', printable, flags=re.I))
+            require(
+                has_sources == (report_config.source_display == "visible"),
+                f"print source visibility does not match {report_config.source_display}",
+                errors,
+            )
+            if report_config.date_display == "date-only":
+                require(
+                    not re.search(r"<time\b[^>]*datetime=[\"'][^\"']*T", printable, flags=re.I),
+                    "date-only print HTML exposes a timestamp",
+                    errors,
+                )
 
     if args.charted_html:
         charted_path = Path(args.charted_html).expanduser().resolve()
@@ -125,6 +164,12 @@ def main() -> int:
             )
             require(not re.search(r"<script\b", paged, flags=re.I), "paginated HTML contains a script", errors)
             require(manifest.get("title", "") in paged, "paginated HTML does not contain the report title", errors)
+            if not manifest.get("charts"):
+                require(
+                    not re.search(r'data-artifact-block-type=["\']chart["\']', paged, flags=re.I),
+                    "paginated HTML retained a chart removed from the stakeholder edition",
+                    errors,
+                )
 
     if args.pdf:
         pdf_path = Path(args.pdf).expanduser().resolve()
@@ -133,6 +178,10 @@ def main() -> int:
             pdf = pdf_path.read_bytes()
             require(pdf.startswith(b"%PDF-"), "PDF lacks the PDF file signature", errors)
             require(len(pdf) > 1024, "PDF is unexpectedly small", errors)
+            try:
+                validate_pdf_media_boxes(pdf_path, report_config)
+            except ConfigError as exc:
+                errors.append(str(exc))
 
     if errors:
         for error in errors:

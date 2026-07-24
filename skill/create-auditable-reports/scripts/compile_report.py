@@ -11,6 +11,8 @@ import re
 import sys
 from typing import Any
 
+from report_config import ConfigError, resolve_report_config
+
 
 ID_PATTERN = re.compile(r"^[a-z][a-z0-9_-]{0,63}$")
 PROPERTY_PATTERN = re.compile(r"^([a-z][a-z0-9-]*):\s*(.*?)\s*$")
@@ -21,9 +23,22 @@ DOCUMENT_SUMMARY_HEADINGS = {
     "technical": "Technical Summary",
     "lesson": "Lesson Overview",
     "journal": "Entry Summary",
+    "decision-brief": "Executive Summary",
 }
 SUPPORTED_FORMATS = {"number", "currency", "percent"}
 SUPPORTED_COLUMN_FORMATS = {"text", "number", "currency", "percent", "date"}
+SUPPORTED_TABLE_KINDS = {"standard", "decision", "incompatibility", "recommendation", "assumption"}
+SUPPORTED_COLUMN_ROLES = {
+    "item",
+    "narrative",
+    "decision",
+    "recommendation",
+    "owner",
+    "status",
+    "date",
+    "amount",
+}
+EVIDENCE_COLLECTIONS = {"requirements", "conflicts", "decisions", "assumptions", "recommendations"}
 MAX_BAR_ITEMS = 12
 MAX_PIE_ITEMS = 6
 MAX_TABLE_COLUMNS = 8
@@ -78,19 +93,37 @@ def parse_front_matter(text: str) -> tuple[dict[str, str], list[str], int]:
         raise error(1, "front matter is missing its closing ---") from exc
     parsed = parse_properties(lines[1:closing], 2, repeatable=set())
     meta = {key: values[0] for key, values in parsed.items()}
-    allowed = {"description", "document-type", "generated-at", "status", "data"}
+    allowed = {
+        "description",
+        "document-type",
+        "generated-at",
+        "status",
+        "data",
+        "evidence",
+        "print-orientation",
+        "page-size",
+        "source-display",
+        "date-display",
+        "pdf-name",
+    }
     unknown = sorted(set(meta) - allowed)
     if unknown:
         raise error(2, f"unsupported front matter: {', '.join(unknown)}")
-    for required in ("description", "generated-at", "status", "data"):
+    for required in ("description", "generated-at", "status"):
         if not meta.get(required):
             raise error(2, f"missing front matter property: {required}")
+    if bool(meta.get("data")) == bool(meta.get("evidence")):
+        raise error(2, "front matter must contain exactly one of: data, evidence")
     if meta["status"] not in SUPPORTED_STATUS:
         raise error(2, f"status must be one of: {', '.join(sorted(SUPPORTED_STATUS))}")
     document_type = meta.get("document-type", "report")
     if document_type not in DOCUMENT_SUMMARY_HEADINGS:
         raise error(2, f"document-type must be one of: {', '.join(DOCUMENT_SUMMARY_HEADINGS)}")
     meta["document-type"] = document_type
+    try:
+        resolve_report_config(meta)
+    except ConfigError as exc:
+        raise error(2, str(exc)) from exc
     return meta, lines[closing + 1 :], closing + 2
 
 
@@ -209,6 +242,27 @@ def reject_unknown(props: dict[str, list[str]], allowed: set[str], line: int) ->
         raise error(line, f"unsupported directive properties: {', '.join(unknown)}")
 
 
+PRINT_PROPERTIES = {"break-before", "keep-together"}
+
+
+def apply_print_properties(
+    block: dict[str, Any],
+    props: dict[str, list[str]],
+    line: int,
+) -> dict[str, Any]:
+    break_before = single(props, "break-before", line, required=False)
+    if break_before:
+        if break_before not in {"page", "auto"}:
+            raise error(line, "break-before must be 'page' or 'auto'")
+        block["printBreakBefore"] = break_before
+    keep_together = single(props, "keep-together", line, required=False)
+    if keep_together:
+        if keep_together not in {"true", "false"}:
+            raise error(line, "keep-together must be 'true' or 'false'")
+        block["printKeepTogether"] = keep_together == "true"
+    return block
+
+
 def valid_id(value: str, line: int) -> str:
     if not ID_PATTERN.fullmatch(value):
         raise error(line, "id must use lowercase letters, digits, underscores, or hyphens and start with a letter")
@@ -236,17 +290,21 @@ def safe_relative_file(base: Path, value: str, line: int) -> Path:
     return resolved
 
 
-def load_data(source_dir: Path, value: str, line: int) -> tuple[dict[str, list[dict[str, Any]]], list[dict[str, Any]]]:
-    path = safe_relative_file(source_dir, value, line)
-    try:
-        payload = json.loads(path.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError) as exc:
-        raise error(line, f"could not read data sidecar {value}: {exc}") from exc
-    if not isinstance(payload, dict) or set(payload) != {"datasets", "sources"}:
+def validate_datasets_sources(
+    payload: dict[str, Any],
+    line: int,
+    *,
+    exact_keys: bool,
+) -> tuple[dict[str, list[dict[str, Any]]], list[dict[str, Any]]]:
+    if exact_keys and set(payload) != {"datasets", "sources"}:
         raise error(line, "data sidecar must contain exactly 'datasets' and 'sources'")
+    if "datasets" not in payload or "sources" not in payload:
+        raise error(line, "evidence package must contain 'datasets' and 'sources'")
     datasets = payload["datasets"]
     sources = payload["sources"]
-    if not isinstance(datasets, dict) or not datasets:
+    if not isinstance(datasets, dict):
+        raise error(line, "datasets must be an object")
+    if exact_keys and not datasets:
         raise error(line, "data sidecar datasets must be a non-empty object")
     for name, rows in datasets.items():
         if not ID_PATTERN.fullmatch(name):
@@ -256,7 +314,7 @@ def load_data(source_dir: Path, value: str, line: int) -> tuple[dict[str, list[d
         if len(rows) > MAX_DATASET_ROWS:
             raise error(line, f"dataset {name} exceeds the {MAX_DATASET_ROWS}-row artifact limit")
     if not isinstance(sources, list) or not sources:
-        raise error(line, "data sidecar sources must be a non-empty array")
+        raise error(line, "sources must be a non-empty array")
     seen: set[str] = set()
     for source in sources:
         if not isinstance(source, dict):
@@ -272,6 +330,77 @@ def load_data(source_dir: Path, value: str, line: int) -> tuple[dict[str, list[d
             raise error(line, f"source {source_id} needs a path")
         seen.add(source_id)
     return datasets, sources
+
+
+def load_data(source_dir: Path, value: str, line: int) -> tuple[dict[str, list[dict[str, Any]]], list[dict[str, Any]]]:
+    path = safe_relative_file(source_dir, value, line)
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        raise error(line, f"could not read data sidecar {value}: {exc}") from exc
+    if not isinstance(payload, dict):
+        raise error(line, "data sidecar must be a JSON object")
+    return validate_datasets_sources(payload, line, exact_keys=True)
+
+
+def load_evidence(
+    source_dir: Path,
+    value: str,
+    line: int,
+) -> tuple[dict[str, list[dict[str, Any]]], list[dict[str, Any]], dict[str, Any]]:
+    path = safe_relative_file(source_dir, value, line)
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        raise error(line, f"could not read evidence package {value}: {exc}") from exc
+    if not isinstance(payload, dict):
+        raise error(line, "evidence package must be a JSON object")
+    allowed = {"version", "datasets", "sources"} | EVIDENCE_COLLECTIONS
+    unknown = sorted(set(payload) - allowed)
+    if unknown:
+        raise error(line, f"unsupported evidence package properties: {', '.join(unknown)}")
+    if payload.get("version") != 1:
+        raise error(line, "evidence package version must be 1")
+    datasets, sources = validate_datasets_sources(payload, line, exact_keys=False)
+    canonical_datasets = {
+        name: [dict(row) for row in rows]
+        for name, rows in datasets.items()
+    }
+    datasets = {
+        name: [dict(row) for row in rows]
+        for name, rows in canonical_datasets.items()
+    }
+    source_ids = {source["id"] for source in sources}
+    evidence_ids: set[str] = set()
+    normalized: dict[str, Any] = {"version": 1}
+    for collection in sorted(EVIDENCE_COLLECTIONS):
+        rows = payload.get(collection, [])
+        if not isinstance(rows, list) or not all(isinstance(row, dict) for row in rows):
+            raise error(line, f"evidence collection {collection} must be an array of objects")
+        for row in rows:
+            row_id = row.get("id")
+            if not isinstance(row_id, str) or not ID_PATTERN.fullmatch(row_id):
+                raise error(line, f"every {collection} entry needs a valid id")
+            if row_id in evidence_ids:
+                raise error(line, f"duplicate evidence item id: {row_id}")
+            evidence_ids.add(row_id)
+            refs = row.get("sourceIds", [])
+            if not isinstance(refs, list) or not all(isinstance(ref, str) for ref in refs):
+                raise error(line, f"evidence item {row_id} sourceIds must be an array of source ids")
+            missing = sorted(set(refs) - source_ids)
+            if missing:
+                raise error(line, f"evidence item {row_id} references unknown sources: {', '.join(missing)}")
+        if rows:
+            if collection in datasets:
+                raise error(line, f"dataset id '{collection}' is reserved for its evidence collection")
+            datasets[collection] = [
+                {key: value for key, value in row.items() if key != "sourceIds"}
+                for row in rows
+            ]
+        normalized[collection] = rows
+    normalized["datasets"] = canonical_datasets
+    normalized["sources"] = sources
+    return datasets, sources, normalized
 
 
 def require_dataset(datasets: dict[str, list[dict[str, Any]]], name: str, line: int) -> list[dict[str, Any]]:
@@ -334,7 +463,7 @@ def compile_metrics(
     source_ids: set[str],
 ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
     props = directive.properties
-    reject_unknown(props, {"id", "dataset", "source", "metric"}, directive.line)
+    reject_unknown(props, {"id", "dataset", "source", "metric"} | PRINT_PROPERTIES, directive.line)
     block_id = valid_id(single(props, "id", directive.line), directive.line)
     dataset = single(props, "dataset", directive.line)
     source = single(props, "source", directive.line)
@@ -368,7 +497,8 @@ def compile_metrics(
         }
         cards.append(card)
         card_ids.append(card_id)
-    return cards, {"id": block_id, "type": "metric-strip", "cardIds": card_ids}
+    block = {"id": block_id, "type": "metric-strip", "cardIds": card_ids}
+    return cards, apply_print_properties(block, props, directive.line)
 
 
 def compile_chart(
@@ -377,7 +507,10 @@ def compile_chart(
     source_ids: set[str],
 ) -> tuple[dict[str, Any], dict[str, Any]]:
     props = directive.properties
-    allowed = {"id", "type", "title", "subtitle", "dataset", "source", "category", "value", "category-label", "value-label", "format"}
+    allowed = {
+        "id", "type", "title", "subtitle", "dataset", "source", "category", "value",
+        "category-label", "value-label", "format",
+    } | PRINT_PROPERTIES
     reject_unknown(props, allowed, directive.line)
     chart_id = valid_id(single(props, "id", directive.line), directive.line)
     chart_type = single(props, "type", directive.line)
@@ -427,7 +560,8 @@ def compile_chart(
     if subtitle:
         chart["subtitle"] = subtitle
         chart["showDescription"] = True
-    return chart, {"id": chart_id, "type": "chart", "chartId": chart_id}
+    block = {"id": chart_id, "type": "chart", "chartId": chart_id}
+    return chart, apply_print_properties(block, props, directive.line)
 
 
 def compile_table(
@@ -436,8 +570,15 @@ def compile_table(
     source_ids: set[str],
 ) -> tuple[dict[str, Any], dict[str, Any]]:
     props = directive.properties
-    reject_unknown(props, {"id", "title", "subtitle", "dataset", "source", "column", "sort"}, directive.line)
+    reject_unknown(
+        props,
+        {"id", "kind", "title", "subtitle", "dataset", "source", "column", "sort"} | PRINT_PROPERTIES,
+        directive.line,
+    )
     table_id = valid_id(single(props, "id", directive.line), directive.line)
+    table_kind = single(props, "kind", directive.line, required=False) or "standard"
+    if table_kind not in SUPPORTED_TABLE_KINDS:
+        raise error(directive.line, f"table kind must be one of: {', '.join(sorted(SUPPORTED_TABLE_KINDS))}")
     dataset = single(props, "dataset", directive.line)
     source = single(props, "source", directive.line)
     rows = require_dataset(datasets, dataset, directive.line)
@@ -449,7 +590,7 @@ def compile_table(
         raise error(directive.line, f"tables require 1 to {MAX_TABLE_COLUMNS} column entries")
     columns = []
     for definition in definitions:
-        parts = split_fields(definition, directive.line, 3, 4)
+        parts = split_fields(definition, directive.line, 3, 5)
         field, label, format_name = parts[:3]
         if format_name not in SUPPORTED_COLUMN_FORMATS:
             raise error(directive.line, f"column format must be one of: {', '.join(sorted(SUPPORTED_COLUMN_FORMATS))}")
@@ -460,9 +601,16 @@ def compile_table(
         else:
             require_numeric(rows, field, directive.line)
             column["format"] = format_name
-        if len(parts) == 4:
-            if parts[3] != "movement":
-                raise error(directive.line, "the fourth column field, when present, must be 'movement'")
+        extras = parts[3:]
+        if extras and extras[0] in SUPPORTED_COLUMN_ROLES:
+            column["role"] = extras.pop(0)
+        if extras:
+            if extras != ["movement"]:
+                raise error(
+                    directive.line,
+                    "column extras must be a semantic role followed optionally by 'movement', "
+                    "or the legacy fourth field 'movement'",
+                )
             column["movement"] = True
         columns.append(column)
     table: dict[str, Any] = {
@@ -470,6 +618,7 @@ def compile_table(
         "title": single(props, "title", directive.line),
         "dataset": dataset,
         "sourceId": source,
+        "kind": table_kind,
         "density": "spacious",
         "layout": "full",
         "columns": columns,
@@ -486,7 +635,8 @@ def compile_table(
         if direction not in {"asc", "desc"}:
             raise error(directive.line, "sort direction must be 'asc' or 'desc'")
         table["defaultSort"] = {"field": field, "direction": direction}
-    return table, {"id": table_id, "type": "table", "tableId": table_id}
+    block = {"id": table_id, "type": "table", "tableId": table_id}
+    return table, apply_print_properties(block, props, directive.line)
 
 
 def compile_figure(
@@ -495,7 +645,7 @@ def compile_figure(
     sources_by_id: dict[str, dict[str, Any]],
 ) -> dict[str, Any]:
     props = directive.properties
-    reject_unknown(props, {"id", "path", "alt", "caption", "source"}, directive.line)
+    reject_unknown(props, {"id", "path", "alt", "caption", "source"} | PRINT_PROPERTIES, directive.line)
     figure_id = valid_id(single(props, "id", directive.line), directive.line)
     relative_path = single(props, "path", directive.line)
     image_path = safe_relative_file(source_dir, relative_path, directive.line)
@@ -527,7 +677,7 @@ def compile_figure(
     block: dict[str, Any] = {"id": figure_id, "type": "html", "body": body, "layout": "full"}
     if source_id:
         block["sourceId"] = source_id
-    return block
+    return apply_print_properties(block, props, directive.line)
 
 
 def compile_report(source_path: Path) -> dict[str, Any]:
@@ -536,7 +686,11 @@ def compile_report(source_path: Path) -> dict[str, Any]:
         raise FileNotFoundError(f"Report source not found: {source_path}")
     meta, body_lines, first_line = parse_front_matter(source_path.read_text(encoding="utf-8"))
     title, body_lines, first_line = extract_title(body_lines, first_line)
-    datasets, sources = load_data(source_path.parent, meta["data"], 2)
+    evidence_package = None
+    if meta.get("evidence"):
+        datasets, sources, evidence_package = load_evidence(source_path.parent, meta["evidence"], 2)
+    else:
+        datasets, sources = load_data(source_path.parent, meta["data"], 2)
     source_ids = {source["id"] for source in sources}
     sources_by_id = {source["id"]: source for source in sources}
 
@@ -605,14 +759,34 @@ def compile_report(source_path: Path) -> dict[str, Any]:
             first_line,
             f"document-type '{meta['document-type']}' must begin with '## {expected_summary}'",
         )
+    if meta["document-type"] == "decision-brief":
+        immediate = blocks[2] if len(blocks) > 2 else {}
+        if immediate.get("type") != "markdown" or not re.match(
+            r"^##\s+Immediate Direction\b",
+            immediate.get("body", ""),
+            flags=re.I,
+        ):
+            raise error(
+                first_line,
+                "document-type 'decision-brief' requires '## Immediate Direction' immediately after its executive summary",
+            )
 
     compact_sources = [
         {key: source[key] for key in ("id", "label", "path") if key in source}
         for source in sources
     ]
     generated_at = meta["generated-at"]
-    return {
+    config = resolve_report_config(meta)
+    artifact = {
         "surface": "report",
+        "reportConfig": {
+            "documentType": config.document_type,
+            "orientation": config.orientation,
+            "pageSize": config.page_size,
+            "sourceDisplay": config.source_display,
+            "dateDisplay": config.date_display,
+            "pdfName": config.pdf_name,
+        },
         "manifest": {
             "version": 1,
             "surface": "report",
@@ -633,6 +807,9 @@ def compile_report(source_path: Path) -> dict[str, Any]:
         },
         "sources": sources,
     }
+    if evidence_package is not None:
+        artifact["evidence"] = evidence_package
+    return artifact
 
 
 def main() -> int:

@@ -1,6 +1,6 @@
 ---
 name: create-auditable-reports
-description: Create evidence-backed documents from constrained Report Markdown or the canonical artifact format as self-contained interactive HTML, with Chart.js print visuals and Paged.js paginated HTML/PDF editions. Use when Codex needs to turn spreadsheets, CSV files, database queries, extracts, reviewed analytical results, Markdown prose, code blocks, screenshots, simple bar/pie charts, or bounded tables into a durable executive report, technical review, lesson plan, or journal-style document with traceable source metadata; also use when revising or reproducing an existing document.
+description: Create evidence-backed documents from constrained Report Markdown or the canonical artifact format as self-contained interactive HTML, with optional Chart.js visuals and Paged.js paginated HTML/PDF editions. Use for analytical reports, stakeholder decision briefs, technical reviews, lesson plans, journals, and revisions that need prose, code, screenshots, bounded tables, simple charts, source metadata, or a canonical evidence package.
 ---
 
 # Create Auditable Reports
@@ -11,7 +11,7 @@ Build reports from a canonical `artifact.json`, then let the shared Data Analyti
 
 1. Define the question, audience, decision, time window, comparison basis, and cutoff date.
 2. Inventory every source and note whether it honors the requested cutoff.
-3. Select one document profile: `report`, `technical`, `lesson`, or `journal`. Keep quantitative claims source-backed in every profile.
+3. Select one document profile: `report`, `decision-brief`, `technical`, `lesson`, or `journal`. Keep quantitative claims source-backed in every profile.
 4. Create a dedicated output directory. Preserve the source extracts or durable queries, reviewed result datasets, `artifact.json`, `source_notes.md`, and generated page together.
 5. Read [report-workflow.md](references/report-workflow.md). For standard authoring, read [report-markdown.md](references/report-markdown.md); for direct artifact work, read [artifact-authoring.md](references/artifact-authoring.md).
 
@@ -28,7 +28,7 @@ When the Data Analytics plugin is available, use its focused analysis skill firs
 
 ## Author the report
 
-For a standard report, write `report.report.md` plus its `report.data.json` sidecar. Use ordinary Markdown for prose and code. Use only the standard metrics, bar/pie chart, table, and figure directives. Compile before rendering:
+For a standard report, write `report.report.md` plus its `report.data.json` sidecar. For a decision brief, write `stakeholder-report.md` plus `evidence-package.json`; the evidence package remains complete even when the stakeholder edition hides sources or omits charts. Use ordinary Markdown for prose and code. Use only the standard metrics, optional bar/pie chart, semantic table, and figure directives. Compile before rendering:
 
 ```powershell
 py scripts/compile_report.py --input path\to\report.report.md --output path\to\artifact.json
@@ -57,13 +57,15 @@ py scripts/render_report.py --artifact path\to\artifact.json --output path\to\re
 
 The wrapper locates the installed Data Analytics plugin and invokes its canonical portable builder. Do not hand-code a parallel interactive page or edit generated `report.html` directly. Revise `artifact.json` and rerender.
 
-If the user explicitly requests a print/PDF-friendly companion, first create the script-free print source from the generated semantic fallback:
+Prefer the complete bundle command for printable work:
 
 ```powershell
-py scripts/build_print_report.py --input path\to\report.html --output path\to\report_print.html
+py scripts/build_report_bundle.py --input path\to\report.report.md --output-dir path\to\output
 ```
 
-The print source must contain no scripts, dialogs, buttons, tooltip elements, or expandable controls. It defaults to Letter landscape, includes static sources, and defines CSS Paged Media rules for running headers, page numbers, and controlled breaks.
+It compiles, renders, produces a script-free print source, materializes charts only when present, creates paginated HTML on every run, and writes the PDF atomically. Front matter controls the safe print profile; `--orientation`, `--page-size`, `--pdf-name`, `--source-display`, and `--date-display` override it. If the requested PDF is locked, the build preserves it and writes a clearly named `.locked-<timestamp>.pdf` fallback.
+
+Use the individual stages only for diagnosis. Pass `--artifact` to print and pagination stages so semantic widths and page-level checks remain active.
 
 When the artifact contains a supported chart, read [chartjs-visuals.md](references/chartjs-visuals.md), then use pinned Chart.js to materialize it into the script-free print source:
 
@@ -94,19 +96,19 @@ Hand off the interactive HTML first, followed by the print edition only when req
 
 ## Bootstrap a new report
 
-Use the starter copier when a blank report workspace is useful:
+Use the starter copier when a blank report workspace is useful. It creates `rebuild-report.ps1` beside the editable sources:
 
 ```powershell
 py scripts/new_report.py --name "Quarterly Delivery Health" --output path\to\new-report
 ```
 
-The default starter uses Report Markdown. Pass `--format artifact` only for advanced direct-artifact work. All copied files are synthetic placeholders; replace them before presenting the report as real evidence.
-
-For a complete printable bundle from Markdown, run:
+For a decision brief:
 
 ```powershell
-py scripts/build_report_bundle.py --input path\to\report.report.md --output-dir path\to\output
+py scripts/new_report.py --name "Contract Direction" --document-type decision-brief --output path\to\contract-direction
 ```
+
+The default starter uses Report Markdown. Pass `--format artifact` only for advanced direct-artifact work. All copied files are synthetic placeholders; replace them before presenting the report as real evidence.
 
 ## Package resources
 

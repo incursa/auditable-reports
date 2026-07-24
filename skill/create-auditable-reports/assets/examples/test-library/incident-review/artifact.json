@@ -1,5 +1,13 @@
 {
   "surface": "report",
+  "reportConfig": {
+    "documentType": "technical",
+    "orientation": "landscape",
+    "pageSize": "Letter",
+    "sourceDisplay": "visible",
+    "dateDisplay": "timestamp",
+    "pdfName": "report.pdf"
+  },
   "manifest": {
     "version": 1,
     "surface": "report",
@@ -94,6 +102,7 @@
         "title": "Detection, response, and recovery timeline",
         "dataset": "timeline",
         "sourceId": "incident_snapshot",
+        "kind": "standard",
         "density": "spacious",
         "layout": "full",
         "columns": [

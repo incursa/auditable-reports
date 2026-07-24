@@ -3,8 +3,18 @@ from __future__ import annotations
 import argparse
 from html import escape, unescape
 from html.parser import HTMLParser
+import json
 from pathlib import Path
 import re
+
+from report_config import (
+    DATE_DISPLAYS,
+    ORIENTATIONS,
+    PAGE_SIZES_INCHES,
+    SOURCE_DISPLAYS,
+    ConfigError,
+    resolve_report_config,
+)
 
 
 class EmbeddedFigureParser(HTMLParser):
@@ -59,10 +69,11 @@ class EmbeddedFigureParser(HTMLParser):
 class StaticPrintParser(HTMLParser):
     """Preserve visible fallback content while removing interaction."""
 
-    def __init__(self) -> None:
+    def __init__(self, *, source_display: str = "visible") -> None:
         super().__init__(convert_charrefs=False)
         self.parts: list[str] = []
         self.skip_depth = 0
+        self.source_display = source_display
 
     @staticmethod
     def classes(attrs: list[tuple[str, str | None]]) -> set[str]:
@@ -77,6 +88,7 @@ class StaticPrintParser(HTMLParser):
         classes = self.classes(attrs)
         return (
             tag in {"script", "dialog", "button", "title"}
+            or (self.source_display == "hidden" and "portable-sources" in classes)
             or "portable-source-tooltip-content" in classes
             or "portable-inline-source" in classes
             or "portable-chart-data-has-vector" in classes
@@ -188,40 +200,141 @@ body{padding:0;font-size:9.5pt;line-height:1.34;orphans:3;widows:3}
 .portable-block-stack{display:block !important;width:100% !important;max-width:none !important;margin:0 !important}
 .portable-block{margin:0 0 9pt}.portable-markdown{max-width:none !important}
 .portable-block[data-artifact-block-type="markdown"]{break-inside:auto}
+.portable-block[data-artifact-block-id="immediate_direction"]{margin:2pt 0 10pt;padding:8pt 10pt;border-left:4pt solid #1d4e89;background:#eef4fa;break-inside:avoid}
+.portable-block[data-artifact-block-id="immediate_direction"] h2{font-size:11pt !important;text-transform:uppercase;letter-spacing:.035em}
 .portable-markdown h2,.portable-content-card h2{margin:0 0 4pt !important;color:#17365d !important;font-size:12.5pt !important;font-weight:650 !important;break-after:avoid !important;page-break-after:avoid !important}
 .portable-markdown h3,.portable-visual-header{break-after:avoid !important;page-break-after:avoid !important}
 .portable-markdown p,.portable-markdown ul,.portable-markdown ol{margin-top:2pt;margin-bottom:4pt}.portable-markdown li+li{margin-top:1.5pt}.portable-markdown blockquote{margin:5pt 0;padding-left:9pt}
 .portable-metric-grid{grid-template-columns:repeat(4,minmax(0,1fr)) !important;gap:7pt !important}
-.portable-metric-card{min-height:58pt;padding:8pt !important;border:1px solid #cfd5dc !important;border-radius:7pt !important;background:#fff !important;break-inside:avoid-page}
+.portable-metric-card{min-height:58pt;padding:8pt !important;border:1px solid #cfd5dc !important;border-radius:7pt !important;background:#fff !important;break-inside:avoid}
 .portable-metric-label{font-size:8.5pt !important;line-height:1.2 !important}.portable-metric-value{font-size:16pt !important;line-height:1.1 !important}.portable-metric-badge{font-size:7.5pt !important;line-height:1.2 !important}
 .portable-content-card{padding:0 !important;break-inside:auto !important}.portable-visual-header{margin-bottom:5pt !important}
+.portable-content-card.portable-table-card{break-inside:avoid !important}
 .portable-static-chart{max-width:9.8in;margin:0 auto !important;overflow:visible !important}.portable-static-chart svg{width:100% !important;max-height:4.7in}.portable-static-chart-dark{display:none !important}.portable-static-chart-light{display:block !important}
-.portable-table-scroll{overflow:visible !important;border:0 !important}.portable-table-scroll table{width:100% !important;table-layout:auto !important}.portable-table-scroll thead{display:table-header-group}.portable-table-scroll tr{break-inside:avoid-page}
-.portable-table-scroll th{position:static !important;padding:3.5pt 5pt !important;border-bottom:1px solid #aeb7c2 !important;background:#eaf0f6 !important;color:#26384d !important;font-size:7pt !important;line-height:1.15 !important;white-space:normal !important}
-.portable-table-scroll td{padding:3.5pt 5pt !important;border-bottom:1px solid #d9dee4 !important;color:#29313a !important;font-size:7.2pt !important;line-height:1.18 !important;white-space:normal !important;overflow-wrap:anywhere}.portable-table-scroll td.portable-table-number{white-space:nowrap !important;overflow-wrap:normal}
+.portable-table-scroll{width:100% !important;min-width:0 !important;max-width:100% !important;overflow:visible !important;border:0 !important}.portable-table-scroll table{width:100% !important;min-width:100% !important;max-width:100% !important;table-layout:fixed !important}.portable-table-scroll thead{display:table-header-group}.portable-table-scroll tr{break-inside:avoid}
+.portable-table-scroll th{position:static !important;max-width:0 !important;padding:3.5pt 5pt !important;border-bottom:1px solid #aeb7c2 !important;background:#eaf0f6 !important;color:#26384d !important;font-size:7pt !important;line-height:1.15 !important;white-space:normal !important;overflow-wrap:anywhere !important}
+.portable-table-scroll td{max-width:0 !important;padding:3.5pt 5pt !important;border-bottom:1px solid #d9dee4 !important;color:#29313a !important;font-size:7.2pt !important;line-height:1.18 !important;white-space:normal !important;overflow-wrap:anywhere}.portable-table-scroll td.portable-table-number{white-space:nowrap !important;overflow-wrap:normal}
 .portable-table-note{margin-top:4pt !important;font-size:7.5pt !important}
-.portable-sources{display:block !important;margin-top:9pt !important;padding-top:7pt !important;border-top:1px solid #aeb7c2 !important;break-before:auto}.portable-sources h2{margin:0 0 4pt;color:#17365d;font-size:12.5pt;break-after:avoid !important}.portable-sources ol{display:block !important;columns:2 3.2in;column-gap:18pt;margin:0}.portable-sources li{break-inside:avoid-page;break-inside:avoid-column;margin:0 0 2pt}.portable-sources p{margin:0 !important;font-size:7.4pt}.portable-source-meta{font-size:7pt !important}
-.report-figure{margin:0;break-inside:avoid-page}.report-figure img{display:block;width:auto;max-width:100%;max-height:3.15in;margin:0 auto;border:1px solid #cfd5dc;border-radius:7pt;object-fit:contain}.report-figure figcaption{margin-top:4pt;color:#4c5560;font-size:7.5pt}.report-figure figcaption span{display:block;color:#68727d}
+.portable-sources{display:block !important;margin-top:9pt !important;padding-top:7pt !important;border-top:1px solid #aeb7c2 !important;break-before:auto}.portable-sources h2{margin:0 0 4pt;color:#17365d;font-size:12.5pt;break-after:avoid !important}.portable-sources ol{display:block !important;columns:2 3.2in;column-gap:18pt;margin:0}.portable-sources li{break-inside:avoid;margin:0 0 2pt}.portable-sources p{margin:0 !important;font-size:7.4pt}.portable-source-meta{font-size:7pt !important}
+.report-figure{margin:0;break-inside:avoid}.report-figure img{display:block;width:auto;max-width:100%;max-height:3.15in;margin:0 auto;border:1px solid #cfd5dc;border-radius:7pt;object-fit:contain}.report-figure figcaption{margin-top:4pt;color:#4c5560;font-size:7.5pt}.report-figure figcaption span{display:block;color:#68727d}
 .portable-custom-html iframe{height:4.75in !important;min-height:4.75in !important}
 .print-source-value{text-decoration:none !important}a{color:inherit;text-decoration:none}
-.page-break{break-before:page !important}.avoid-break{break-inside:avoid-page !important}
+.page-break{break-before:page !important}.avoid-break{break-inside:avoid !important}
 .portable-page-header h1{string-set:report-title content(text)}
 @media screen{body{max-width:11in;margin:0 auto;padding:.42in}}
 @media print{body{margin:0}.portable-sources{display:block !important}}
 """
 
 
+ROLE_WEIGHTS = {
+    "item": 0.9,
+    "narrative": 2.5,
+    "decision": 2.0,
+    "recommendation": 2.1,
+    "owner": 1.0,
+    "status": 0.85,
+    "date": 1.0,
+    "amount": 1.0,
+}
+
+
+def table_layout_css(artifact: dict) -> str:
+    rules: list[str] = []
+    for table in artifact.get("manifest", {}).get("tables", []):
+        roles = [column.get("role") for column in table.get("columns", [])]
+        if not any(roles):
+            continue
+        weights = [ROLE_WEIGHTS.get(role, 1.0) for role in roles]
+        total = sum(weights)
+        table_id = table["id"]
+        selector = f'[data-artifact-block-id="{table_id}"]'
+        rules.append(f'{selector} table{{table-layout:fixed !important}}')
+        for index, (role, weight) in enumerate(zip(roles, weights), start=1):
+            percentage = weight / total * 100
+            rules.append(
+                f'{selector} th:nth-child({index}),{selector} td:nth-child({index})'
+                f'{{width:{percentage:.3f}% !important}}'
+            )
+            if role:
+                rules.append(
+                    f'{selector} th:nth-child({index}),{selector} td:nth-child({index})'
+                    "{white-space:normal !important;overflow-wrap:anywhere !important}"
+                )
+    return "\n".join(rules)
+
+
+def block_control_css(artifact: dict) -> str:
+    rules: list[str] = []
+    for block in artifact.get("manifest", {}).get("blocks", []):
+        selector = f'[data-artifact-block-id="{block.get("id", "")}"]'
+        if block.get("printBreakBefore") == "page":
+            rules.append(f"{selector}{{break-before:page !important}}")
+        if block.get("printKeepTogether") is True:
+            rules.append(f"{selector}{{break-inside:avoid !important}}")
+        elif block.get("printKeepTogether") is False:
+            rules.append(f"{selector}{{break-inside:auto !important}}")
+    return "\n".join(rules)
+
+
+TIME_PATTERN = re.compile(r'<time\b[^>]*datetime="([^"]+)"[^>]*>.*?</time>', re.I | re.S)
+
+
+def apply_date_display(main_html: str, date_display: str) -> str:
+    if date_display == "hidden":
+        return re.sub(
+            r'(<div class="portable-page-meta"[^>]*>).*?(</div>)',
+            r"\1\2",
+            main_html,
+            count=1,
+            flags=re.I | re.S,
+        )
+    if date_display == "date-only":
+        def replace_time(match: re.Match[str]) -> str:
+            date = match.group(1)[:10]
+            return f'<time datetime="{escape(date, quote=True)}">{escape(date)}</time>'
+
+        return TIME_PATTERN.sub(replace_time, main_html)
+    return main_html
+
+
 def main() -> int:
     cli = argparse.ArgumentParser(description="Create a script-free printable report page.")
     cli.add_argument("--input", required=True, help="Generated interactive report.html")
     cli.add_argument("--output", required=True, help="Output print HTML")
-    cli.add_argument("--page-size", default="Letter", help="CSS page size, default Letter")
-    cli.add_argument("--orientation", choices=("portrait", "landscape"), default="landscape")
+    cli.add_argument("--artifact", help="Compiled artifact.json containing the resolved report profile")
+    cli.add_argument("--page-size", choices=tuple(PAGE_SIZES_INCHES), help="Named page size")
+    cli.add_argument("--orientation", choices=tuple(sorted(ORIENTATIONS)))
+    cli.add_argument("--source-display", choices=tuple(sorted(SOURCE_DISPLAYS)))
+    cli.add_argument("--date-display", choices=tuple(sorted(DATE_DISPLAYS)))
     args = cli.parse_args()
 
     source_path = Path(args.input).expanduser().resolve()
     output_path = Path(args.output).expanduser().resolve()
     source = source_path.read_text(encoding="utf-8")
+    artifact: dict = {}
+    metadata: dict[str, str] = {"document-type": "report"}
+    if args.artifact:
+        artifact_path = Path(args.artifact).expanduser().resolve()
+        artifact = json.loads(artifact_path.read_text(encoding="utf-8"))
+        artifact_config = artifact.get("reportConfig", {})
+        metadata = {
+            "document-type": artifact_config.get("documentType", "report"),
+            "print-orientation": artifact_config.get("orientation", ""),
+            "page-size": artifact_config.get("pageSize", ""),
+            "source-display": artifact_config.get("sourceDisplay", ""),
+            "date-display": artifact_config.get("dateDisplay", ""),
+            "pdf-name": artifact_config.get("pdfName", ""),
+        }
+    try:
+        config = resolve_report_config(
+            metadata,
+            orientation=args.orientation,
+            page_size=args.page_size,
+            source_display=args.source_display,
+            date_display=args.date_display,
+        )
+    except ConfigError as exc:
+        cli.error(str(exc))
 
     style_match = re.search(
         r'<style data-data-analytics-portable-fallback="true">(.*?)</style>', source, re.S
@@ -233,17 +346,25 @@ def main() -> int:
     if not style_match or not main_match:
         raise RuntimeError("The generated semantic report fallback could not be found.")
 
-    parser = StaticPrintParser()
+    parser = StaticPrintParser(source_display=config.source_display)
     parser.feed(main_match.group(1))
     parser.close()
-    main_html = "".join(parser.parts)
+    main_html = apply_date_display("".join(parser.parts), config.date_display)
+    if config.document_type == "decision-brief":
+        main_html = re.sub(
+            r'(<p class="portable-surface-label"[^>]*>).*?(</p>)',
+            r"\1Decision brief\2",
+            main_html,
+            count=1,
+            flags=re.I | re.S,
+        )
     base_css = "\n".join(
         line for line in style_match.group(1).splitlines() if "source-tooltip" not in line
     )
     title = unescape(title_match.group(1).strip()) if title_match else "Printable report"
     page_rule = f"""
 @page{{
-  size:{args.page_size} {args.orientation};
+  size:{config.css_size};
   margin:.50in .42in .55in;
   @top-left{{content:string(report-title);color:#5b6570;font-size:8pt}}
   @bottom-right{{content:"Page " counter(page) " of " counter(pages);color:#5b6570;font-size:8pt}}
@@ -256,11 +377,15 @@ def main() -> int:
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <meta name="color-scheme" content="light" />
 <meta name="generator" content="create-auditable-reports print source for Paged.js" />
+<meta name="report-page-size" content="{escape(config.page_size)}" />
+<meta name="report-orientation" content="{escape(config.orientation)}" />
+<meta name="report-source-display" content="{escape(config.source_display)}" />
+<meta name="report-date-display" content="{escape(config.date_display)}" />
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src data:; style-src 'unsafe-inline';" />
 <meta name="referrer" content="no-referrer" />
 <title>{escape(title)} — Print Edition</title>
-<style>{base_css}\n{PRINT_CSS}\n{page_rule}</style></head>
-<body class="pagedjs-source">{main_html}</body></html>
+<style>{base_css}\n{PRINT_CSS}\n{table_layout_css(artifact)}\n{block_control_css(artifact)}\n{page_rule}</style></head>
+<body class="pagedjs-source document-{escape(config.document_type)}">{main_html}</body></html>
 """
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(document, encoding="utf-8")

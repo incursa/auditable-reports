@@ -1,0 +1,460 @@
+{
+  "surface": "report",
+  "reportConfig": {
+    "documentType": "decision-brief",
+    "orientation": "portrait",
+    "pageSize": "Letter",
+    "sourceDisplay": "hidden",
+    "dateDisplay": "date-only",
+    "pdfName": "stakeholder-report.pdf"
+  },
+  "manifest": {
+    "version": 1,
+    "surface": "report",
+    "title": "Field Contract Mobilization Decision",
+    "description": "A synthetic stakeholder decision brief that preserves its full evidence package while presenting a compact, source-hidden edition.",
+    "generatedAt": "2026-07-23T12:00:00-06:00",
+    "cards": [],
+    "charts": [],
+    "tables": [
+      {
+        "id": "decision_register",
+        "title": "Decisions needed before mobilization",
+        "dataset": "decisions",
+        "sourceId": "contract_review",
+        "kind": "decision",
+        "density": "spacious",
+        "layout": "full",
+        "columns": [
+          {
+            "field": "item",
+            "label": "Item",
+            "type": "text",
+            "role": "item"
+          },
+          {
+            "field": "decision",
+            "label": "Decision",
+            "type": "text",
+            "role": "decision"
+          },
+          {
+            "field": "recommendation",
+            "label": "Recommendation",
+            "type": "text",
+            "role": "recommendation"
+          },
+          {
+            "field": "owner",
+            "label": "Owner",
+            "type": "text",
+            "role": "owner"
+          },
+          {
+            "field": "status",
+            "label": "Status",
+            "type": "text",
+            "role": "status"
+          }
+        ],
+        "subtitle": "Each row is linked to evidence retained in the canonical package.",
+        "showDescription": true
+      },
+      {
+        "id": "incompatibility_register",
+        "title": "Requirements that cannot currently be satisfied together",
+        "dataset": "conflicts",
+        "sourceId": "workflow_review",
+        "kind": "incompatibility",
+        "density": "spacious",
+        "layout": "full",
+        "columns": [
+          {
+            "field": "item",
+            "label": "Item",
+            "type": "text",
+            "role": "item"
+          },
+          {
+            "field": "narrative",
+            "label": "Conflict",
+            "type": "text",
+            "role": "narrative"
+          },
+          {
+            "field": "decision",
+            "label": "Required decision",
+            "type": "text",
+            "role": "decision"
+          }
+        ]
+      },
+      {
+        "id": "recommendation_register",
+        "title": "Recommended safeguards",
+        "dataset": "recommendations",
+        "sourceId": "field_interviews",
+        "kind": "recommendation",
+        "density": "spacious",
+        "layout": "full",
+        "columns": [
+          {
+            "field": "item",
+            "label": "Item",
+            "type": "text",
+            "role": "item"
+          },
+          {
+            "field": "recommendation",
+            "label": "Recommendation",
+            "type": "text",
+            "role": "recommendation"
+          },
+          {
+            "field": "owner",
+            "label": "Owner",
+            "type": "text",
+            "role": "owner"
+          },
+          {
+            "field": "status",
+            "label": "Status",
+            "type": "text",
+            "role": "status"
+          }
+        ]
+      }
+    ],
+    "sources": [
+      {
+        "id": "contract_review",
+        "label": "Synthetic contract requirements review",
+        "path": "source-notes.md"
+      },
+      {
+        "id": "workflow_review",
+        "label": "Synthetic integration workflow review",
+        "path": "source-notes.md"
+      },
+      {
+        "id": "field_interviews",
+        "label": "Synthetic field interview notes",
+        "path": "source-notes.md"
+      }
+    ],
+    "blocks": [
+      {
+        "id": "title",
+        "type": "markdown",
+        "body": "# Field Contract Mobilization Decision"
+      },
+      {
+        "id": "executive_summary",
+        "type": "markdown",
+        "body": "## Executive Summary\n\nThe delivery team can begin the controlled pilot on 3 August if the client confirms the approval path and accepts a two-week exception for offline field entry. The canonical package retains all requirements, conflicts, decisions, assumptions, recommendations, sources, and provenance. This stakeholder edition intentionally shows only the findings needed for the immediate decision."
+      },
+      {
+        "id": "immediate_direction",
+        "type": "markdown",
+        "body": "## Immediate Direction\n\n**Approve the controlled pilot with the two safeguards listed below.** Do not authorize full deployment until the offline-entry conflict is resolved and the named client approver confirms the revised acceptance path."
+      },
+      {
+        "id": "decisions_requested",
+        "type": "markdown",
+        "body": "## Decisions Requested"
+      },
+      {
+        "id": "decision_register",
+        "type": "table",
+        "tableId": "decision_register"
+      },
+      {
+        "id": "incompatibilities",
+        "type": "markdown",
+        "body": "## Incompatibilities"
+      },
+      {
+        "id": "incompatibility_register",
+        "type": "table",
+        "tableId": "incompatibility_register"
+      },
+      {
+        "id": "recommendations",
+        "type": "markdown",
+        "body": "## Recommendations"
+      },
+      {
+        "id": "recommendation_register",
+        "type": "table",
+        "tableId": "recommendation_register"
+      },
+      {
+        "id": "assumptions",
+        "type": "markdown",
+        "body": "## Assumptions\n\nThe recommendation assumes the client provides one accountable approver, the pilot remains limited to two crews, and the current contractual retention period applies to exported evidence. These assumptions remain in the canonical evidence package even though this edition summarizes them."
+      }
+    ]
+  },
+  "snapshot": {
+    "version": 1,
+    "generatedAt": "2026-07-23T12:00:00-06:00",
+    "status": "fixture",
+    "datasets": {
+      "milestones": [
+        {
+          "item": "Pilot start",
+          "date": "2026-08-03",
+          "status": "Conditional"
+        }
+      ],
+      "assumptions": [
+        {
+          "id": "assumption_two_crews",
+          "item": "A-01",
+          "narrative": "The pilot remains limited to two crews and does not include production posting."
+        }
+      ],
+      "conflicts": [
+        {
+          "id": "conflict_offline_control",
+          "item": "C-01",
+          "narrative": "The contract requires immediate validation against current cost codes, while the field workflow requires entry during extended periods without network access. Both conditions cannot be guaranteed with the current integration.",
+          "decision": "Accept a controlled offline exception for the pilot or delay mobilization until synchronization is available."
+        }
+      ],
+      "decisions": [
+        {
+          "id": "decision_pilot",
+          "item": "D-01",
+          "decision": "Authorize a two-crew controlled pilot beginning 3 August.",
+          "recommendation": "Approve with daily reconciliation and no automatic posting to production.",
+          "owner": "Executive sponsor",
+          "status": "Decision needed"
+        },
+        {
+          "id": "decision_approver",
+          "item": "D-02",
+          "decision": "Name the client approver for field configuration and acceptance exceptions.",
+          "recommendation": "Confirm one primary approver and one delegate in writing before the pilot.",
+          "owner": "Client lead",
+          "status": "Confirmation needed"
+        }
+      ],
+      "recommendations": [
+        {
+          "id": "recommend_daily_review",
+          "item": "REC-01",
+          "recommendation": "Reconcile offline entries against current cost codes at the end of each pilot day and retain the review result with the evidence package.",
+          "owner": "Pilot manager",
+          "status": "Proposed"
+        },
+        {
+          "id": "recommend_hold_release",
+          "item": "REC-02",
+          "recommendation": "Keep production posting disabled until the offline conflict is closed and the client approver signs the acceptance record.",
+          "owner": "Integration lead",
+          "status": "Proposed"
+        }
+      ],
+      "requirements": [
+        {
+          "id": "req_named_approval",
+          "item": "R-01",
+          "requirement": "One named client approver must accept field configuration changes before production use.",
+          "status": "Open"
+        },
+        {
+          "id": "req_offline_entry",
+          "item": "R-02",
+          "requirement": "Crews must record time and quantities when the field device has no network connection.",
+          "status": "Open"
+        }
+      ]
+    }
+  },
+  "sources": [
+    {
+      "id": "contract_review",
+      "label": "Synthetic contract requirements review",
+      "path": "source-notes.md",
+      "query": {
+        "engine": "fixture",
+        "language": "sql",
+        "id": "contract-review",
+        "executed_at": "2026-07-23T12:00:00-06:00",
+        "description": "Selects the synthetic contract requirements used by the fixture.",
+        "sql": "SELECT * FROM synthetic_contract_requirements"
+      }
+    },
+    {
+      "id": "workflow_review",
+      "label": "Synthetic integration workflow review",
+      "path": "source-notes.md",
+      "query": {
+        "engine": "fixture",
+        "language": "sql",
+        "id": "workflow-review",
+        "executed_at": "2026-07-23T12:00:00-06:00",
+        "description": "Selects the synthetic workflow findings used by the fixture.",
+        "sql": "SELECT * FROM synthetic_workflow_findings"
+      }
+    },
+    {
+      "id": "field_interviews",
+      "label": "Synthetic field interview notes",
+      "path": "source-notes.md",
+      "query": {
+        "engine": "fixture",
+        "language": "sql",
+        "id": "field-interviews",
+        "executed_at": "2026-07-23T12:00:00-06:00",
+        "description": "Selects the synthetic interview findings used by the fixture.",
+        "sql": "SELECT * FROM synthetic_field_interviews"
+      }
+    }
+  ],
+  "evidence": {
+    "version": 1,
+    "assumptions": [
+      {
+        "id": "assumption_two_crews",
+        "item": "A-01",
+        "narrative": "The pilot remains limited to two crews and does not include production posting.",
+        "sourceIds": [
+          "field_interviews"
+        ]
+      }
+    ],
+    "conflicts": [
+      {
+        "id": "conflict_offline_control",
+        "item": "C-01",
+        "narrative": "The contract requires immediate validation against current cost codes, while the field workflow requires entry during extended periods without network access. Both conditions cannot be guaranteed with the current integration.",
+        "decision": "Accept a controlled offline exception for the pilot or delay mobilization until synchronization is available.",
+        "sourceIds": [
+          "contract_review",
+          "workflow_review",
+          "field_interviews"
+        ]
+      }
+    ],
+    "decisions": [
+      {
+        "id": "decision_pilot",
+        "item": "D-01",
+        "decision": "Authorize a two-crew controlled pilot beginning 3 August.",
+        "recommendation": "Approve with daily reconciliation and no automatic posting to production.",
+        "owner": "Executive sponsor",
+        "status": "Decision needed",
+        "sourceIds": [
+          "contract_review",
+          "field_interviews"
+        ]
+      },
+      {
+        "id": "decision_approver",
+        "item": "D-02",
+        "decision": "Name the client approver for field configuration and acceptance exceptions.",
+        "recommendation": "Confirm one primary approver and one delegate in writing before the pilot.",
+        "owner": "Client lead",
+        "status": "Confirmation needed",
+        "sourceIds": [
+          "contract_review"
+        ]
+      }
+    ],
+    "recommendations": [
+      {
+        "id": "recommend_daily_review",
+        "item": "REC-01",
+        "recommendation": "Reconcile offline entries against current cost codes at the end of each pilot day and retain the review result with the evidence package.",
+        "owner": "Pilot manager",
+        "status": "Proposed",
+        "sourceIds": [
+          "workflow_review"
+        ]
+      },
+      {
+        "id": "recommend_hold_release",
+        "item": "REC-02",
+        "recommendation": "Keep production posting disabled until the offline conflict is closed and the client approver signs the acceptance record.",
+        "owner": "Integration lead",
+        "status": "Proposed",
+        "sourceIds": [
+          "contract_review",
+          "workflow_review"
+        ]
+      }
+    ],
+    "requirements": [
+      {
+        "id": "req_named_approval",
+        "item": "R-01",
+        "requirement": "One named client approver must accept field configuration changes before production use.",
+        "status": "Open",
+        "sourceIds": [
+          "contract_review"
+        ]
+      },
+      {
+        "id": "req_offline_entry",
+        "item": "R-02",
+        "requirement": "Crews must record time and quantities when the field device has no network connection.",
+        "status": "Open",
+        "sourceIds": [
+          "field_interviews"
+        ]
+      }
+    ],
+    "datasets": {
+      "milestones": [
+        {
+          "item": "Pilot start",
+          "date": "2026-08-03",
+          "status": "Conditional"
+        }
+      ]
+    },
+    "sources": [
+      {
+        "id": "contract_review",
+        "label": "Synthetic contract requirements review",
+        "path": "source-notes.md",
+        "query": {
+          "engine": "fixture",
+          "language": "sql",
+          "id": "contract-review",
+          "executed_at": "2026-07-23T12:00:00-06:00",
+          "description": "Selects the synthetic contract requirements used by the fixture.",
+          "sql": "SELECT * FROM synthetic_contract_requirements"
+        }
+      },
+      {
+        "id": "workflow_review",
+        "label": "Synthetic integration workflow review",
+        "path": "source-notes.md",
+        "query": {
+          "engine": "fixture",
+          "language": "sql",
+          "id": "workflow-review",
+          "executed_at": "2026-07-23T12:00:00-06:00",
+          "description": "Selects the synthetic workflow findings used by the fixture.",
+          "sql": "SELECT * FROM synthetic_workflow_findings"
+        }
+      },
+      {
+        "id": "field_interviews",
+        "label": "Synthetic field interview notes",
+        "path": "source-notes.md",
+        "query": {
+          "engine": "fixture",
+          "language": "sql",
+          "id": "field-interviews",
+          "executed_at": "2026-07-23T12:00:00-06:00",
+          "description": "Selects the synthetic interview findings used by the fixture.",
+          "sql": "SELECT * FROM synthetic_field_interviews"
+        }
+      }
+    ]
+  }
+}

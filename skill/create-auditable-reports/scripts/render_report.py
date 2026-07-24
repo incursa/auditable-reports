@@ -1,11 +1,17 @@
 from __future__ import annotations
 
 import argparse
+import base64
+from copy import deepcopy
+import gzip
+import json
 import os
 from pathlib import Path
+import re
 import shutil
 import subprocess
 import sys
+import tempfile
 
 
 def find_plugin_root(explicit: str | None) -> Path:
@@ -62,6 +68,80 @@ def find_node() -> Path:
     )
 
 
+COMPATIBILITY_CHART_ID = "renderer_compat_chart"
+
+
+def renderer_compatible_artifact(artifact: dict) -> dict:
+    if artifact.get("manifest", {}).get("charts"):
+        return artifact
+    compatible = deepcopy(artifact)
+    source_id = compatible["sources"][0]["id"]
+    dataset_id = "renderer_compat_chart_data"
+    compatible["snapshot"]["datasets"][dataset_id] = [
+        {"label": "Selected", "value": 1},
+        {"label": "Deferred", "value": 1},
+    ]
+    chart = {
+        "id": COMPATIBILITY_CHART_ID,
+        "title": "Renderer compatibility chart",
+        "type": "bar",
+        "dataset": dataset_id,
+        "sourceId": source_id,
+        "intent": "comparison",
+        "encodings": {
+            "x": {"field": "label", "type": "nominal", "label": "State"},
+            "y": {"field": "value", "type": "quantitative", "format": "number", "label": "Count"},
+        },
+        "valueFormat": "number",
+        "layout": "full",
+        "maxRows": 2,
+    }
+    compatible["manifest"]["charts"].append(chart)
+    compatible["manifest"]["blocks"].append(
+        {
+            "id": COMPATIBILITY_CHART_ID,
+            "type": "chart",
+            "chartId": COMPATIBILITY_CHART_ID,
+        }
+    )
+    return compatible
+
+
+def remove_renderer_compatibility(html: str, canonical_artifact_text: str) -> str:
+    start_match = re.search(
+        rf"<div\b[^>]*data-artifact-block-id=[\"']{COMPATIBILITY_CHART_ID}[\"'][^>]*>",
+        html,
+        flags=re.I,
+    )
+    if not start_match:
+        raise RuntimeError("Could not find the renderer compatibility block.")
+    depth = 0
+    end_offset = None
+    for tag in re.finditer(r"</?div\b[^>]*>", html[start_match.start() :], flags=re.I):
+        depth += -1 if tag.group(0).startswith("</") else 1
+        if depth == 0:
+            end_offset = start_match.start() + tag.end()
+            break
+    if end_offset is None:
+        raise RuntimeError("Could not find the end of the renderer compatibility block.")
+    html = html[: start_match.start()] + html[end_offset:]
+    payload = base64.b64encode(
+        gzip.compress(canonical_artifact_text.encode("utf-8"), compresslevel=9, mtime=0)
+    ).decode("ascii")
+    pattern = re.compile(
+        r'(<template id="data-analytics-portable-artifact-payload-source"[^>]*>\s*)'
+        r".*?"
+        r"(\s*</template>)",
+        flags=re.S,
+    )
+    html, count = pattern.subn(rf"\g<1>{payload}\g<2>", html, count=1)
+    if count != 1:
+        raise RuntimeError("Could not replace the portable artifact payload after compatibility rendering.")
+    if COMPATIBILITY_CHART_ID in html:
+        raise RuntimeError("Renderer compatibility chart leaked into the no-chart report.")
+    return html
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(
         description="Render a canonical Data Analytics artifact as portable HTML."
@@ -86,17 +166,75 @@ def main() -> int:
         / "scripts"
         / "deliver_portable_artifact.mjs"
     )
+    canonical_artifact_text = artifact.read_text(encoding="utf-8")
+    canonical_artifact = json.loads(canonical_artifact_text)
+    compatible_artifact = renderer_compatible_artifact(canonical_artifact)
+    compatibility_required = compatible_artifact is not canonical_artifact
+    temporary_artifact: Path | None = None
+    artifact_for_renderer = artifact
+    if compatibility_required:
+        handle, temporary_name = tempfile.mkstemp(
+            prefix=".renderer-compatible-",
+            suffix=".json",
+            dir=output.parent,
+        )
+        os.close(handle)
+        temporary_artifact = Path(temporary_name)
+        temporary_artifact.write_text(
+            json.dumps(compatible_artifact, indent=2, ensure_ascii=False) + "\n",
+            encoding="utf-8",
+        )
+        artifact_for_renderer = temporary_artifact
+
     command = [
         str(node),
         str(builder),
         "--input",
-        str(artifact),
+        str(artifact_for_renderer),
         "--output",
         str(output),
     ]
-    completed = subprocess.run(command, cwd=plugin_root, check=False)
-    if completed.returncode:
-        return completed.returncode
+    try:
+        completed = subprocess.run(
+            command,
+            cwd=plugin_root,
+            check=False,
+            text=True,
+            capture_output=True,
+        )
+        if completed.stderr:
+            print(completed.stderr, end="", file=sys.stderr)
+        if completed.stdout:
+            rendered_receipt = completed.stdout
+            if compatibility_required:
+                try:
+                    receipt = json.loads(completed.stdout.strip())
+                    blocks = canonical_artifact.get("manifest", {}).get("blocks", [])
+                    receipt["counts"] = {
+                        "blocks": len(blocks),
+                        "charts": len(canonical_artifact["manifest"].get("charts", [])),
+                        "html": sum(block.get("type") == "html" for block in blocks),
+                        "metrics": len(canonical_artifact["manifest"].get("cards", [])),
+                        "tables": len(canonical_artifact["manifest"].get("tables", [])),
+                    }
+                    receipt["compatibilityAdapter"] = "chartless-report"
+                    rendered_receipt = json.dumps(receipt, separators=(",", ":")) + "\n"
+                except json.JSONDecodeError:
+                    pass
+            print(rendered_receipt, end="")
+        if completed.returncode:
+            return completed.returncode
+        if compatibility_required:
+            output.write_text(
+                remove_renderer_compatibility(
+                    output.read_text(encoding="utf-8"),
+                    canonical_artifact_text,
+                ),
+                encoding="utf-8",
+            )
+    finally:
+        if temporary_artifact:
+            temporary_artifact.unlink(missing_ok=True)
     print(f"Rendered: {output}")
     return 0
 
