@@ -18,7 +18,9 @@ Chart.js is used at build time to turn selected artifact chart definitions into 
 - Source: https://gitlab.coko.foundation/pagedjs/
 - License: MIT
 
-The packages are development-time pagination dependencies pinned by `package-lock.json`. Their license texts are distributed in the installed npm packages. This notice does not assign a license to the Auditable Reports repository itself.
+The packages are development-time pagination dependencies pinned by
+`package-lock.json`. Their license texts are distributed in the installed npm
+packages. Auditable Reports itself is licensed under Apache-2.0.
 
 ## Puppeteer Core
 

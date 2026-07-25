@@ -133,4 +133,5 @@ The Chart.js stage supports the initial `bar`, `line`, `pie`, and `scatter` arti
 - The project-health fixture is synthetic and must never be presented as operational evidence.
 - The artifact contract is documented but does not yet have a versioned JSON Schema.
 - Report Markdown v0.1 is intentionally constrained to ordinary Markdown plus metrics, optional bar/pie charts, semantic tables, and figure directives.
-- No public license has been selected for this imported package.
+- The repository is licensed under Apache-2.0. Third-party runtime packages
+  retain their own licenses as recorded in `THIRD_PARTY_NOTICES.md`.
