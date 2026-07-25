@@ -69,6 +69,9 @@ def find_node() -> Path:
 
 
 COMPATIBILITY_CHART_ID = "renderer_compat_chart"
+READY_TIMEOUT_MS = 30_000
+ACTION_TIMEOUT_MS = 5_000
+VERIFICATION_TIMEOUT_MS = 60_000
 
 
 def renderer_compatible_artifact(artifact: dict) -> dict:
@@ -159,13 +162,13 @@ def main() -> int:
 
     plugin_root = find_plugin_root(args.plugin_root)
     node = find_node()
-    builder = (
+    renderer_scripts = (
         plugin_root
         / "skills"
         / "build-report"
         / "scripts"
-        / "deliver_portable_artifact.mjs"
     )
+    delivery_adapter = Path(__file__).with_name("deliver_portable_report.mjs")
     canonical_artifact_text = artifact.read_text(encoding="utf-8")
     canonical_artifact = json.loads(canonical_artifact_text)
     compatible_artifact = renderer_compatible_artifact(canonical_artifact)
@@ -188,11 +191,19 @@ def main() -> int:
 
     command = [
         str(node),
-        str(builder),
+        str(delivery_adapter),
+        "--renderer-scripts",
+        str(renderer_scripts),
         "--input",
         str(artifact_for_renderer),
         "--output",
         str(output),
+        "--ready-timeout-ms",
+        str(READY_TIMEOUT_MS),
+        "--action-timeout-ms",
+        str(ACTION_TIMEOUT_MS),
+        "--timeout-ms",
+        str(VERIFICATION_TIMEOUT_MS),
     ]
     try:
         completed = subprocess.run(
@@ -217,7 +228,10 @@ def main() -> int:
                         "metrics": len(canonical_artifact["manifest"].get("cards", [])),
                         "tables": len(canonical_artifact["manifest"].get("tables", [])),
                     }
-                    receipt["compatibilityAdapter"] = "chartless-report"
+                    receipt["compatibilityAdapter"] = [
+                        "viewport-scrollbar",
+                        "chartless-report",
+                    ]
                     rendered_receipt = json.dumps(receipt, separators=(",", ":")) + "\n"
                 except json.JSONDecodeError:
                     pass
