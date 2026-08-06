@@ -197,7 +197,8 @@ body{position:relative;padding:0;font-size:10pt;line-height:1.38;orphans:3;widow
 .report-wordmark{position:absolute;right:0;top:0;width:1.02in;height:auto;opacity:.94}
 .portable-page-header h1{margin:0 0 4pt !important;overflow:visible !important;color:#17365d !important;font-size:19pt !important;font-weight:650 !important;line-height:1.15 !important;white-space:normal !important}
 .portable-page-meta{display:flex !important;align-items:center !important;flex-direction:row !important;gap:8pt !important;margin-top:5pt;color:#5b6570 !important;font-size:8pt !important}
-.portable-description,.portable-surface-label,.portable-card-description{display:block !important}
+.portable-description,.portable-card-description{display:block !important}
+.portable-surface-label{display:none !important}
 .portable-surface-label{margin:0 0 3pt;color:#68727d;font-size:8pt;text-transform:uppercase;letter-spacing:.08em}
 .portable-description{max-width:none;margin:0;color:#3f4852;font-size:9pt}
 .portable-block-stack{display:block !important;width:100% !important;max-width:none !important;margin:0 !important}
@@ -207,7 +208,7 @@ body{position:relative;padding:0;font-size:10pt;line-height:1.38;orphans:3;widow
 .portable-block[data-artifact-block-id="immediate_direction"] h2{font-size:11pt !important;text-transform:uppercase;letter-spacing:.035em}
 .portable-markdown h2,.portable-content-card h2{margin:0 0 4pt !important;color:#17365d !important;font-size:12.5pt !important;font-weight:650 !important;break-after:avoid !important;page-break-after:avoid !important}
 .portable-markdown h3,.portable-visual-header{break-after:avoid !important;page-break-after:avoid !important}
-.portable-markdown p,.portable-markdown ul,.portable-markdown ol{margin-top:2.5pt;margin-bottom:5pt}.portable-markdown li+li{margin-top:2pt}.portable-markdown blockquote{margin:6pt 0;padding:7pt 10pt;border-left:4pt solid #9fb4c8;background:#f6f8fb}
+.portable-markdown p,.portable-markdown ul,.portable-markdown ol{margin-top:2.5pt;margin-bottom:5pt}.portable-markdown li{break-inside:avoid}.portable-markdown li+li{margin-top:2pt}.portable-markdown blockquote{margin:6pt 0;padding:7pt 10pt;border-left:4pt solid #9fb4c8;background:#f6f8fb}
 .portable-metric-grid{grid-template-columns:repeat(4,minmax(0,1fr)) !important;gap:7pt !important}
 .portable-metric-card{min-height:58pt;padding:8pt !important;border:1px solid #cfd5dc !important;border-radius:7pt !important;background:#fff !important;break-inside:avoid}
 .portable-metric-label{font-size:8.5pt !important;line-height:1.2 !important}.portable-metric-value{font-size:16pt !important;line-height:1.1 !important}.portable-metric-badge{font-size:7.5pt !important;line-height:1.2 !important}

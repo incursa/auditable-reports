@@ -12,6 +12,7 @@ SCRIPT_ROOT = REPO_ROOT / "skill" / "create-auditable-reports" / "scripts"
 sys.path.insert(0, str(SCRIPT_ROOT))
 
 from build_print_report import (  # noqa: E402
+    PRINT_CSS,
     StaticPrintParser,
     apply_branding,
     apply_date_display,
@@ -20,6 +21,10 @@ from build_print_report import (  # noqa: E402
 
 
 class StaticPrintParserTests(unittest.TestCase):
+    def test_print_surface_is_not_labeled_as_data_analytics(self) -> None:
+        self.assertIn(".portable-surface-label{display:none !important}", PRINT_CSS)
+        self.assertIn(".portable-markdown li{break-inside:avoid}", PRINT_CSS)
+
     def test_flattens_compiler_figure_srcdoc_without_executable_markup(self) -> None:
         srcdoc = (
             '<!doctype html><html><body><style>.report-figure{color:red}</style>'
