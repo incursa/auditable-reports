@@ -191,7 +191,7 @@ PRINT_CSS = r"""
 }
 html,body{background:#fff !important;color:#111 !important}
 body{position:relative;padding:0;font-size:10pt;line-height:1.38;orphans:3;widows:3}
-.report-watermark{position:fixed;right:.25in;bottom:.38in;width:.58in;height:.58in;opacity:.075;z-index:0;pointer-events:none}
+.report-watermark{position:fixed;left:.25in;bottom:.34in;width:.76in;height:auto;opacity:.14;z-index:0;pointer-events:none}
 .portable-fallback{display:block !important;width:100% !important;max-width:none !important;margin:0 !important;padding:0 !important}
 .portable-page-header{position:relative !important;display:block !important;width:auto !important;height:auto !important;min-height:0 !important;margin:0 0 11pt !important;padding:0 1.3in 8pt 0 !important;border-bottom:2pt solid #1d4e89 !important;background:#fff !important}
 .report-wordmark{position:absolute;right:0;top:0;width:1.02in;height:auto;opacity:.94}
@@ -352,12 +352,11 @@ def apply_branding(
     mark_path: Path,
     brand_name: str,
 ) -> str:
-    """Add a local wordmark and quiet mark watermark to print output."""
+    """Add a local wordmark header and a quiet wordmark footer watermark."""
 
     wordmark = escape(asset_data_uri(wordmark_path), quote=True)
-    mark = escape(asset_data_uri(mark_path), quote=True)
     watermark = (
-        f'<img class="report-watermark" src="{mark}" alt="" aria-hidden="true">'
+        f'<img class="report-watermark" src="{wordmark}" alt="" aria-hidden="true">'
     )
     branded = re.sub(
         r'(<main id="data-analytics-portable-fallback"[^>]*>)',
@@ -467,11 +466,7 @@ def main() -> int:
         line for line in style_match.group(1).splitlines() if "source-tooltip" not in line
     )
     title = unescape(title_match.group(1).strip()) if title_match else "Printable report"
-    footer_rule = (
-        f'  @bottom-left{{content:{json.dumps(args.brand_name)};color:#68727d;font-size:7.5pt;letter-spacing:.04em}}\n'
-        if branding_enabled
-        else ""
-    )
+    footer_rule = ""
     page_rule = f"""
 @page{{
   size:{config.css_size};

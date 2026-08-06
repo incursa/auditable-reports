@@ -24,6 +24,7 @@ class StaticPrintParserTests(unittest.TestCase):
     def test_print_surface_is_not_labeled_as_data_analytics(self) -> None:
         self.assertIn(".portable-surface-label{display:none !important}", PRINT_CSS)
         self.assertIn(".portable-markdown li{break-inside:avoid}", PRINT_CSS)
+        self.assertIn(".report-watermark{position:fixed;left:.25in", PRINT_CSS)
 
     def test_flattens_compiler_figure_srcdoc_without_executable_markup(self) -> None:
         srcdoc = (
