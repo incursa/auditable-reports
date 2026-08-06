@@ -3,6 +3,7 @@ from __future__ import annotations
 from html import escape
 from pathlib import Path
 import sys
+import tempfile
 import unittest
 
 
@@ -10,7 +11,12 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 SCRIPT_ROOT = REPO_ROOT / "skill" / "create-auditable-reports" / "scripts"
 sys.path.insert(0, str(SCRIPT_ROOT))
 
-from build_print_report import StaticPrintParser, apply_date_display, table_layout_css  # noqa: E402
+from build_print_report import (  # noqa: E402
+    StaticPrintParser,
+    apply_branding,
+    apply_date_display,
+    table_layout_css,
+)
 
 
 class StaticPrintParserTests(unittest.TestCase):
@@ -72,3 +78,25 @@ class StaticPrintParserTests(unittest.TestCase):
         self.assertIn('data-artifact-block-id="decisions"', css)
         self.assertIn("nth-child(2)", css)
         self.assertIn("table-layout:fixed", css)
+
+    def test_branding_embeds_only_local_assets(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            wordmark = root / "wordmark.svg"
+            mark = root / "mark.svg"
+            wordmark.write_text("<svg xmlns='http://www.w3.org/2000/svg'><text>Acme</text></svg>", encoding="utf-8")
+            mark.write_text("<svg xmlns='http://www.w3.org/2000/svg'><circle /></svg>", encoding="utf-8")
+            source = '<main id="data-analytics-portable-fallback"><header class="portable-page-header"></header></main>'
+
+            output = apply_branding(
+                source,
+                wordmark_path=wordmark,
+                mark_path=mark,
+                brand_name="Acme & Co",
+            )
+
+            self.assertIn("report-wordmark", output)
+            self.assertIn("report-watermark", output)
+            self.assertIn("alt=\"Acme &amp; Co\"", output)
+            self.assertIn("data:image/svg+xml;base64,", output)
+            self.assertNotIn("http://", output)

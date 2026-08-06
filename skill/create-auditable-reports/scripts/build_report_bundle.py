@@ -6,6 +6,7 @@ from pathlib import Path
 import re
 import subprocess
 import sys
+import time
 
 from report_config import (
     DATE_DISPLAYS,
@@ -17,16 +18,24 @@ from report_config import (
 )
 
 
-def run(script: Path, *arguments: str) -> str:
+def run(script: Path, *arguments: str, retries: int = 1) -> str:
     command = [sys.executable, str(script), *arguments]
-    completed = subprocess.run(command, check=False, text=True, capture_output=True)
-    if completed.stdout:
-        print(completed.stdout, end="")
-    if completed.stderr:
-        print(completed.stderr, end="", file=sys.stderr)
-    if completed.returncode:
-        raise RuntimeError(f"Report build stage failed: {script.name}")
-    return completed.stdout
+    attempts = max(1, retries)
+    for attempt in range(1, attempts + 1):
+        completed = subprocess.run(command, check=False, text=True, capture_output=True)
+        if completed.stdout:
+            print(completed.stdout, end="")
+        if completed.stderr:
+            print(completed.stderr, end="", file=sys.stderr)
+        if completed.returncode == 0:
+            return completed.stdout
+        if attempt < attempts:
+            print(
+                f"Build attempt {attempt} failed for {script.name}; retrying ({attempt + 1}/{attempts}).",
+                file=sys.stderr,
+            )
+            time.sleep(min(0.5 * attempt, 2.0))
+    raise RuntimeError(f"Report build stage failed: {script.name}")
 
 
 def main() -> int:
@@ -36,12 +45,28 @@ def main() -> int:
     parser.add_argument("--input", required=True, help="Input .report.md file")
     parser.add_argument("--output-dir", required=True, help="Directory for generated outputs")
     parser.add_argument("--browser", help="Path to Chrome or Chromium")
+    parser.add_argument(
+        "--retries",
+        type=int,
+        default=3,
+        help="Attempts for browser-controlled stages after a transient failure (default: 3)",
+    )
     parser.add_argument("--orientation", choices=tuple(sorted(ORIENTATIONS)))
     parser.add_argument("--page-size", choices=tuple(PAGE_SIZES_INCHES))
     parser.add_argument("--pdf-name", help="Final PDF file name")
     parser.add_argument("--source-display", choices=tuple(sorted(SOURCE_DISPLAYS)))
     parser.add_argument("--date-display", choices=tuple(sorted(DATE_DISPLAYS)))
+    parser.add_argument(
+        "--brand-root",
+        help="Directory containing local wordmark.svg and mark.svg (or incursa-* equivalents)",
+    )
+    parser.add_argument("--brand-wordmark", help="Explicit local wordmark SVG path")
+    parser.add_argument("--brand-mark", help="Explicit local mark SVG path")
+    parser.add_argument("--brand-name", default="Incursa", help="Accessible brand name used in print output")
+    parser.add_argument("--no-branding", action="store_true", help="Omit local print branding")
     args = parser.parse_args()
+    if args.retries < 1:
+        parser.error("--retries must be at least 1")
 
     source = Path(args.input).expanduser().resolve()
     output_dir = Path(args.output_dir).expanduser().resolve()
@@ -93,9 +118,15 @@ def main() -> int:
     paged_report = output_dir / f"{stem}_paged.html"
     pdf_report = output_dir / config.pdf_name
 
-    run(scripts / "render_report.py", "--artifact", str(artifact), "--output", str(report))
     run(
-        scripts / "build_print_report.py",
+        scripts / "render_report.py",
+        "--artifact",
+        str(artifact),
+        "--output",
+        str(report),
+        retries=args.retries,
+    )
+    build_print_args = [
         "--input",
         str(report),
         "--output",
@@ -110,8 +141,18 @@ def main() -> int:
         config.source_display,
         "--date-display",
         config.date_display,
-    )
-
+    ]
+    if args.brand_root:
+        build_print_args.extend(["--brand-root", str(Path(args.brand_root).expanduser().resolve())])
+    if args.brand_wordmark:
+        build_print_args.extend(["--brand-wordmark", str(Path(args.brand_wordmark).expanduser().resolve())])
+    if args.brand_mark:
+        build_print_args.extend(["--brand-mark", str(Path(args.brand_mark).expanduser().resolve())])
+    if args.brand_name:
+        build_print_args.extend(["--brand-name", args.brand_name])
+    if args.no_branding:
+        build_print_args.append("--no-branding")
+    run(scripts / "build_print_report.py", *build_print_args)
     pagination_source = print_report
     browser_args = ["--browser", str(Path(args.browser).expanduser().resolve())] if args.browser else []
     if artifact_value.get("manifest", {}).get("charts"):
@@ -124,6 +165,7 @@ def main() -> int:
             "--output",
             str(charted_report),
             *browser_args,
+            retries=args.retries,
         )
         pagination_source = charted_report
 
@@ -136,6 +178,7 @@ def main() -> int:
         "--artifact",
         str(artifact),
         *browser_args,
+        retries=args.retries,
     )
     pdf_stdout = run(
         scripts / "render_paged_output.py",
@@ -146,6 +189,7 @@ def main() -> int:
         "--artifact",
         str(artifact),
         *browser_args,
+        retries=args.retries,
     )
     actual_pdf = pdf_report
     result_match = re.search(r"^PAGED_OUTPUT_RESULT=(\{.*\})$", pdf_stdout, flags=re.M)

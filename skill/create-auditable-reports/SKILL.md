@@ -28,7 +28,7 @@ When the Data Analytics plugin is available, use its focused analysis skill firs
 
 ## Author the report
 
-For a standard report, write `report.report.md` plus its `report.data.json` sidecar. For a decision brief, write `stakeholder-report.md` plus `evidence-package.json`; the evidence package remains complete even when the stakeholder edition hides sources or omits charts. Use ordinary Markdown for prose and code. Use only the standard metrics, optional bar/pie chart, semantic table, and figure directives. Compile before rendering:
+For a standard report, write `report.report.md` plus its `report.data.json` sidecar. For a decision brief, write `stakeholder-report.md` plus `evidence-package.json`; the evidence package remains complete even when the stakeholder edition hides sources or omits charts. Use ordinary Markdown for prose and code. Use only the standard metrics, optional bar/line/pie/scatter chart, semantic table, and figure directives. Compile before rendering:
 
 ```powershell
 py scripts/compile_report.py --input path\to\report.report.md --output path\to\artifact.json
@@ -63,7 +63,7 @@ Prefer the complete bundle command for printable work:
 py scripts/build_report_bundle.py --input path\to\report.report.md --output-dir path\to\output
 ```
 
-It compiles, renders, produces a script-free print source, materializes charts only when present, creates paginated HTML on every run, and writes the PDF atomically. Front matter controls the safe print profile; `--orientation`, `--page-size`, `--pdf-name`, `--source-display`, and `--date-display` override it. If the requested PDF is locked, the build preserves it and writes a clearly named `.locked-<timestamp>.pdf` fallback.
+It compiles, renders, produces a script-free print source, materializes charts only when present, creates paginated HTML on every run, and writes the PDF atomically. Front matter controls the safe print profile; `--orientation`, `--page-size`, `--pdf-name`, `--source-display`, and `--date-display` override it. Pass `--brand-root` or explicit local SVG paths for repeatable print branding, or `--no-branding` for a neutral edition. Browser-controlled stages retry transient failures three times by default; tune with `--retries`. If the requested PDF is locked, the build preserves it and writes a clearly named `.locked-<timestamp>.pdf` fallback.
 
 Use the individual stages only for diagnosis. Pass `--artifact` to print and pagination stages so semantic widths and page-level checks remain active.
 

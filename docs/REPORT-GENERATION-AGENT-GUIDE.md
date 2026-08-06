@@ -605,6 +605,9 @@ The bundle command compiles, renders interactive HTML, creates script-free print
 HTML, materializes supported charts when present, always paginates HTML, and
 creates PDF. It accepts `--orientation`, `--page-size`, `--pdf-name`,
 `--source-display`, and `--date-display`; CLI values override front matter.
+Use `--brand-root` or explicit local SVG paths for repeatable print branding,
+`--no-branding` for a neutral edition, and `--retries` to control retries for
+browser-controlled stages after transient failures.
 Named page sizes compile to explicit dimensions, and the resulting PDF
 `MediaBox` is checked. Final PDF replacement is atomic; if the requested file
 is locked, the command writes a timestamped `.locked-*.pdf` fallback.
@@ -745,13 +748,13 @@ These constraints keep reports predictable, auditable, printable, and safe.
 
 These gaps may matter for complicated reports.
 
-### 1. DSL chart coverage is narrower than the artifact and print adapter
+### 1. DSL chart coverage is intentionally bounded
 
-The DSL supports only `bar` and `pie`. Direct artifact authoring and the
-Chart.js print adapter also understand initial `line` and `scatter` forms.
-
-Likely extension: add constrained line and scatter directives with explicit
-minimum data-density rules, fixtures, compiler validation, and print QA.
+The DSL supports constrained `bar`, `line`, `pie`, and `scatter` charts. Line
+charts are limited to one ordered series with unique x-axis values, and
+scatter charts require numeric x and y fields. The Chart.js print adapter uses
+the same four forms. Multi-series, stacked, waterfall, distribution, and
+matrix visuals remain out of scope.
 
 ### 2. No multi-series, grouped, stacked, waterfall, distribution, or matrix visuals
 

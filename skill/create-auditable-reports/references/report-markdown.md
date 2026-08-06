@@ -99,7 +99,7 @@ metric: forecast_variance | Forecast variance | currency | Forecast less approve
 
 Use 1–6 metrics. Each `metric` line is `field | label | format | optional description | optional signed`. Formats are `number`, `currency`, or `percent`.
 
-## Bar chart
+## Bar, line, and scatter charts
 
 ```markdown
 ::: chart
@@ -117,7 +117,39 @@ format: currency
 :::
 ```
 
-Bar charts accept 2–12 prepared rows. The compiler supplies the layout and styling; authors cannot set colors, axes, legends, or arbitrary Chart.js options.
+Bar charts accept 2–12 prepared rows. Line charts accept 2–24 unique x-axis values and are intended for a single ordered series. Scatter charts accept 2–50 rows and require numeric `category` and `value` fields. The compiler supplies the layout and styling; authors cannot set colors, axes, legends, or arbitrary Chart.js options.
+
+Use `type: line` for a trend over an ordered category or date label, and `type: scatter` for a numeric relationship:
+
+```markdown
+::: chart
+id: quality_trend
+type: line
+title: Validation rate over review periods
+dataset: quality_by_period
+source: validation_review
+category: period
+value: validation_rate
+category-label: Review period
+value-label: Validation rate
+format: percent
+:::
+```
+
+```markdown
+::: chart
+id: conversion_relationship
+type: scatter
+title: Source volume and exception count
+dataset: conversion_observations
+source: conversion_review
+category: source_rows
+value: exception_count
+category-label: Source rows
+value-label: Exceptions
+format: number
+:::
+```
 
 ## Pie chart
 

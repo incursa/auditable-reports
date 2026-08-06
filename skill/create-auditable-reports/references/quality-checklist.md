@@ -44,7 +44,7 @@
 ## Output
 
 - Standard reports compile from `.report.md` and `report.data.json`; advanced direct-artifact authoring is intentional and disclosed.
-- Report Markdown uses only the documented metrics, bar/pie chart, table, and figure directives and stays within their hard limits.
+- Report Markdown uses only the documented metrics, bar/line/pie/scatter chart, table, and figure directives and stays within their hard limits.
 - `artifact.json` validates and is preserved beside the report.
 - The interactive HTML is self-contained and not edited by hand.
 - Renderer verification is `passed` or the `structural_only` limitation is disclosed.

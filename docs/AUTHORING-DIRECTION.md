@@ -18,7 +18,7 @@ quarterly-health/
     report.pdf            print handoff
 ```
 
-Markdown owns headings, prose, lists, links, blockquotes, and fenced code. Four directives place metric strips, bar/pie charts, tables, and figures. The JSON sidecar owns prepared rows and canonical source metadata.
+Markdown owns headings, prose, lists, links, blockquotes, and fenced code. Four directives place metric strips, bar/line/pie/scatter charts, tables, and figures. The JSON sidecar owns prepared rows and canonical source metadata.
 
 An optional `document-type` selects an opening profile: `report` uses `Executive Summary`, `technical` uses `Technical Summary`, `lesson` uses `Lesson Overview`, `journal` uses `Entry Summary`, and `decision-brief` uses `Executive Summary` followed by `Immediate Direction`. The decision-brief profile also owns safe stakeholder-edition defaults; all profiles share the same renderer and constrained blocks.
 
@@ -30,7 +30,7 @@ The complete v0.1 syntax and limits are in `skill/create-auditable-reports/refer
 
 The language is a report outline, not a web framework. It has no arbitrary HTML, JavaScript, CSS, columns, dashboards, themes, component plug-ins, or raw Chart.js configuration. Authors choose the evidence and reading order; the compiler and renderers choose the safe layout.
 
-Hard limits are part of the language: six metrics, twelve bars, six pie slices, eight table columns, fifty table rows, and five megabytes per embedded figure. Reports that exceed them should pre-aggregate, split a table, or use a separate audit attachment.
+Hard limits are part of the language: six metrics, twelve bar items, twenty-four line points, fifty scatter points, six pie slices, eight table columns, fifty table rows, and five megabytes per embedded figure. Reports that exceed them should pre-aggregate, split a table, or use a separate audit attachment.
 
 ## Evolution rule
 

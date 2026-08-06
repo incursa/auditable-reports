@@ -24,6 +24,13 @@ const COMPATIBILITY_STYLE = [
   "</style>",
 ].join("");
 
+const CHART_BROWSER_FALLBACK_CODES = new Set([
+  "browser_environment_mismatch",
+  "browser_timeout",
+  "reader_timeout",
+  "verification_timeout",
+]);
+
 function parseArguments(argv) {
   const options = {};
   for (let index = 0; index < argv.length; index += 2) {
@@ -48,6 +55,22 @@ function positiveNumber(value, label) {
   return number;
 }
 
+function createBrowserSafeExtractor(extract) {
+  return async (options) => {
+    try {
+      return await extract(options);
+    } catch (error) {
+      if (!CHART_BROWSER_FALLBACK_CODES.has(error?.code)) throw error;
+      const fallback = new Error(
+        `Chart browser could not materialize static visuals (${error.code}); preserving semantic chart data.`,
+      );
+      fallback.code = "browser_unavailable";
+      fallback.details = { originalCode: error.code, originalMessage: error.message };
+      throw fallback;
+    }
+  };
+}
+
 export function addRendererCompatibilityStyle(html) {
   const insertion = html.lastIndexOf("</head>");
   if (insertion < 0) throw new Error("Portable renderer output has no closing head element.");
@@ -63,6 +86,9 @@ export async function run(argv = process.argv.slice(2)) {
   const buildModule = await import(
     pathToFileURL(resolve(rendererScripts, "build_portable_artifact.mjs")).href
   );
+  const extractModule = await import(
+    pathToFileURL(resolve(rendererScripts, "extract_portable_chart_svgs.mjs")).href
+  );
 
   const build = (artifact, buildOptions) =>
     addRendererCompatibilityStyle(buildModule.buildPortableArtifact(artifact, buildOptions));
@@ -74,7 +100,7 @@ export async function run(argv = process.argv.slice(2)) {
       readyTimeoutMs: positiveNumber(options["ready-timeout-ms"], "--ready-timeout-ms"),
       timeoutMs: positiveNumber(options["timeout-ms"], "--timeout-ms"),
     },
-    { build },
+    { build, extract: createBrowserSafeExtractor(extractModule.extractPortableChartSvgs) },
   );
   result.compatibilityAdapter = "viewport-scrollbar";
   process.stdout.write(`${JSON.stringify(result)}\n`);

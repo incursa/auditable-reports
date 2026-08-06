@@ -47,6 +47,37 @@ class CompileReportTests(unittest.TestCase):
         with self.assertRaisesRegex(DslError, "1 to 8 column"):
             compile_report(self.root / "report.report.md")
 
+    def test_supports_bounded_line_and_scatter_charts(self) -> None:
+        source = self.source().replace("type: bar", "type: line", 1)
+        scatter = """
+::: chart
+id: budget_by_variance
+type: scatter
+title: Budget by variance
+dataset: projects
+source: delivery_snapshot
+category: variance
+value: budget
+category-label: Forecast variance
+value-label: Approved budget
+format: currency
+:::
+"""
+        source = source.replace("## Central holds the largest budget share", scatter + "\n## Central holds the largest budget share")
+        self.write_source(source)
+
+        artifact = compile_report(self.root / "report.report.md")
+
+        self.assertEqual(["line", "scatter", "pie"], [chart["type"] for chart in artifact["manifest"]["charts"]])
+        scatter_chart = artifact["manifest"]["charts"][1]
+        self.assertEqual("quantitative", scatter_chart["encodings"]["x"]["type"])
+
+    def test_rejects_non_numeric_scatter_x_values(self) -> None:
+        source = self.source().replace("type: bar", "type: scatter", 1)
+        self.write_source(source)
+        with self.assertRaisesRegex(DslError, "must be numeric"):
+            compile_report(self.root / "report.report.md")
+
     def test_rejects_unsafe_figure_path(self) -> None:
         self.write_source(self.source().replace("path: review-state.svg", "path: ../review-state.svg"))
         with self.assertRaisesRegex(DslError, "may not contain"):

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import base64
 from html import escape, unescape
 from html.parser import HTMLParser
 import json
@@ -189,31 +190,33 @@ PRINT_CSS = r"""
   --portable-table-text:#29313a !important; --portable-border:rgba(17,17,17,.14) !important;
 }
 html,body{background:#fff !important;color:#111 !important}
-body{padding:0;font-size:9.5pt;line-height:1.34;orphans:3;widows:3}
+body{position:relative;padding:0;font-size:10pt;line-height:1.38;orphans:3;widows:3}
+.report-watermark{position:fixed;right:.25in;bottom:.38in;width:.58in;height:.58in;opacity:.075;z-index:0;pointer-events:none}
 .portable-fallback{display:block !important;width:100% !important;max-width:none !important;margin:0 !important;padding:0 !important}
-.portable-page-header{position:static !important;display:block !important;width:auto !important;height:auto !important;min-height:0 !important;margin:0 0 10pt !important;padding:0 0 7pt !important;border-bottom:1.5pt solid #1d4e89 !important;background:#fff !important}
+.portable-page-header{position:relative !important;display:block !important;width:auto !important;height:auto !important;min-height:0 !important;margin:0 0 11pt !important;padding:0 1.3in 8pt 0 !important;border-bottom:2pt solid #1d4e89 !important;background:#fff !important}
+.report-wordmark{position:absolute;right:0;top:0;width:1.02in;height:auto;opacity:.94}
 .portable-page-header h1{margin:0 0 4pt !important;overflow:visible !important;color:#17365d !important;font-size:19pt !important;font-weight:650 !important;line-height:1.15 !important;white-space:normal !important}
 .portable-page-meta{display:flex !important;align-items:center !important;flex-direction:row !important;gap:8pt !important;margin-top:5pt;color:#5b6570 !important;font-size:8pt !important}
 .portable-description,.portable-surface-label,.portable-card-description{display:block !important}
 .portable-surface-label{margin:0 0 3pt;color:#68727d;font-size:8pt;text-transform:uppercase;letter-spacing:.08em}
 .portable-description{max-width:none;margin:0;color:#3f4852;font-size:9pt}
 .portable-block-stack{display:block !important;width:100% !important;max-width:none !important;margin:0 !important}
-.portable-block{margin:0 0 9pt}.portable-markdown{max-width:none !important}
+.portable-block{margin:0 0 10pt}.portable-markdown{max-width:none !important}
 .portable-block[data-artifact-block-type="markdown"]{break-inside:auto}
 .portable-block[data-artifact-block-id="immediate_direction"]{margin:2pt 0 10pt;padding:8pt 10pt;border-left:4pt solid #1d4e89;background:#eef4fa;break-inside:avoid}
 .portable-block[data-artifact-block-id="immediate_direction"] h2{font-size:11pt !important;text-transform:uppercase;letter-spacing:.035em}
 .portable-markdown h2,.portable-content-card h2{margin:0 0 4pt !important;color:#17365d !important;font-size:12.5pt !important;font-weight:650 !important;break-after:avoid !important;page-break-after:avoid !important}
 .portable-markdown h3,.portable-visual-header{break-after:avoid !important;page-break-after:avoid !important}
-.portable-markdown p,.portable-markdown ul,.portable-markdown ol{margin-top:2pt;margin-bottom:4pt}.portable-markdown li+li{margin-top:1.5pt}.portable-markdown blockquote{margin:5pt 0;padding-left:9pt}
+.portable-markdown p,.portable-markdown ul,.portable-markdown ol{margin-top:2.5pt;margin-bottom:5pt}.portable-markdown li+li{margin-top:2pt}.portable-markdown blockquote{margin:6pt 0;padding:7pt 10pt;border-left:4pt solid #9fb4c8;background:#f6f8fb}
 .portable-metric-grid{grid-template-columns:repeat(4,minmax(0,1fr)) !important;gap:7pt !important}
 .portable-metric-card{min-height:58pt;padding:8pt !important;border:1px solid #cfd5dc !important;border-radius:7pt !important;background:#fff !important;break-inside:avoid}
 .portable-metric-label{font-size:8.5pt !important;line-height:1.2 !important}.portable-metric-value{font-size:16pt !important;line-height:1.1 !important}.portable-metric-badge{font-size:7.5pt !important;line-height:1.2 !important}
 .portable-content-card{padding:0 !important;break-inside:auto !important}.portable-visual-header{margin-bottom:5pt !important}
 .portable-content-card.portable-table-card{break-inside:avoid !important}
 .portable-static-chart{max-width:9.8in;margin:0 auto !important;overflow:visible !important}.portable-static-chart svg{width:100% !important;max-height:4.7in}.portable-static-chart-dark{display:none !important}.portable-static-chart-light{display:block !important}
-.portable-table-scroll{width:100% !important;min-width:0 !important;max-width:100% !important;overflow:visible !important;border:0 !important}.portable-table-scroll table{width:100% !important;min-width:100% !important;max-width:100% !important;table-layout:fixed !important}.portable-table-scroll thead{display:table-header-group}.portable-table-scroll tr{break-inside:avoid}
-.portable-table-scroll th{position:static !important;max-width:0 !important;padding:3.5pt 5pt !important;border-bottom:1px solid #aeb7c2 !important;background:#eaf0f6 !important;color:#26384d !important;font-size:7pt !important;line-height:1.15 !important;white-space:normal !important;overflow-wrap:anywhere !important}
-.portable-table-scroll td{max-width:0 !important;padding:3.5pt 5pt !important;border-bottom:1px solid #d9dee4 !important;color:#29313a !important;font-size:7.2pt !important;line-height:1.18 !important;white-space:normal !important;overflow-wrap:anywhere}.portable-table-scroll td.portable-table-number{white-space:nowrap !important;overflow-wrap:normal}
+.portable-table-scroll{width:100% !important;min-width:0 !important;max-width:100% !important;overflow:hidden !important;border:1.25pt solid #c9d2dd !important;border-radius:5pt !important}.portable-table-scroll table{width:100% !important;min-width:100% !important;max-width:100% !important;table-layout:fixed !important}.portable-table-scroll thead{display:table-header-group}.portable-table-scroll tr{break-inside:avoid}
+.portable-table-scroll th{position:static !important;max-width:0 !important;padding:4.5pt 6pt !important;border-bottom:1.5pt solid #aeb7c2 !important;background:#eef3f8 !important;color:#26384d !important;font-size:7.5pt !important;line-height:1.18 !important;white-space:normal !important;overflow-wrap:anywhere !important}
+.portable-table-scroll td{max-width:0 !important;padding:4.5pt 6pt !important;border-bottom:.75pt solid #d9dee4 !important;color:#29313a !important;font-size:7.8pt !important;line-height:1.22 !important;white-space:normal !important;overflow-wrap:anywhere}.portable-table-scroll td.portable-table-number{white-space:nowrap !important;overflow-wrap:normal}
 .portable-table-note{margin-top:4pt !important;font-size:7.5pt !important}
 .portable-sources{display:block !important;margin-top:9pt !important;padding-top:7pt !important;border-top:1px solid #aeb7c2 !important;break-before:auto}.portable-sources h2{margin:0 0 4pt;color:#17365d;font-size:12.5pt;break-after:avoid !important}.portable-sources ol{display:block !important;columns:2 3.2in;column-gap:18pt;margin:0}.portable-sources li{break-inside:avoid;margin:0 0 2pt}.portable-sources p{margin:0 !important;font-size:7.4pt}.portable-source-meta{font-size:7pt !important}
 .report-figure{margin:0;break-inside:avoid}.report-figure img{display:block;width:auto;max-width:100%;max-height:3.15in;margin:0 auto;border:1px solid #cfd5dc;border-radius:7pt;object-fit:contain}.report-figure figcaption{margin-top:4pt;color:#4c5560;font-size:7.5pt}.report-figure figcaption span{display:block;color:#68727d}
@@ -297,6 +300,81 @@ def apply_date_display(main_html: str, date_display: str) -> str:
     return main_html
 
 
+DEFAULT_BRAND_ASSET_ROOT = Path(__file__).resolve().parents[3] / "reports" / "incursa-consulting" / "assets"
+
+
+def asset_data_uri(path: Path) -> str:
+    """Embed an approved local SVG so print output is self-contained."""
+    encoded = base64.b64encode(path.read_bytes()).decode("ascii")
+    return f"data:image/svg+xml;base64,{encoded}"
+
+
+def resolve_brand_assets(
+    brand_root: Path | None,
+    wordmark: Path | None,
+    mark: Path | None,
+) -> tuple[Path, Path] | None:
+    """Resolve a brand wordmark and mark without allowing remote assets."""
+    if wordmark or mark:
+        if not wordmark or not mark:
+            raise ValueError("--brand-wordmark and --brand-mark must be supplied together")
+        candidates = (wordmark.expanduser().resolve(), mark.expanduser().resolve())
+    else:
+        root = (brand_root or DEFAULT_BRAND_ASSET_ROOT).expanduser().resolve()
+        candidates = (
+            next(
+                (
+                    candidate
+                    for candidate in (root / "wordmark.svg", root / "incursa-wordmark.svg")
+                    if candidate.is_file()
+                ),
+                root / "wordmark.svg",
+            ),
+            next(
+                (
+                    candidate
+                    for candidate in (root / "mark.svg", root / "incursa-mark.svg")
+                    if candidate.is_file()
+                ),
+                root / "mark.svg",
+            ),
+        )
+    if not all(path.is_file() for path in candidates):
+        return None
+    return candidates
+
+
+def apply_branding(
+    main_html: str,
+    *,
+    wordmark_path: Path,
+    mark_path: Path,
+    brand_name: str,
+) -> str:
+    """Add a local wordmark and quiet mark watermark to print output."""
+
+    wordmark = escape(asset_data_uri(wordmark_path), quote=True)
+    mark = escape(asset_data_uri(mark_path), quote=True)
+    watermark = (
+        f'<img class="report-watermark" src="{mark}" alt="" aria-hidden="true">'
+    )
+    branded = re.sub(
+        r'(<main id="data-analytics-portable-fallback"[^>]*>)',
+        rf'\1{watermark}',
+        main_html,
+        count=1,
+        flags=re.I,
+    )
+    branded = re.sub(
+        r'(<header class="portable-page-header"[^>]*>)',
+        rf'\1<img class="report-wordmark" src="{wordmark}" alt="{escape(brand_name, quote=True)}">',
+        branded,
+        count=1,
+        flags=re.I,
+    )
+    return branded
+
+
 def main() -> int:
     cli = argparse.ArgumentParser(description="Create a script-free printable report page.")
     cli.add_argument("--input", required=True, help="Generated interactive report.html")
@@ -306,6 +384,14 @@ def main() -> int:
     cli.add_argument("--orientation", choices=tuple(sorted(ORIENTATIONS)))
     cli.add_argument("--source-display", choices=tuple(sorted(SOURCE_DISPLAYS)))
     cli.add_argument("--date-display", choices=tuple(sorted(DATE_DISPLAYS)))
+    cli.add_argument(
+        "--brand-root",
+        help="Directory containing local wordmark.svg and mark.svg (or incursa-* equivalents)",
+    )
+    cli.add_argument("--brand-wordmark", help="Explicit local wordmark SVG path")
+    cli.add_argument("--brand-mark", help="Explicit local mark SVG path")
+    cli.add_argument("--brand-name", default="Incursa", help="Accessible brand name used in the header and footer")
+    cli.add_argument("--no-branding", action="store_true", help="Omit local wordmark, watermark, and branded footer")
     args = cli.parse_args()
 
     source_path = Path(args.input).expanduser().resolve()
@@ -350,6 +436,24 @@ def main() -> int:
     parser.feed(main_match.group(1))
     parser.close()
     main_html = apply_date_display("".join(parser.parts), config.date_display)
+    branding_enabled = False
+    if not args.no_branding:
+        try:
+            brand_assets = resolve_brand_assets(
+                Path(args.brand_root) if args.brand_root else None,
+                Path(args.brand_wordmark) if args.brand_wordmark else None,
+                Path(args.brand_mark) if args.brand_mark else None,
+            )
+        except ValueError as exc:
+            cli.error(str(exc))
+        if brand_assets:
+            main_html = apply_branding(
+                main_html,
+                wordmark_path=brand_assets[0],
+                mark_path=brand_assets[1],
+                brand_name=args.brand_name,
+            )
+            branding_enabled = True
     if config.document_type == "decision-brief":
         main_html = re.sub(
             r'(<p class="portable-surface-label"[^>]*>).*?(</p>)',
@@ -362,11 +466,17 @@ def main() -> int:
         line for line in style_match.group(1).splitlines() if "source-tooltip" not in line
     )
     title = unescape(title_match.group(1).strip()) if title_match else "Printable report"
+    footer_rule = (
+        f'  @bottom-left{{content:{json.dumps(args.brand_name)};color:#68727d;font-size:7.5pt;letter-spacing:.04em}}\n'
+        if branding_enabled
+        else ""
+    )
     page_rule = f"""
 @page{{
   size:{config.css_size};
-  margin:.50in .42in .55in;
+  margin:.62in .56in .64in;
   @top-left{{content:string(report-title);color:#5b6570;font-size:8pt}}
+{footer_rule}
   @bottom-right{{content:"Page " counter(page) " of " counter(pages);color:#5b6570;font-size:8pt}}
 }}
 @page:first{{@top-left{{content:none}}}}

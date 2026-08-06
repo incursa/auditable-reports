@@ -85,7 +85,7 @@ cd .work\contract-mobilization
 .\rebuild-report.ps1
 ```
 
-Print settings normally live in front matter. The bundle command also accepts `--orientation`, `--page-size`, `--pdf-name`, `--source-display`, and `--date-display` overrides. It emits explicit page dimensions, validates PDF `MediaBox` values, always creates paginated HTML, and uses atomic replacement with a named fallback when the requested PDF is locked.
+Print settings normally live in front matter. The bundle command also accepts `--orientation`, `--page-size`, `--pdf-name`, `--source-display`, and `--date-display` overrides. For repeatable print branding, pass `--brand-root` (a local directory containing `wordmark.svg` and `mark.svg`) or explicit `--brand-wordmark` and `--brand-mark` paths; use `--no-branding` for a neutral edition. Browser-controlled stages retry transient failures three times by default; tune with `--retries`. It emits explicit page dimensions, validates PDF `MediaBox` values, always creates paginated HTML, and uses atomic replacement with a named fallback when the requested PDF is locked.
 
 Build the five synthetic lesson, project-report, journal, incident-review, and decision-brief fixtures together:
 
@@ -123,7 +123,7 @@ py skill\create-auditable-reports\scripts\render_paged_output.py `
   --output .work\quarterly-delivery-health\report.pdf
 ```
 
-The Chart.js stage supports the initial `bar`, `line`, `pie`, and `scatter` artifact forms and leaves the exact-value semantic table beside every embedded chart. If a report has no charts, pass `report_print.html` directly to Paged.js. The same pagination command creates a browser preview when the output ends in `.html`. Both browser-controlled stages use installed Chrome or Edge and block remote requests by default.
+The Chart.js stage supports the constrained `bar`, `line`, `pie`, and `scatter` forms and leaves the exact-value semantic table beside every embedded chart. The Report Markdown compiler exposes all four with bounded row counts and numeric validation for scatter x-values. If a report has no charts, pass `report_print.html` directly to Paged.js. The same pagination command creates a browser preview when the output ends in `.html`. Both browser-controlled stages use installed Chrome or Edge and block remote requests by default.
 
 ## Current boundaries
 
@@ -132,6 +132,6 @@ The Chart.js stage supports the initial `bar`, `line`, `pie`, and `scatter` arti
 - Paged.js 0.4.3 is the pinned print-pagination engine; it does not replace the interactive renderer or canonical artifact.
 - The project-health fixture is synthetic and must never be presented as operational evidence.
 - The artifact contract is documented but does not yet have a versioned JSON Schema.
-- Report Markdown v0.1 is intentionally constrained to ordinary Markdown plus metrics, optional bar/pie charts, semantic tables, and figure directives.
+- Report Markdown v0.1 is intentionally constrained to ordinary Markdown plus metrics, optional bar/line/pie/scatter charts, semantic tables, and figure directives.
 - The repository is licensed under Apache-2.0. Third-party runtime packages
   retain their own licenses as recorded in `THIRD_PARTY_NOTICES.md`.

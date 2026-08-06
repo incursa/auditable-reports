@@ -11,7 +11,7 @@ The canonical artifact is auditable and renderer-friendly but too verbose for ro
 
 Adopt `.report.md` as a deterministic source language that compiles to the existing `artifact.json` contract.
 
-Ordinary Markdown owns narrative structure and fenced code. Flat front matter owns report metadata and points to one JSON sidecar containing reviewed datasets and sources. Four fenced directives place `metrics`, `chart`, `table`, and `figure` blocks. Version 0.1 supports only bar and pie charts.
+Ordinary Markdown owns narrative structure and fenced code. Flat front matter owns report metadata and points to one JSON sidecar containing reviewed datasets and sources. Four fenced directives place `metrics`, `chart`, `table`, and `figure` blocks. Version 0.1 supports bounded bar, line, pie, and scatter charts.
 
 Enforce fixed limits in the compiler: six metrics, twelve bars, six pie slices, eight table columns, fifty table rows, two hundred rows per artifact dataset, and five megabytes per embedded figure. Reject arbitrary HTML, JavaScript, CSS, chart options, and unsafe file paths.
 
