@@ -64,6 +64,9 @@ def main() -> int:
     parser.add_argument("--brand-mark", help="Explicit local mark SVG path")
     parser.add_argument("--brand-name", default="Incursa", help="Accessible brand name used in print output")
     parser.add_argument("--no-branding", action="store_true", help="Omit local print branding")
+    parser.add_argument("--font-root", help="Directory containing local Manrope and Fraunces font assets")
+    parser.add_argument("--font-body", default="Manrope", help="Bundled body font family")
+    parser.add_argument("--font-heading", default="Fraunces", help="Bundled heading font family")
     args = parser.parse_args()
     if args.retries < 1:
         parser.error("--retries must be at least 1")
@@ -152,6 +155,9 @@ def main() -> int:
         build_print_args.extend(["--brand-name", args.brand_name])
     if args.no_branding:
         build_print_args.append("--no-branding")
+    if args.font_root:
+        build_print_args.extend(["--font-root", str(Path(args.font_root).expanduser().resolve())])
+        build_print_args.extend(["--font-body", args.font_body, "--font-heading", args.font_heading])
     run(scripts / "build_print_report.py", *build_print_args)
     pagination_source = print_report
     browser_args = ["--browser", str(Path(args.browser).expanduser().resolve())] if args.browser else []

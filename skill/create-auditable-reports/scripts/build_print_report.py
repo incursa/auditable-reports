@@ -310,6 +310,49 @@ def asset_data_uri(path: Path) -> str:
     return f"data:image/svg+xml;base64,{encoded}"
 
 
+FONT_FILES = {
+    "Manrope": {
+        400: "manrope/Manrope[wght].ttf",
+        500: "manrope/Manrope[wght].ttf",
+        600: "manrope/Manrope[wght].ttf",
+    },
+    "Fraunces": {
+        600: "fraunces/Fraunces[SOFT,WONK,opsz,wght].ttf",
+        700: "fraunces/Fraunces[SOFT,WONK,opsz,wght].ttf",
+    },
+}
+
+
+def font_data_uri(path: Path) -> str:
+    encoded = base64.b64encode(path.read_bytes()).decode("ascii")
+    mime = "font/woff2" if path.suffix.lower() == ".woff2" else "font/ttf"
+    return f"data:{mime};base64,{encoded}"
+
+
+def build_font_css(font_root: Path | None, body_font: str, heading_font: str) -> str:
+    """Embed selected local font assets and apply the document type system."""
+    if font_root is None:
+        return ""
+    root = font_root.expanduser().resolve()
+    if body_font not in FONT_FILES or heading_font not in FONT_FILES:
+        raise ValueError(f"Unsupported document font pair: {body_font!r}/{heading_font!r}")
+    families = []
+    for family in dict.fromkeys((body_font, heading_font)):
+        for weight, relative in FONT_FILES[family].items():
+            path = root / relative
+            if not path.is_file():
+                raise FileNotFoundError(f"Bundled font asset not found: {path}")
+            families.append(
+                f'@font-face{{font-family:"{family}";font-style:normal;font-weight:{weight};'
+                f'font-display:swap;src:url("{font_data_uri(path)}") format("truetype")}}'
+            )
+    return "".join(families) + (
+        f'body,.portable-fallback{{font-family:"{body_font}",ui-sans-serif,system-ui,"Segoe UI",sans-serif !important}}'
+        f'h1,h2,h3,h4,h5,h6,.portable-page-header h1,.portable-markdown h2,.portable-content-card h2{{'
+        f'font-family:"{heading_font}",ui-serif,Georgia,"Times New Roman",serif !important}}'
+    )
+
+
 def resolve_brand_assets(
     brand_root: Path | None,
     wordmark: Path | None,
@@ -392,6 +435,9 @@ def main() -> int:
     cli.add_argument("--brand-mark", help="Explicit local mark SVG path")
     cli.add_argument("--brand-name", default="Incursa", help="Accessible brand name used in the header and footer")
     cli.add_argument("--no-branding", action="store_true", help="Omit local wordmark, watermark, and branded footer")
+    cli.add_argument("--font-root", help="Directory containing local Manrope and Fraunces font assets")
+    cli.add_argument("--font-body", default="Manrope", help="Bundled body font family")
+    cli.add_argument("--font-heading", default="Fraunces", help="Bundled heading font family")
     args = cli.parse_args()
 
     source_path = Path(args.input).expanduser().resolve()
@@ -465,6 +511,14 @@ def main() -> int:
     base_css = "\n".join(
         line for line in style_match.group(1).splitlines() if "source-tooltip" not in line
     )
+    try:
+        font_css = build_font_css(
+            Path(args.font_root) if args.font_root else None,
+            args.font_body,
+            args.font_heading,
+        )
+    except (FileNotFoundError, ValueError) as exc:
+        cli.error(str(exc))
     title = unescape(title_match.group(1).strip()) if title_match else "Printable report"
     footer_rule = ""
     page_rule = f"""
@@ -487,10 +541,10 @@ def main() -> int:
 <meta name="report-orientation" content="{escape(config.orientation)}" />
 <meta name="report-source-display" content="{escape(config.source_display)}" />
 <meta name="report-date-display" content="{escape(config.date_display)}" />
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src data:; style-src 'unsafe-inline';" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src data:; font-src data:; style-src 'unsafe-inline';" />
 <meta name="referrer" content="no-referrer" />
 <title>{escape(title)} — Print Edition</title>
-<style>{base_css}\n{PRINT_CSS}\n{table_layout_css(artifact)}\n{block_control_css(artifact)}\n{page_rule}</style></head>
+<style>{base_css}\n{PRINT_CSS}\n{table_layout_css(artifact)}\n{block_control_css(artifact)}\n{font_css}\n{page_rule}</style></head>
 <body class="pagedjs-source document-{escape(config.document_type)}">{main_html}</body></html>
 """
     output_path.parent.mkdir(parents=True, exist_ok=True)
