@@ -13,3 +13,4 @@ These instructions apply to the whole repository. More specific instructions in
 8. Run `scripts/Test-Repository.ps1` after changing the skill, scripts, artifact contract, or example.
 9. Record source-format and renderer-boundary changes as decisions under `docs/decisions/`.
 10. Keep any future Markdown-like syntax declarative. It must compile to `artifact.json`; it must not bypass provenance or validation.
+11. Keep durable documentation free of branch, commit, deployment, point-in-time validation, test-count, package-count, and unfinished-work status. Put release history in `CHANGELOG.md` and reproducible proof in the appropriate validation artifact.
