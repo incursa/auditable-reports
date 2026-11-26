@@ -131,7 +131,7 @@ The Chart.js stage supports the constrained `bar`, `line`, `pie`, and `scatter` 
 - Chart.js 4.5.1 is the pinned build-time adapter for selected print visuals; it does not replace the interactive renderer, artifact, or semantic chart tables.
 - Paged.js 0.4.3 is the pinned print-pagination engine; it does not replace the interactive renderer or canonical artifact.
 - The project-health fixture is synthetic and must never be presented as operational evidence.
-- The artifact contract is documented but does not yet have a versioned JSON Schema.
+- The artifact contract is documented without a separately versioned JSON Schema.
 - Report Markdown v0.1 is intentionally constrained to ordinary Markdown plus metrics, optional bar/line/pie/scatter charts, semantic tables, and figure directives.
 - The repository is licensed under Apache-2.0. Third-party runtime packages
   retain their own licenses as recorded in `THIRD_PARTY_NOTICES.md`.
